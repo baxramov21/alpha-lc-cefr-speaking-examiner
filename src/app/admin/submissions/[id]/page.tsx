@@ -1,16 +1,15 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, Users, GraduationCap, Calendar, Download, Play } from 'lucide-react';
+import { ArrowLeft, User, Users, GraduationCap, Calendar, Download, Play, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from '@/components/ui/accordion';
 import ScoreBadge, { ScoreDisplay } from '@/components/shared/ScoreBadge';
-import { MOCK_SUBMISSIONS } from '@/lib/mockSubmissions';
 import { CefrBand, ExamResult } from '@/lib/types';
 
 function formatDate(iso: string) {
@@ -25,7 +24,31 @@ export default function SubmissionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const submission: ExamResult | undefined = MOCK_SUBMISSIONS.find((s) => s.id === id);
+  const [submission, setSubmission] = useState<ExamResult | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadSubmission() {
+      try {
+        const res = await fetch(`/api/admin/submissions/${id}`);
+        if (!res.ok) {
+          notFound();
+          return;
+        }
+        const data = await res.json();
+        setSubmission(data.submission);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSubmission();
+  }, [id]);
+
+  if (isLoading) {
+    return <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>;
+  }
 
   if (!submission) notFound();
 

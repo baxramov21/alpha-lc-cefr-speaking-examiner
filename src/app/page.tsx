@@ -9,7 +9,7 @@ import { Mic, Lock, User, Users, GraduationCap, ChevronRight, Eye, EyeOff } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { verifyPasscode } from '@/lib/mockPasscodes';
+import { supabase } from '@/lib/supabase';
 
 const schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -35,28 +35,39 @@ export default function StudentLoginPage() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     setAuthError('');
-    await new Promise((r) => setTimeout(r, 800)); // simulate verify delay
 
-    const entry = verifyPasscode(data.passcode);
-    if (!entry) {
-      setAuthError('Invalid passcode. Please check with your teacher and try again.');
+    try {
+      const { data: passcodeData, error } = await supabase
+        .from('passcodes')
+        .select('*')
+        .eq('code', data.passcode)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !passcodeData) {
+        setAuthError('Invalid or inactive passcode. Please check with your teacher.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store session in sessionStorage for exam pages
+      sessionStorage.setItem(
+        'examSession',
+        JSON.stringify({
+          fullName: data.fullName,
+          groupName: data.groupName, // Alternatively, you could force the DB values here if you want
+          teacherName: data.teacherName,
+          passcode: data.passcode,
+          startedAt: new Date().toISOString(),
+        })
+      );
+
+      router.push('/exam/setup');
+    } catch (err) {
+      console.error(err);
+      setAuthError('An error occurred while verifying the passcode.');
       setIsLoading(false);
-      return;
     }
-
-    // Store session in sessionStorage for exam pages
-    sessionStorage.setItem(
-      'examSession',
-      JSON.stringify({
-        fullName: data.fullName,
-        groupName: data.groupName,
-        teacherName: data.teacherName,
-        passcode: data.passcode,
-        startedAt: new Date().toISOString(),
-      })
-    );
-
-    router.push('/exam/setup');
   };
 
   return (

@@ -193,11 +193,49 @@ export default function ExamSessionPage() {
       } catch (err) {
         console.error('Error waiting for evaluations', err);
       }
+
+      const finalResults = evaluatedResultsRef.current;
+      sessionStorage.setItem('examResults', JSON.stringify(finalResults));
+
+      // Compute overall score
+      let totalScore = 0;
+      finalResults.forEach(r => totalScore += r.overallScore);
+      const avgScore = finalResults.length > 0 ? (totalScore / finalResults.length) : 0;
+      const roundedScore = Math.round(avgScore * 2) / 2;
+
+      let overallBand = 'A1';
+      if (roundedScore >= 8.0) overallBand = 'C1'; // using C1 as max based on previous mapping
+      else if (roundedScore >= 7.0) overallBand = 'C1';
+      else if (roundedScore >= 6.0) overallBand = 'B2';
+      else if (roundedScore >= 5.0) overallBand = 'B1';
+      else if (roundedScore >= 4.0) overallBand = 'A2';
+
+      // Submit to Supabase
+      try {
+        const sessionInfoStr = sessionStorage.getItem('examSession');
+        if (sessionInfoStr) {
+          const sessionInfo = JSON.parse(sessionInfoStr);
+          await fetch('/api/submissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              studentName: sessionInfo.fullName,
+              groupName: sessionInfo.groupName,
+              teacherName: sessionInfo.teacherName,
+              passcodeUsed: sessionInfo.passcode,
+              overallScore: roundedScore,
+              overallBand: overallBand,
+              questionResults: finalResults
+            })
+          });
+        }
+      } catch (err) {
+        console.error('Failed to submit to database', err);
+      }
       
-      sessionStorage.setItem('examResults', JSON.stringify(evaluatedResultsRef.current));
       router.push('/exam/results');
     }
-  }, [currentIndex, recordings, stopRecording, router, question.text]);
+  }, [currentIndex, recordings, stopRecording, router, question.text, question.id]);
 
   // Part info
   const currentPart = EXAM_PARTS.find((p) => p.part === question.part)!;

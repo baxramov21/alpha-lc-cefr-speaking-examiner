@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Filter, Download, ChevronRight, ArrowUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -31,8 +31,27 @@ function formatDate(iso: string) {
 export default function SubmissionsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filtered = MOCK_SUBMISSION_SUMMARIES.filter((s) => {
+  useEffect(() => {
+    async function loadSubmissions() {
+      try {
+        const res = await fetch('/api/admin/submissions');
+        const data = await res.json();
+        if (data.submissions) {
+          setSubmissions(data.submissions);
+        }
+      } catch (err) {
+        console.error('Error loading submissions:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadSubmissions();
+  }, []);
+
+  const filtered = submissions.filter((s) => {
     const q = search.toLowerCase();
     const matchesSearch =
       s.studentName.toLowerCase().includes(q) ||
