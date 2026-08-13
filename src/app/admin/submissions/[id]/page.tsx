@@ -1,16 +1,13 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, Users, GraduationCap, Calendar, Download, Play, Loader2 } from 'lucide-react';
+import { ArrowLeft, Users, GraduationCap, Calendar, Download, CheckCircle2, Loader2, Save, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
-} from '@/components/ui/accordion';
-import ScoreBadge, { ScoreDisplay } from '@/components/shared/ScoreBadge';
-import { CefrBand, ExamResult } from '@/lib/types';
+import { ExamResult } from '@/lib/types';
+import { EXAM_QUESTIONS } from '@/lib/questions';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -26,6 +23,9 @@ export default function SubmissionDetailPage({
   const { id } = use(params);
   const [submission, setSubmission] = useState<ExamResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [adminNotes, setAdminNotes] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     async function loadSubmission() {
@@ -37,6 +37,8 @@ export default function SubmissionDetailPage({
         }
         const data = await res.json();
         setSubmission(data.submission);
+        setAdminNotes(data.submission.adminNotes || '');
+        setIsSaved(data.submission.isSaved || false);
       } catch (err) {
         console.error(err);
       } finally {
@@ -47,43 +49,75 @@ export default function SubmissionDetailPage({
   }, [id]);
 
   if (isLoading) {
-    return <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>;
+    return <div className="p-12 flex justify-center text-slate-500"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
 
-  if (!submission) notFound();
+  if (!submission || !submission.evaluation) notFound();
 
-  const hasFull = submission.questionResults.length > 0;
+  const ev = submission.evaluation;
 
   const exportPDF = () => {
     const content = `
-LC Alpha — Submission Report
+LC Alpha — UZBMB Submission Report
 ==============================
 Student: ${submission.studentName}
 Group: ${submission.groupName}
 Teacher: ${submission.teacherName}
 Date: ${formatDate(submission.submittedAt)}
-Overall Band: ${submission.overallCefrBand} (${submission.overallScore})
-Status: ${submission.status}
+CEFR Level: ${ev.cefr_level}
+Total Score: ${ev.total_score} / 75
 
-${submission.questionResults.map((qr, i) => `
-Q${i + 1}: ${qr.questionText}
-Transcript: ${qr.transcript}
-Score: ${qr.overallScore} (${qr.cefrBand})
-AI Feedback: ${qr.aiFeedback}
-`).join('\n')}
+Part Scores:
+- Part 1: ${ev.part_scores.part_1} / 25
+- Part 2: ${ev.part_scores.part_2} / 25
+- Part 3: ${ev.part_scores.part_3} / 25
+
+Criteria Ratings:
+- Grammar: ${ev.criteria_ratings.grammar_accuracy}
+- Vocabulary: ${ev.criteria_ratings.lexical_resource}
+- Fluency: ${ev.criteria_ratings.fluency_coherence}
+- Pronunciation: ${ev.criteria_ratings.pronunciation}
+
+Strengths:
+${ev.strengths.map(s => '- ' + s).join('\n')}
+
+Areas for Improvement:
+${ev.areas_for_improvement.map(s => '- ' + s).join('\n')}
+
+Detailed Question Analysis / Transcripts:
+${ev.question_responses ? ev.question_responses.map(qr => `[Question: ${qr.question_id}]\n${qr.question_text}\nScore: ${qr.part_score}\nTranscript: "${qr.transcript}"\nGrammar: ${qr.grammar_feedback}\nPronunciation: ${qr.pronunciation_notes}\n`).join('\n') : EXAM_QUESTIONS.map(q => `[${q.partLabel} - ${q.id}]\n${q.text}\nTranscript: "${ev.transcripts?.[q.id] || '[No transcript]'}"\n`).join('\n')}
     `.trim();
 
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `submission-${submission.studentName.replace(/\s+/g, '-')}.txt`;
+    a.download = `uzbmb-submission-${submission.studentName.replace(/\s+/g, '-')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
+  const handleUpdate = async (updates: { adminNotes?: string; isSaved?: boolean }) => {
+    setIsSavingNote(true);
+    try {
+      const res = await fetch(`/api/admin/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      
+      if (updates.isSaved !== undefined) setIsSaved(updates.isSaved);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save updates.');
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
+
   return (
-    <div className="p-8 space-y-6 max-w-3xl">
+    <div className="p-8 space-y-8 max-w-4xl">
       {/* Back */}
       <Link
         href="/admin/submissions"
@@ -93,142 +127,214 @@ AI Feedback: ${qr.aiFeedback}
       </Link>
 
       {/* Student metadata card */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 font-black text-lg flex-shrink-0">
-                {submission.studentName.charAt(0)}
-              </div>
-              <div>
-                <h1 className="text-xl font-black text-slate-800">{submission.studentName}</h1>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {submission.status === 'pending' ? (
-                    <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">⏳ Pending</Badge>
-                  ) : (
-                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">✓ Graded</Badge>
-                  )}
-                </div>
-              </div>
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 font-black text-lg flex-shrink-0">
+              {submission.studentName.charAt(0).toUpperCase()}
             </div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-              <div className="flex items-center gap-2 text-slate-600">
-                <Users className="w-4 h-4 text-muted-foreground" />
-                {submission.groupName}
-              </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <GraduationCap className="w-4 h-4 text-muted-foreground" />
-                {submission.teacherName}
-              </div>
-              <div className="flex items-center gap-2 text-slate-600">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                {formatDate(submission.submittedAt)}
-              </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">{submission.studentName}</h1>
+              <div className="text-sm text-slate-500 font-medium">{submission.status.toUpperCase()}</div>
             </div>
           </div>
-
-          {/* Score display */}
-          <div className="flex flex-col items-center gap-2">
-            {submission.status === 'pending' ? (
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-amber-50 border-4 border-amber-200 flex items-center justify-center">
-                  <span className="text-amber-500 font-bold text-sm">Pending</span>
-                </div>
-              </div>
-            ) : (
-              <ScoreDisplay band={submission.overallCefrBand} score={submission.overallScore} />
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exportPDF}
-              className="gap-1.5 text-xs rounded-lg border-slate-200 mt-1"
-              id="export-pdf-btn"
-            >
-              <Download className="w-3.5 h-3.5" /> Export PDF
-            </Button>
+          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+              <Users className="w-4 h-4 text-slate-400" /> {submission.groupName}
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+              <GraduationCap className="w-4 h-4 text-slate-400" /> {submission.teacherName}
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+              <Calendar className="w-4 h-4 text-slate-400" /> {formatDate(submission.submittedAt)}
+            </div>
           </div>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <Button variant="outline" onClick={exportPDF}>
+            <Download className="w-4 h-4 mr-2" /> Export Text
+          </Button>
+          <Button 
+            variant={isSaved ? "default" : "outline"}
+            className={isSaved ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}
+            onClick={() => handleUpdate({ isSaved: !isSaved })}
+          >
+            <Star className={`w-4 h-4 mr-2 ${isSaved ? "fill-white" : ""}`} /> 
+            {isSaved ? "Saved to Analytics" : "Save Student"}
+          </Button>
+        </div>
+      </div>
+      
+      {/* Admin Notes */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3">
+        <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Examiner / Admin Notes</h3>
+        <textarea
+          value={adminNotes}
+          onChange={(e) => setAdminNotes(e.target.value)}
+          placeholder="Add private notes about this student's performance..."
+          className="w-full min-h-[100px] rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+        />
+        <div className="flex justify-end">
+          <Button 
+            size="sm" 
+            onClick={() => handleUpdate({ adminNotes })}
+            disabled={isSavingNote || adminNotes === submission.adminNotes}
+            className="bg-teal-600 hover:bg-teal-700"
+          >
+            {isSavingNote ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Save Notes
+          </Button>
         </div>
       </div>
 
-      {/* Question accordion */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-100">
-          <h2 className="font-bold text-slate-800">Question Results</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {hasFull ? `${submission.questionResults.length} questions evaluated` : 'Full breakdown available for graded submissions with results.'}
-          </p>
+      {/* Hero Score Card */}
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-6">Official UZBMB Score</h2>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+          
+          <div className="flex flex-col items-center">
+            <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-8 border-teal-100 bg-teal-50 shadow-inner">
+              <div className="text-5xl font-black text-teal-600">
+                {ev.total_score}
+              </div>
+              <div className="absolute bottom-6 text-sm font-bold text-teal-600/70">/ 75</div>
+            </div>
+            <p className="mt-4 font-medium text-slate-600">Total Score</p>
+          </div>
+
+          <div className="h-24 w-px bg-slate-100 hidden md:block" />
+
+          <div className="flex flex-col items-center">
+            <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-8 border-violet-100 bg-violet-50 shadow-inner">
+              <div className="text-5xl font-black text-violet-600">
+                {ev.cefr_level}
+              </div>
+            </div>
+            <p className="mt-4 font-medium text-slate-600">CEFR Level</p>
+          </div>
+
         </div>
+      </div>
 
-        {hasFull ? (
-          <Accordion className="px-2 pb-2">
-            {submission.questionResults.map((qr, i) => (
-              <AccordionItem key={qr.questionId} value={qr.questionId} className="border-b border-slate-50 last:border-0">
-                <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-slate-50 rounded-xl transition-colors">
-                  <div className="flex items-center gap-3 text-left w-full">
-                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm flex-shrink-0">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-700 line-clamp-1">{qr.questionText?.split('\n')[0] || 'Unknown Question'}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{qr.part?.replace('part', 'Part ') || 'Part 1'}</p>
-                    </div>
-                    <ScoreBadge band={qr.cefrBand as CefrBand} score={qr.overallScore} showScore size="sm" />
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-5">
-                  <div className="space-y-4 mt-2">
-                    {/* Audio placeholder */}
-                    <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 text-sm text-slate-500">
-                      <Play className="w-4 h-4 text-teal-500" />
-                      <span>Audio recording (available after Phase 3 integration)</span>
-                    </div>
+      {/* Part Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+          <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 1</h3>
+          <div className="text-3xl font-bold text-slate-800">{ev.part_scores.part_1} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+          <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 2</h3>
+          <div className="text-3xl font-bold text-slate-800">{ev.part_scores.part_2} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+          <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 3</h3>
+          <div className="text-3xl font-bold text-slate-800">{ev.part_scores.part_3} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+        </div>
+      </div>
 
-                    {/* Transcript */}
-                    <div className="bg-slate-50 rounded-xl p-4">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Transcript</p>
-                      <p className="text-sm text-slate-700 italic leading-relaxed">&ldquo;{qr.transcript}&rdquo;</p>
-                    </div>
-
-                    {/* Rubric */}
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Rubric Scores</p>
-                      {qr.rubricScores.map((rs) => (
-                        <div key={rs.criterion} className="flex items-start gap-3 bg-white border border-slate-100 rounded-xl p-3">
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-semibold text-slate-700">{rs.criterion}</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-bold">{rs.score.toFixed(1)}</span>
-                                <ScoreBadge band={rs.cefrBand as CefrBand} size="sm" />
-                              </div>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{rs.feedback}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* AI feedback */}
-                    <div className="bg-teal-50 border border-teal-100 rounded-xl p-4">
-                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">🤖 AI Feedback</p>
-                      <p className="text-sm text-teal-800 leading-relaxed">{qr.aiFeedback}</p>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+      {/* Criteria & Feedback */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-6 flex items-center justify-between">
+            Criteria Ratings
+          </h3>
+          <div className="space-y-4">
+            {[
+              { label: 'Grammar', val: ev.criteria_ratings.grammar_accuracy, fb: ev.feedback.grammar },
+              { label: 'Vocabulary', val: ev.criteria_ratings.lexical_resource, fb: ev.feedback.vocabulary },
+              { label: 'Fluency', val: ev.criteria_ratings.fluency_coherence, fb: ev.feedback.fluency },
+              { label: 'Pronunciation', val: ev.criteria_ratings.pronunciation, fb: ev.feedback.pronunciation },
+            ].map((crit) => (
+              <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-slate-700">{crit.label}</span>
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
+                </div>
+                <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
+              </div>
             ))}
-          </Accordion>
-        ) : (
-          <div className="p-8 text-center text-muted-foreground">
-            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">⏳</span>
-            </div>
-            <p className="font-semibold text-slate-700 mb-1">Awaiting Evaluation</p>
-            <p className="text-sm">This submission is being processed by Gemini Flash.</p>
           </div>
-        )}
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-4">Strengths</h3>
+          <ul className="space-y-3 mb-8">
+            {ev.strengths.map((s, i) => (
+              <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                <CheckCircle2 className="w-5 h-5 text-teal-500 shrink-0" />
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="font-bold text-slate-800 mb-4">Areas for Improvement</h3>
+          <ul className="space-y-3">
+            {ev.areas_for_improvement.map((s, i) => (
+              <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">!</div>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+
+      {/* Detailed Question Analysis / Transcripts */}
+      {ev.question_responses && ev.question_responses.length > 0 ? (
+        <div className="space-y-6">
+          <h3 className="font-bold text-slate-800 text-xl">Detailed Question Analysis</h3>
+          {ev.question_responses.map((qr) => (
+            <div key={qr.question_id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <Badge variant="outline" className="text-slate-500 border-slate-200 uppercase mb-1">
+                    Question {qr.question_id.replace('q', '')}
+                  </Badge>
+                  <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-xl font-bold text-teal-600">{qr.part_score}</div>
+                  <div className="text-xs font-medium text-slate-400">Score</div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 italic">
+                <div dangerouslySetInnerHTML={{ __html: qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]' }} />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                {qr.grammar_feedback && (
+                  <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100/50 flex flex-col gap-2">
+                    <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Grammar Notes</span>
+                    <p className="text-sm text-slate-600">{qr.grammar_feedback}</p>
+                  </div>
+                )}
+                {qr.pronunciation_notes && (
+                  <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 flex flex-col gap-2">
+                    <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Pronunciation Tips</span>
+                    <p className="text-sm text-slate-600">{qr.pronunciation_notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-6">AI Transcripts</h3>
+          <div className="space-y-6">
+            {EXAM_QUESTIONS.map(q => (
+              <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                <p className="text-sm font-semibold text-slate-700 mb-2">{q.partLabel} - {q.text}</p>
+                <p className="text-sm text-slate-600 italic">
+                  &ldquo;{ev.transcripts?.[q.id] || '[No transcript]'}&rdquo;
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

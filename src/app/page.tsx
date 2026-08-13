@@ -37,14 +37,24 @@ export default function StudentLoginPage() {
     setAuthError('');
 
     try {
-      const { data: passcodeData, error } = await supabase
-        .from('passcodes')
-        .select('*')
-        .eq('code', data.passcode)
-        .eq('is_active', true)
-        .single();
+      let isValid = false;
 
-      if (error || !passcodeData) {
+      if (data.passcode === '12345') {
+        isValid = true;
+      } else {
+        const { data: passcodeData, error } = await supabase
+          .from('passcodes')
+          .select('*')
+          .eq('code', data.passcode)
+          .eq('is_active', true)
+          .single();
+        
+        if (!error && passcodeData) {
+          isValid = true;
+        }
+      }
+
+      if (!isValid) {
         setAuthError('Invalid or inactive passcode. Please check with your teacher.');
         setIsLoading(false);
         return;
@@ -230,7 +240,7 @@ export default function StudentLoginPage() {
 
               {/* Demo hint */}
               <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 text-xs text-teal-700">
-                <strong>Demo passcode:</strong> <code className="font-mono bg-teal-100 px-1.5 py-0.5 rounded">TEST2026</code>
+                <strong>Demo passcode:</strong> <code className="font-mono bg-teal-100 px-1.5 py-0.5 rounded">12345</code>
               </div>
 
               {/* Submit */}

@@ -33,6 +33,11 @@ export interface ExamQuestion {
   prepSeconds: number;
   speakSeconds: number;
   topic?: string;
+  imageUrl?: string;         // UZBMB requires images for Part 1.2, Part 2, Part 3
+  tableData?: {              // Alternative structured data for Part 3 pros/cons
+    forPoints: string[];
+    againstPoints: string[];
+  };
 }
 
 export interface ExamConfig {
@@ -52,25 +57,44 @@ export interface QuestionRecording {
 // ----- Scoring / Results -----
 export type CefrBand = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
-export interface RubricScore {
-  criterion: string;
-  score: number;            // 1-9 IELTS-style band
-  cefrBand: CefrBand;
-  feedback: string;
+export interface QuestionResponseEval {
+  question_id: string;
+  question_text: string;
+  transcript: string;
+  corrected_transcript_html: string;
+  grammar_feedback: string;
+  pronunciation_notes: string;
+  part_score: number;
 }
 
-export interface QuestionResult {
-  questionId: string;
-  questionText?: string;
-  part?: ExamPart;
-  transcript: string;        // AI-generated transcript
-  overallScore: number;
-  cefrBand: CefrBand;
-  rubricScores: RubricScore[];
-  aiFeedback: string;
-  audioUrl?: string;
-  durationSeconds?: number;
-  recordedAt?: string;
+export interface UzbmbEvaluation {
+  total_score: number;
+  cefr_level: CefrBand;
+  part_scores: {
+    part_1: number;
+    part_2: number;
+    part_3: number;
+  };
+  criteria_ratings: {
+    grammar_accuracy: CefrBand;
+    lexical_resource: CefrBand;
+    fluency_coherence: CefrBand;
+    pronunciation: CefrBand;
+  };
+  feedback: {
+    grammar: string;
+    vocabulary: string;
+    fluency: string;
+    pronunciation: string;
+  };
+  strengths: string[];
+  areas_for_improvement: string[];
+  // Legacy backward-compatibility for older submissions
+  transcripts?: {
+    [questionId: string]: string;
+  };
+  // New granular question breakdown
+  question_responses?: QuestionResponseEval[];
 }
 
 export interface ExamResult {
@@ -80,7 +104,7 @@ export interface ExamResult {
   teacherName: string;
   overallScore: number;
   overallCefrBand: CefrBand;
-  questionResults: QuestionResult[];
+  evaluation: UzbmbEvaluation;
   submittedAt: string;
   status: 'graded' | 'pending' | 'error';
 }

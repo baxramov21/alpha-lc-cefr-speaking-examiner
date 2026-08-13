@@ -10,12 +10,14 @@ import {
   LogOut,
   Mic,
   Users,
+  Database,
   ChevronRight,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/submissions', label: 'Submissions', icon: FileText },
+  { href: '/admin/questions', label: 'Questions', icon: Database },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
@@ -41,7 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50" suppressHydrationWarning>
       {/* ---- Sidebar ---- */}
       <aside className="w-60 bg-slate-900 flex flex-col fixed inset-y-0 left-0 z-30 shadow-xl">
         {/* Brand */}

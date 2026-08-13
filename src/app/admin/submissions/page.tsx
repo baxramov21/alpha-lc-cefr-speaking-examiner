@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, Filter, Download, ChevronRight, ArrowUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ function formatDate(iso: string) {
 }
 
 export default function SubmissionsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
@@ -156,7 +158,8 @@ export default function SubmissionsPage() {
                 filtered.map((sub) => (
                   <tr
                     key={sub.id}
-                    className="hover:bg-slate-50/60 transition-colors group"
+                    onClick={() => router.push(`/admin/submissions/${sub.id}`)}
+                    className="hover:bg-slate-50/60 transition-colors group cursor-pointer"
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -182,12 +185,11 @@ export default function SubmissionsPage() {
                       {formatDate(sub.submittedAt)}
                     </td>
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/admin/submissions/${sub.id}`}
+                      <div
                         className="flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         View <ChevronRight className="w-3 h-3" />
-                      </Link>
+                      </div>
                     </td>
                   </tr>
                 ))

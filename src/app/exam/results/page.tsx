@@ -2,267 +2,212 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, ChevronDown, RotateCcw, Home } from 'lucide-react';
+import { CheckCircle2, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import ScoreBadge, { ScoreDisplay } from '@/components/shared/ScoreBadge';
+import { UzbmbEvaluation, CefrBand } from '@/lib/types';
 import { EXAM_QUESTIONS } from '@/lib/questions';
-import { CefrBand, QuestionResult } from '@/lib/types';
-
-// MOCK fallback in case sessionStorage is missing
-const MOCK_QUESTION_RESULTS: QuestionResult[] = EXAM_QUESTIONS.map((q, i) => {
-  const scores = [7.5, 6.0, 7.0, 8.0, 6.5, 7.5, 7.0, 6.5];
-  const bands: CefrBand[] = ['C1', 'B2', 'B2', 'C1', 'B2', 'C1', 'B2', 'B2'];
-  return {
-    questionId: q.id,
-    questionText: q.text,
-    part: q.part,
-    transcript: 'No transcript recorded.',
-    overallScore: scores[i] ?? 6.5,
-    cefrBand: bands[i] ?? 'B2',
-    rubricScores: [
-      { criterion: 'Fluency & Coherence', score: scores[i] ?? 7, cefrBand: bands[i] ?? 'B2', feedback: '' },
-      { criterion: 'Lexical Resource', score: (scores[i] ?? 7) - 0.5, cefrBand: bands[i] ?? 'B2', feedback: '' },
-      { criterion: 'Grammatical Range', score: scores[i] ?? 7, cefrBand: bands[i] ?? 'B2', feedback: '' },
-      { criterion: 'Pronunciation', score: (scores[i] ?? 7) + 0.5, cefrBand: bands[i] ?? 'B2', feedback: '' },
-    ],
-    aiFeedback: 'Mock feedback.',
-  };
-});
-
-function getCefrBandFromScore(score: number): CefrBand {
-  if (score >= 8.0) return 'C1';
-  if (score >= 7.0) return 'C1'; // simplified
-  if (score >= 6.0) return 'B2';
-  if (score >= 5.0) return 'B1';
-  if (score >= 4.0) return 'A2';
-  return 'A1';
-}
 
 export default function ExamResultsPage() {
   const router = useRouter();
   const [studentName, setStudentName] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [results, setResults] = useState<QuestionResult[]>([]);
-  const [overallScore, setOverallScore] = useState(0);
-  const [overallBand, setOverallBand] = useState<CefrBand>('A1');
-  const [criterionAverages, setCriterionAverages] = useState<{name: string, score: number}[]>([]);
+  const [evaluation, setEvaluation] = useState<UzbmbEvaluation | null>(null);
 
   useEffect(() => {
-    const session = sessionStorage.getItem('examSession');
-    if (!session) { router.replace('/'); return; }
-    const parsed = JSON.parse(session);
-    setStudentName(parsed.fullName ?? 'Student');
+    const sessionStr = sessionStorage.getItem('examSession');
+    if (!sessionStr) { router.replace('/'); return; }
+    const session = JSON.parse(sessionStr);
+    setStudentName(session.fullName ?? 'Student');
 
-    // Load dynamic results from AI
-    const savedResultsStr = sessionStorage.getItem('examResults');
-    let loadedResults: QuestionResult[] = [];
-    if (savedResultsStr) {
-      loadedResults = JSON.parse(savedResultsStr);
-      // Map back to include static question info (text, part)
-      loadedResults = loadedResults.map(r => {
-        const qDef = EXAM_QUESTIONS.find(q => q.id === r.questionId);
-        return {
-          ...r,
-          questionText: qDef?.text || '',
-          part: qDef?.part || 'part1',
-        };
-      });
-    } else {
-      loadedResults = MOCK_QUESTION_RESULTS;
+    const resultsStr = sessionStorage.getItem('examResults');
+    if (resultsStr) {
+      setEvaluation(JSON.parse(resultsStr) as UzbmbEvaluation);
     }
-    setResults(loadedResults);
-
-    // Compute averages
-    if (loadedResults.length > 0) {
-      let totalScore = 0;
-      const criterionSums: Record<string, number> = {};
-      const criterionCounts: Record<string, number> = {};
-
-      loadedResults.forEach(r => {
-        totalScore += r.overallScore;
-        r.rubricScores.forEach(rubric => {
-          if (!criterionSums[rubric.criterion]) {
-            criterionSums[rubric.criterion] = 0;
-            criterionCounts[rubric.criterion] = 0;
-          }
-          criterionSums[rubric.criterion] += rubric.score;
-          criterionCounts[rubric.criterion] += 1;
-        });
-      });
-
-      const avgScore = totalScore / loadedResults.length;
-      setOverallScore(Math.round(avgScore * 2) / 2); // round to nearest 0.5
-      setOverallBand(getCefrBandFromScore(avgScore));
-
-      const avgs = Object.keys(criterionSums).map(key => ({
-        name: key,
-        score: Math.round((criterionSums[key] / criterionCounts[key]) * 10) / 10
-      }));
-      setCriterionAverages(avgs);
-    }
-
-    setTimeout(() => setIsLoaded(true), 300);
   }, [router]);
 
-  const handleRetake = () => {
-    sessionStorage.removeItem('examRecordings');
-    router.push('/exam/setup');
-  };
-
-  const handleHome = () => {
-    sessionStorage.clear();
-    router.push('/');
-  };
+  if (!evaluation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-slate-500">Loading results...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-100 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-            <span className="font-bold text-slate-800">Exam Complete</span>
+    <div className="min-h-screen bg-slate-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 space-y-8">
+        
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-100 text-teal-600 mb-4">
+            <CheckCircle2 className="w-8 h-8" />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleRetake} className="rounded-lg gap-1.5 text-xs">
-              <RotateCcw className="w-3.5 h-3.5" /> Retake
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleHome} className="rounded-lg gap-1.5 text-xs">
-              <Home className="w-3.5 h-3.5" /> Home
-            </Button>
+          <h1 className="text-3xl font-bold text-slate-800">Exam Completed, {studentName}</h1>
+          <p className="text-slate-500">Your AI examiner has finished evaluating your speaking test.</p>
+        </div>
+
+        {/* Hero Score Card */}
+        <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-100/80 border border-slate-100 text-center">
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-6">Official UZBMB Score</h2>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+            
+            <div className="flex flex-col items-center">
+              <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-8 border-teal-100 bg-teal-50 shadow-inner">
+                <div className="text-5xl font-black text-teal-600">
+                  {evaluation.total_score}
+                </div>
+                <div className="absolute bottom-6 text-sm font-bold text-teal-600/70">/ 75</div>
+              </div>
+              <p className="mt-4 font-medium text-slate-600">Total Score</p>
+            </div>
+
+            <div className="h-24 w-px bg-slate-100 hidden md:block" />
+
+            <div className="flex flex-col items-center">
+              <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-8 border-violet-100 bg-violet-50 shadow-inner">
+                <div className="text-5xl font-black text-violet-600">
+                  {evaluation.cefr_level}
+                </div>
+              </div>
+              <p className="mt-4 font-medium text-slate-600">CEFR Level</p>
+            </div>
+
           </div>
         </div>
-      </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Score hero card */}
-        <div
-          className={`bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-8 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        >
-          <div className="text-center mb-8">
-            <p className="text-sm font-semibold text-muted-foreground mb-1">Results for</p>
-            <h1 className="text-2xl font-black text-slate-800">{studentName}</h1>
+        {/* Part Breakdown */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 1</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_1} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
           </div>
-
-          {/* Overall score */}
-          <div className="flex flex-col items-center mb-8">
-            <ScoreDisplay band={overallBand} score={overallScore} />
-            <p className="text-sm text-muted-foreground mt-3 text-center">
-              Overall CEFR Speaking Level
-            </p>
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 2</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_2} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
           </div>
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 3</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_3} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+          </div>
+        </div>
 
-          {/* Criterion breakdown */}
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-slate-700">Score breakdown</p>
-            {criterionAverages.map((c) => {
-              const percent = (c.score / 9) * 100;
-              return (
-                <div key={c.name} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">{c.name}</span>
-                    <span className="font-bold text-slate-800">{c.score.toFixed(1)}</span>
+        {/* Criteria & Feedback Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-full">
+              <h3 className="font-bold text-slate-800 mb-6 flex items-center justify-between">
+                Criteria Ratings
+                <Badge variant="secondary" className="bg-slate-100 text-slate-500 font-normal hover:bg-slate-100 hover:text-slate-500">CEFR Bands</Badge>
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { label: 'Grammatical Range', val: evaluation.criteria_ratings.grammar_accuracy, fb: evaluation.feedback.grammar },
+                  { label: 'Lexical Resource', val: evaluation.criteria_ratings.lexical_resource, fb: evaluation.feedback.vocabulary },
+                  { label: 'Fluency', val: evaluation.criteria_ratings.fluency_coherence, fb: evaluation.feedback.fluency },
+                  { label: 'Pronunciation', val: evaluation.criteria_ratings.pronunciation, fb: evaluation.feedback.pronunciation },
+                ].map((crit) => (
+                  <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-slate-700">{crit.label}</span>
+                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
+                    </div>
+                    <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
                   </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-teal-500 rounded-full transition-all duration-1000"
-                      style={{ width: isLoaded ? `${percent}%` : '0%' }}
-                    />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-full">
+              <h3 className="font-bold text-slate-800 mb-4">Strengths</h3>
+              <ul className="space-y-3 mb-8">
+                {evaluation.strengths.map((s, i) => (
+                  <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                    <CheckCircle2 className="w-5 h-5 text-teal-500 shrink-0" />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <h3 className="font-bold text-slate-800 mb-4">Areas for Improvement</h3>
+              <ul className="space-y-3">
+                {evaluation.areas_for_improvement.map((s, i) => (
+                  <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                    <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">!</div>
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Question Analysis */}
+        {evaluation.question_responses && evaluation.question_responses.length > 0 ? (
+          <div className="space-y-6">
+            <h3 className="font-bold text-slate-800 text-xl">Detailed Question Analysis</h3>
+            {evaluation.question_responses.map((qr) => (
+              <div key={qr.question_id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <Badge variant="outline" className="text-slate-500 border-slate-200 uppercase mb-1">
+                      Question {qr.question_id.replace('q', '')}
+                    </Badge>
+                    <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="text-xl font-bold text-teal-600">{qr.part_score}</div>
+                    <div className="text-xs font-medium text-slate-400">Score</div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Per-question accordion */}
-        <div
-          className={`bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 overflow-hidden transition-all duration-700 delay-200 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        >
-          <div className="p-6 border-b border-slate-100">
-            <h2 className="font-black text-slate-800">Question-by-Question Feedback</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Powered by Gemini Flash AI evaluation
-            </p>
-          </div>
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 italic">
+                  <div dangerouslySetInnerHTML={{ __html: qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]' }} />
+                </div>
 
-          <Accordion className="px-2 pb-2">
-            {results.map((result, i) => (
-              <AccordionItem key={result.questionId} value={result.questionId} className="border-b border-slate-100 last:border-0">
-                <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-slate-50 rounded-2xl transition-colors">
-                  <div className="flex items-center gap-3 text-left w-full">
-                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 font-bold text-slate-600 text-sm">
-                      {i + 1}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  {qr.grammar_feedback && (
+                    <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100/50 flex flex-col gap-2">
+                      <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Grammar Notes</span>
+                      <p className="text-sm text-slate-600">{qr.grammar_feedback}</p>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-700 line-clamp-1">{result.questionText?.split('\n')[0]}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Part {result.part}</p>
+                  )}
+                  {qr.pronunciation_notes && (
+                    <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 flex flex-col gap-2">
+                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Pronunciation Tips</span>
+                      <p className="text-sm text-slate-600">{qr.pronunciation_notes}</p>
                     </div>
-                    <ScoreBadge band={result.cefrBand} score={result.overallScore} showScore size="sm" />
-                  </div>
-                </AccordionTrigger>
-
-                <AccordionContent className="px-4 pb-4">
-                  <div className="space-y-4 mt-2">
-                    {/* Transcript & Audio */}
-                    <div className="bg-slate-50 rounded-2xl p-4">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Your answer (transcript)</p>
-                      {result.audioUrl && (
-                        <div className="mb-3">
-                          <audio controls src={result.audioUrl} className="w-full h-8" />
-                        </div>
-                      )}
-                      <p className="text-sm text-slate-700 leading-relaxed italic">&ldquo;{result.transcript}&rdquo;</p>
-                    </div>
-
-                    {/* Rubric scores */}
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Rubric scores</p>
-                      {result.rubricScores.map((rs) => (
-                        <div key={rs.criterion} className="flex items-start gap-3 bg-white border border-slate-100 rounded-xl p-3">
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-semibold text-slate-700">{rs.criterion}</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-bold text-slate-600">{rs.score.toFixed(1)}</span>
-                                <ScoreBadge band={rs.cefrBand} size="sm" />
-                              </div>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{rs.feedback}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* AI feedback */}
-                    <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4">
-                      <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-2">🤖 AI Feedback</p>
-                      <p className="text-sm text-teal-800 leading-relaxed">{result.aiFeedback}</p>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                  )}
+                </div>
+              </div>
             ))}
-          </Accordion>
+          </div>
+        ) : (
+          /* Fallback for legacy evaluations */
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-6">AI Transcripts</h3>
+            <div className="space-y-6">
+              {EXAM_QUESTIONS.map(q => (
+                <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <p className="text-sm font-semibold text-slate-700 mb-2">{q.partLabel} - {q.text}</p>
+                  <p className="text-sm text-slate-600 italic">
+                    &ldquo;{evaluation.transcripts?.[q.id] || '[No transcript]'}&rdquo;
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action */}
+        <div className="flex justify-center pt-8 pb-8">
+          <Button size="lg" className="rounded-full px-8 gap-2 bg-slate-800 hover:bg-slate-700" onClick={() => router.push('/')}>
+            <Home className="w-4 h-4" /> Return to Home
+          </Button>
         </div>
 
-        {/* Footer actions */}
-        <div className="flex gap-3 pb-8">
-          <Button variant="outline" onClick={handleRetake} className="flex-1 h-12 rounded-xl gap-2">
-            <RotateCcw className="w-4 h-4" /> Take again
-          </Button>
-          <Button onClick={handleHome} className="flex-1 h-12 bg-teal-500 hover:bg-teal-600 text-white rounded-xl gap-2">
-            <Home className="w-4 h-4" /> Finish
-          </Button>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -6,17 +6,16 @@ import { SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CountdownTimer from '@/components/shared/CountdownTimer';
 import { EXAM_QUESTIONS, EXAM_PARTS } from '@/lib/questions';
-import { ExamQuestion, QuestionRecording, QuestionResult } from '@/lib/types';
+import { ExamQuestion, QuestionRecording, UzbmbEvaluation } from '@/lib/types';
 import type { QuestionPhase } from '@/lib/types';
 
 export default function ExamSessionPage() {
   const router = useRouter();
+  const [examQuestions, setExamQuestions] = useState<ExamQuestion[]>(EXAM_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<QuestionPhase>('prep');
   const [recordings, setRecordings] = useState<QuestionRecording[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const pendingEvaluationsRef = useRef<Promise<void>[]>([]);
-  const evaluatedResultsRef = useRef<QuestionResult[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [waveform, setWaveform] = useState<number[]>(Array(24).fill(4));
   const [timerKey, setTimerKey] = useState(0); // used to reset timer on skip
@@ -25,15 +24,41 @@ export default function ExamSessionPage() {
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number>(0);
   const hasCheckedSession = useRef(false);
+  const isSubmittingRef = useRef(false);
+  const partialEvalPromiseRef = useRef<Promise<any> | null>(null);
 
-  const question: ExamQuestion = EXAM_QUESTIONS[currentIndex];
+  const question: ExamQuestion = examQuestions[currentIndex];
 
-  // Verify session
+  // --- TTS ---
+  useEffect(() => {
+    // Cancel any ongoing speech when question or phase changes
+    window.speechSynthesis.cancel();
+    
+    // Only speak during the 'prep' phase to avoid talking over the candidate
+    if (phase === 'prep') {
+      const utterance = new SpeechSynthesisUtterance(question.text);
+      utterance.rate = 0.9; // Slightly slower for clarity
+      window.speechSynthesis.speak(utterance);
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, [question.id, question.text, phase]);
+  // Verify session and load questions
   useEffect(() => {
     if (hasCheckedSession.current) return;
     hasCheckedSession.current = true;
     const session = sessionStorage.getItem('examSession');
-    if (!session) router.replace('/');
+    if (!session) {
+      router.replace('/');
+      return;
+    }
+    const storedQs = sessionStorage.getItem('randomQuestions');
+    if (storedQs) {
+      setExamQuestions(JSON.parse(storedQs));
+    }
   }, [router]);
 
   // Waveform animation
@@ -119,99 +144,125 @@ export default function ExamSessionPage() {
   // Advance to next question or results
   const advanceQuestion = useCallback(async () => {
     const recording = stopRecording();
-    setRecordings((prev) => [...prev, recording]);
+    const updatedRecordings = [...recordings, recording];
+    setRecordings(updatedRecordings);
 
-    // Background Evaluation
-    if (recording.audioBlob) {
-      const formData = new FormData();
-      formData.append('audio', recording.audioBlob);
-      formData.append('questionText', question.text);
-
-      const evalPromise = fetch('/api/evaluate', {
-        method: 'POST',
-        body: formData,
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('Evaluation failed');
-          return res.json();
-        })
-        .then((data) => {
-          evaluatedResultsRef.current.push({
-            questionId: recording.questionId,
-            transcript: data.transcript || '[No transcript available]',
-            overallScore: data.overallScore || 1.0,
-            cefrBand: data.cefrBand || 'A1',
-            aiFeedback: data.aiFeedback || 'Evaluation failed.',
-            rubricScores: data.rubricScores || [],
-            audioUrl: recording.audioUrl,
-            durationSeconds: recording.durationSeconds,
-            recordedAt: recording.recordedAt,
-          });
-        })
-        .catch((err) => {
-          console.error('Failed to evaluate Q' + currentIndex, err);
-          // Push a fallback result so the UI doesn't crash
-          evaluatedResultsRef.current.push({
-            questionId: recording.questionId,
-            transcript: '[Evaluation Failed]',
-            overallScore: 1.0,
-            cefrBand: 'A1',
-            aiFeedback: 'There was an error communicating with the AI. No score provided.',
-            rubricScores: [],
-            audioUrl: recording.audioUrl,
-            durationSeconds: recording.durationSeconds,
-            recordedAt: recording.recordedAt,
-          });
+    if (currentIndex < examQuestions.length - 1) {
+      // Trigger Phase 1 (Progressive Evaluation) when moving from Q7 (index 6, Part 2) to Q8 (index 7, Part 3)
+      if (currentIndex === 6) {
+        const formData = new FormData();
+        const questionsData = examQuestions.slice(0, 7).map(q => ({ id: q.id, text: q.text }));
+        formData.append('questionsData', JSON.stringify(questionsData));
+        
+        updatedRecordings.forEach((rec) => {
+          if (rec.audioBlob) {
+            formData.append(`audio_${rec.questionId}`, rec.audioBlob);
+          }
         });
-      
-      pendingEvaluationsRef.current.push(evalPromise);
-    } else {
-      // Demo mode fallback when no mic
-      evaluatedResultsRef.current.push({
-        questionId: recording.questionId,
-        transcript: '[Demo Mode - No Audio Recorded]',
-        overallScore: 5.0,
-        cefrBand: 'B1',
-        aiFeedback: 'Demo mode active.',
-        rubricScores: [],
-        audioUrl: undefined,
-        durationSeconds: recording.durationSeconds,
-        recordedAt: recording.recordedAt,
-      });
-    }
+        
+        // Fire in background and store promise
+        partialEvalPromiseRef.current = fetch('/api/evaluate-partial', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(res => {
+            if (!res.ok) throw new Error('Partial eval failed');
+            return res.json();
+          })
+          .catch(err => {
+            console.error('Phase 1 failed silently in background:', err);
+            return null; // Signals fallback is needed
+          });
+      }
 
-    if (currentIndex < EXAM_QUESTIONS.length - 1) {
       setCurrentIndex((i) => i + 1);
       setPhase('prep');
       setTimerKey((k) => k + 1);
     } else {
-      // Exam complete - Wait for all background evaluations to finish
+      // Exam complete - Evaluate the whole exam monolithic style or progressive style
+      if (isSubmittingRef.current) return;
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
       
       try {
-        await Promise.all(pendingEvaluationsRef.current);
-      } catch (err) {
-        console.error('Error waiting for evaluations', err);
-      }
+        let evaluation: UzbmbEvaluation | null = null;
+        let useFallback = false;
 
-      const finalResults = evaluatedResultsRef.current;
-      sessionStorage.setItem('examResults', JSON.stringify(finalResults));
+        // Try Phase 2 if Phase 1 was triggered
+        if (partialEvalPromiseRef.current) {
+          const partialResult = await partialEvalPromiseRef.current;
+          
+          if (partialResult && partialResult.question_responses) {
+            // Phase 1 succeeded! Run Phase 2
+            const formDataFinal = new FormData();
+            
+            // Only send Q8 data
+            const q8 = examQuestions[7];
+            formDataFinal.append('questionsData', JSON.stringify([{ id: q8.id, text: q8.text }]));
+            
+            const q8Rec = updatedRecordings.find(r => r.questionId === q8.id);
+            if (q8Rec?.audioBlob) {
+              formDataFinal.append(`audio_${q8.id}`, q8Rec.audioBlob);
+            }
+            
+            formDataFinal.append('partialEvaluation', JSON.stringify(partialResult));
+            
+            const finalRes = await fetch('/api/evaluate-final', {
+              method: 'POST',
+              body: formDataFinal,
+            });
 
-      // Compute overall score
-      let totalScore = 0;
-      finalResults.forEach(r => totalScore += r.overallScore);
-      const avgScore = finalResults.length > 0 ? (totalScore / finalResults.length) : 0;
-      const roundedScore = Math.round(avgScore * 2) / 2;
+            if (finalRes.ok) {
+              evaluation = await finalRes.json();
+            } else {
+              useFallback = true;
+            }
+          } else {
+            useFallback = true;
+          }
+        } else {
+          useFallback = true;
+        }
 
-      let overallBand = 'A1';
-      if (roundedScore >= 8.0) overallBand = 'C1'; // using C1 as max based on previous mapping
-      else if (roundedScore >= 7.0) overallBand = 'C1';
-      else if (roundedScore >= 6.0) overallBand = 'B2';
-      else if (roundedScore >= 5.0) overallBand = 'B1';
-      else if (roundedScore >= 4.0) overallBand = 'A2';
+        // FALLBACK: Monolithic Evaluation
+        if (useFallback || !evaluation) {
+          console.warn('Falling back to monolithic evaluation...');
+          const formData = new FormData();
+          const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text }));
+          formData.append('questionsData', JSON.stringify(questionsData));
+          
+          updatedRecordings.forEach((rec) => {
+            if (rec.audioBlob) {
+              formData.append(`audio_${rec.questionId}`, rec.audioBlob);
+            }
+          });
 
-      // Submit to Supabase
-      try {
+          let evalRes;
+          let retries = 2;
+          
+          while (retries >= 0) {
+            evalRes = await fetch('/api/evaluate', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (evalRes.ok) break;
+
+            if (evalRes.status === 429 && retries > 0) {
+              console.warn(`Rate limit hit. Retrying in 25 seconds... (${retries} retries left)`);
+              await new Promise(resolve => setTimeout(resolve, 25000));
+              retries--;
+            } else {
+              break;
+            }
+          }
+
+          if (!evalRes || !evalRes.ok) throw new Error('Evaluation API failed');
+          evaluation = await evalRes.json();
+        }
+        
+        
+        // 2. Submit to Supabase
         const sessionInfoStr = sessionStorage.getItem('examSession');
         if (sessionInfoStr) {
           const sessionInfo = JSON.parse(sessionInfoStr);
@@ -223,19 +274,23 @@ export default function ExamSessionPage() {
               groupName: sessionInfo.groupName,
               teacherName: sessionInfo.teacherName,
               passcodeUsed: sessionInfo.passcode,
-              overallScore: roundedScore,
-              overallBand: overallBand,
-              questionResults: finalResults
+              overallScore: evaluation.total_score,
+              overallBand: evaluation.cefr_level,
+              evaluation: evaluation
             })
           });
         }
+
+        sessionStorage.setItem('examResults', JSON.stringify(evaluation));
+        router.push('/exam/results');
       } catch (err) {
-        console.error('Failed to submit to database', err);
+        console.error('Error during final evaluation and submission', err);
+        alert('Failed to evaluate exam. Please check console for details.');
+        setIsSubmitting(false);
+        isSubmittingRef.current = false;
       }
-      
-      router.push('/exam/results');
     }
-  }, [currentIndex, recordings, stopRecording, router, question.text, question.id]);
+  }, [currentIndex, recordings, stopRecording, router, question.id]);
 
   // Part info
   const currentPart = EXAM_PARTS.find((p) => p.part === question.part)!;
@@ -287,110 +342,207 @@ export default function ExamSessionPage() {
       {/* ---- Main Content ---- */}
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-2xl">
-          {/* Phase badge */}
-          <div className="flex items-center gap-2 mb-5">
-            {phase === 'prep' ? (
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                PREPARING
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                SPEAK NOW
-              </span>
-            )}
-            <span className="text-xs text-muted-foreground">
-              {currentPart.label} · {question.topic}
-            </span>
-          </div>
+          {question.part === 'part3' ? (
+            // ================= PART 3 TARGET LAYOUT (GREEN THEME) =================
+            <div className="flex flex-col gap-6 fade-in w-full max-w-4xl mx-auto">
+              {/* Question Text */}
+              <h2 className="text-2xl font-bold text-emerald-800">
+                {question.text.split('\n')[0]} {/* Assuming the first line is the prompt */}
+              </h2>
 
-          {/* Question card */}
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-8 mb-6 fade-in">
-            <p className="text-xl font-bold text-slate-800 leading-relaxed whitespace-pre-line">
-              {question.text}
-            </p>
-          </div>
-
-          {/* Submitting overlay */}
-          {isSubmitting && (
-            <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center fade-in">
-              <div className="w-16 h-16 border-4 border-teal-200 border-t-teal-500 rounded-full animate-spin mb-4" />
-              <h2 className="text-xl font-bold text-slate-800">Evaluating your answers...</h2>
-              <p className="text-sm text-slate-500 mt-2">Our AI examiner is processing your recordings. This may take a moment.</p>
-            </div>
-          )}
-
-          {/* Timer + waveform row */}
-          <div className="flex items-center justify-between gap-6">
-            {/* Countdown timer */}
-            <CountdownTimer
-              key={`${currentIndex}-${phase}-${timerKey}`}
-              totalSeconds={phase === 'prep' ? question.prepSeconds : question.speakSeconds}
-              phase={phase as 'prep' | 'speak'}
-              isPaused={false}
-              onComplete={phase === 'prep' ? skipPrep : advanceQuestion}
-              size={140}
-            />
-
-            {/* Waveform + controls */}
-            <div className="flex-1">
-              {phase === 'prep' ? (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col items-center justify-center gap-4 h-full min-h-[140px]">
-                  <p className="text-sm text-slate-500 text-center">Take a moment to read the question and prepare your answer.</p>
-                  <Button onClick={skipPrep} variant="outline" className="w-full sm:w-auto h-10 px-8 rounded-xl font-bold">
-                    Skip Prep & Start Speaking
-                  </Button>
+              {/* Badges & Timer Row */}
+              <div className="flex flex-col gap-4">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-orange-100 text-orange-600 font-bold text-sm border border-orange-200 shadow-sm">
+                    {phase === 'prep' ? '⏳ GET READY' : '🎙️ SPEAK NOW'}
+                  </span>
                 </div>
-              ) : (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col items-center gap-3">
-                  {/* Live waveform */}
-                  <div className="flex items-center gap-1 h-10">
-                    {waveform.map((h, i) => (
-                      <div
-                        key={i}
-                        className="rounded-full"
-                        style={{
-                          width: 3,
-                          height: isRecording ? h : 4,
-                          backgroundColor: isRecording ? '#14b8a6' : '#d1d5db',
-                          transition: 'height 80ms ease',
-                        }}
-                      />
-                    ))}
+                
+                <div className="flex items-center gap-6">
+                  <CountdownTimer
+                    key={`${currentIndex}-${phase}-${timerKey}`}
+                    totalSeconds={phase === 'prep' ? question.prepSeconds : question.speakSeconds}
+                    phase={phase as 'prep' | 'speak'}
+                    isPaused={false}
+                    onComplete={phase === 'prep' ? skipPrep : advanceQuestion}
+                    size={100}
+                    variant="dark"
+                  />
+                  {phase === 'prep' && (
+                    <div className="flex-1 max-w-md bg-white border border-slate-200 shadow-sm rounded-full h-12 flex items-center justify-between px-6">
+                      <span className="text-slate-500 font-medium text-sm">
+                        then <strong className="text-slate-800 ml-1">Speak - {Math.floor(question.speakSeconds / 60)}:{(question.speakSeconds % 60).toString().padStart(2, '0')}</strong>
+                      </span>
+                      <div className="flex items-center gap-2 ml-4">
+                        <Button onClick={skipPrep} variant="outline" size="sm" className="h-8 rounded-full text-xs">Skip Prep</Button>
+                        <Button onClick={advanceQuestion} variant="destructive" size="sm" className="h-8 rounded-full text-xs">Skip Part 3</Button>
+                      </div>
+                    </div>
+                  )}
+                  {phase === 'speak' && (
+                    <div className="flex-1 max-w-md bg-white border border-slate-200 shadow-sm rounded-full h-12 flex items-center px-6 gap-2">
+                       <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                       <span className="text-teal-700 font-bold text-sm flex-1">Recording...</span>
+                       <Button onClick={advanceQuestion} variant="outline" size="sm" className="h-8 rounded-full text-xs">Skip</Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Columns */}
+              {question.tableData && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                  {/* FOR Column */}
+                  <div className="border-2 border-emerald-500 rounded-xl p-5 bg-white shadow-sm relative">
+                    <div className="absolute -top-3 left-4 bg-emerald-500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
+                      FOR
+                    </div>
+                    <ul className="mt-2 space-y-3">
+                      {question.tableData.forPoints.map((pt, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0" />
+                          <span className="text-slate-700 text-sm leading-relaxed">{pt}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  <p className="text-xs text-teal-600 font-medium flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    Recording in progress...
-                  </p>
-                  
-                  <Button
-                    onClick={advanceQuestion}
-                    className="w-full mt-2 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
-                  >
-                    Skip remaining time
-                  </Button>
+                  {/* AGAINST Column */}
+                  <div className="border-2 border-red-500 rounded-xl p-5 bg-white shadow-sm relative">
+                    <div className="absolute -top-3 left-4 bg-red-500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
+                      AGAINST
+                    </div>
+                    <ul className="mt-2 space-y-3">
+                      {question.tableData.againstPoints.map((pt, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0" />
+                          <span className="text-slate-700 text-sm leading-relaxed">{pt}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          ) : (
+            // ================= PARTS 1 & 2 LAYOUT (STANDARD) =================
+            <>
+              {/* Phase badge */}
+              <div className="flex items-center gap-2 mb-5">
+                {phase === 'prep' ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    PREPARING
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    SPEAK NOW
+                  </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {currentPart.label} · {question.topic}
+                </span>
+              </div>
 
-          {/* Question dots */}
-          <div className="flex items-center justify-center gap-1.5 mt-6">
-            {EXAM_QUESTIONS.map((_, i) => (
-              <div
-                key={i}
-                className={`rounded-full transition-all ${
-                  i < currentIndex
-                    ? 'w-2 h-2 bg-teal-400'
-                    : i === currentIndex
-                    ? 'w-3 h-3 bg-teal-600 scale-110'
-                    : 'w-2 h-2 bg-slate-200'
-                }`}
-              />
-            ))}
-          </div>
+              {/* Question card */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-8 mb-6 fade-in flex flex-col gap-6">
+                {question.imageUrl && (
+                  <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={question.imageUrl} 
+                      alt="Exam prompt" 
+                      className={`w-full h-auto object-contain max-h-[350px]`} 
+                    />
+                  </div>
+                )}
+                <p className="text-xl font-bold text-slate-800 leading-relaxed whitespace-pre-line text-center">
+                  {question.text}
+                </p>
+              </div>
+
+              {/* Submitting overlay */}
+              {isSubmitting && (
+                <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center fade-in">
+                  <div className="w-16 h-16 border-4 border-teal-200 border-t-teal-500 rounded-full animate-spin mb-4" />
+                  <h2 className="text-xl font-bold text-slate-800">Evaluating your answers...</h2>
+                  <p className="text-sm text-slate-500 mt-2">Our AI examiner is processing your recordings. This may take a moment.</p>
+                </div>
+              )}
+
+              {/* Timer + waveform row */}
+              <div className="flex items-center justify-between gap-6">
+                {/* Countdown timer */}
+                <CountdownTimer
+                  key={`${currentIndex}-${phase}-${timerKey}`}
+                  totalSeconds={phase === 'prep' ? question.prepSeconds : question.speakSeconds}
+                  phase={phase as 'prep' | 'speak'}
+                  isPaused={false}
+                  onComplete={phase === 'prep' ? skipPrep : advanceQuestion}
+                  size={140}
+                  variant="default"
+                />
+
+                {/* Waveform + controls */}
+                <div className="flex-1">
+                  {phase === 'prep' ? (
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col items-center justify-center gap-4 h-full min-h-[140px]">
+                      <p className="text-sm text-slate-500 text-center">Take a moment to read the question and prepare your answer.</p>
+                      <Button onClick={skipPrep} variant="outline" className="w-full sm:w-auto h-10 px-8 rounded-xl font-bold">
+                        Skip Prep & Start Speaking
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col items-center gap-3">
+                      {/* Live waveform */}
+                      <div className="flex items-center gap-1 h-10">
+                        {waveform.map((h, i) => (
+                          <div
+                            key={i}
+                            className="rounded-full"
+                            style={{
+                              width: 3,
+                              height: isRecording ? h : 4,
+                              backgroundColor: isRecording ? '#14b8a6' : '#d1d5db',
+                              transition: 'height 80ms ease',
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      <p className="text-xs text-teal-600 font-medium flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        Recording in progress...
+                      </p>
+                      
+                      <Button
+                        onClick={advanceQuestion}
+                        className="w-full mt-2 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
+                      >
+                        Skip remaining time
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+            <div className="flex gap-1">
+              {examQuestions.map((q, idx) => (
+                <div
+                  key={q.id}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                    idx === currentIndex
+                      ? 'bg-slate-800 scale-125'
+                      : idx < currentIndex
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-200'
+                  }`}
+                />
+              ))}
+            </div>
         </div>
       </main>
     </div>

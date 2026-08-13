@@ -15,15 +15,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
     }
 
-    const { data: qResults, error: qrError } = await supabase
-      .from('question_results')
-      .select('*')
-      .eq('submission_id', id);
-
-    if (qrError) {
-      return NextResponse.json({ error: 'Error fetching question results' }, { status: 500 });
-    }
-
     const mapped = {
       id: submission.id,
       studentName: submission.student_name,
@@ -33,21 +24,40 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       overallCefrBand: submission.overall_band,
       status: 'graded',
       submittedAt: submission.created_at,
-      questionResults: qResults.map(qr => ({
-        questionId: qr.question_id,
-        questionText: 'Question ' + qr.question_id, // we might not have text in db
-        part: 'part1',
-        transcript: qr.transcript,
-        overallScore: qr.overall_score,
-        cefrBand: qr.cefr_band,
-        aiFeedback: qr.ai_feedback,
-        rubricScores: qr.rubric_scores,
-      }))
+      evaluation: submission.evaluation_data,
+      adminNotes: submission.admin_notes,
+      isSaved: submission.is_saved
     };
 
     return NextResponse.json({ submission: mapped }, { status: 200 });
   } catch (err) {
     console.error('Error GET /admin/submissions/[id]:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+
+    const updates: any = {};
+    if (body.adminNotes !== undefined) updates.admin_notes = body.adminNotes;
+    if (body.isSaved !== undefined) updates.is_saved = body.isSaved;
+
+    const { error } = await supabase
+      .from('submissions')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ error: 'Failed to update submission' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error('Error PATCH /admin/submissions/[id]:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

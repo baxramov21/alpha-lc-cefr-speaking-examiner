@@ -25,7 +25,7 @@ export default function ScoreBadge({
   showScore = false,
   className,
 }: ScoreBadgeProps) {
-  const config = BAND_CONFIG[band];
+  const config = BAND_CONFIG[band] || { label: band || 'N/A', bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' };
 
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5 rounded-md font-semibold',
@@ -55,7 +55,7 @@ export default function ScoreBadge({
 
 // Score display with large band badge and circular score indicator
 export function ScoreDisplay({ band, score }: { band: CefrBand; score: number }) {
-  const config = BAND_CONFIG[band];
+  const config = BAND_CONFIG[band] || { label: band || 'N/A', bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' };
 
   return (
     <div className="flex flex-col items-center gap-2">

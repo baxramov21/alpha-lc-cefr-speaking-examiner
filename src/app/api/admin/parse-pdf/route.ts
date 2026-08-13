@@ -1,0 +1,80 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+// Dynamic import used later
+import { cleanJsonResponse } from '@/lib/gemini';
+
+const API_KEY = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+const PDF_PARSER_PROMPT = `
+You are an expert at extracting and formatting questions from UZBMB CEFR Mock Exam PDFs.
+I am providing you with the raw text extracted from a PDF.
+Your task is to parse this text and return a JSON array of questions that perfectly match our database schema.
+
+For each question found, determine its 'part':
+- "part1": Personal questions or visual comparisons.
+- "part2": Cue card (describe something).
+- "part3": Abstract discussion or debate.
+
+Determine realistic timing:
+- Part 1: Prep 30s, Speak 120s
+- Part 2: Prep 60s, Speak 120s
+- Part 3: Prep 60s, Speak 120s
+
+Return a JSON object strictly matching this format (no markdown formatting like \`\`\`json):
+{
+  "questions": [
+    {
+      "part": "part1",
+      "partLabel": "Part 1 - Personal Questions",
+      "text": "Extracted question text...",
+      "prepSeconds": 30,
+      "speakSeconds": 120
+    }
+  ]
+}
+`;
+
+export async function POST(req: NextRequest) {
+  try {
+    if (!API_KEY) {
+      return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
+    }
+
+    const formData = await req.formData();
+    const file = formData.get('file') as Blob;
+    
+    if (!file) {
+      return NextResponse.json({ error: 'Missing PDF file.' }, { status: 400 });
+    }
+
+    // Convert Blob to Buffer for pdf-parse
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    // Parse PDF text dynamically to avoid Turbopack DOMMatrix issues
+    const pdf = require('pdf-parse');
+    const pdfData = await pdf(buffer);
+    const textContent = pdfData.text;
+
+    // Send to Gemini
+    const result = await model.generateContent([
+      PDF_PARSER_PROMPT,
+      `--- RAW PDF TEXT ---\n${textContent}`
+    ]);
+    
+    const response = await result.response;
+    const rawText = response.text();
+    
+    const parsedJSON = cleanJsonResponse(rawText);
+
+    return NextResponse.json(parsedJSON, { status: 200 });
+  } catch (error: any) {
+    console.error('Error parsing PDF:', error);
+    return NextResponse.json(
+      { error: 'Failed to parse PDF.', details: error.message },
+      { status: 500 }
+    );
+  }
+}

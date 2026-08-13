@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
+import { PARTIAL_SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
-// The user specified gemini-2.5-flash or gemini-1.5-flash.
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export async function POST(req: NextRequest) {
@@ -46,7 +45,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    generativeParts.push(`\n\n${SYSTEM_PROMPT}`);
+    generativeParts.push(`\n\n${PARTIAL_SYSTEM_PROMPT}`);
 
     // Call Gemini Flash with all audio files and text prompts
     const result = await model.generateContent(generativeParts);
@@ -57,12 +56,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {
-    console.error('Error evaluating audio:', error);
+    console.error('Error evaluating partial audio:', error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate audio.', details: error.message },
+      { error: 'Failed to evaluate partial audio.', details: error.message },
       { status: isRateLimit ? 429 : 500 }
     );
   }
 }
-

@@ -8,6 +8,7 @@ interface CountdownTimerProps {
   phase: 'prep' | 'speak';
   isPaused?: boolean;
   size?: number;
+  variant?: 'default' | 'dark';
 }
 
 export default function CountdownTimer({
@@ -16,6 +17,7 @@ export default function CountdownTimer({
   phase,
   isPaused = false,
   size = 140,
+  variant = 'default',
 }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState(totalSeconds);
   const onCompleteRef = useRef(onComplete);
@@ -50,9 +52,17 @@ export default function CountdownTimer({
   const seconds = timeLeft % 60;
   const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-  const strokeColor = phase === 'prep' ? '#f59e0b' : '#14b8a6';
-  const bgStroke = phase === 'prep' ? '#fef3c7' : '#ccfbf1';
   const isLow = timeLeft <= Math.min(10, totalSeconds * 0.2);
+
+  let strokeColor = phase === 'prep' ? '#f59e0b' : '#14b8a6'; // amber-500 : teal-500
+  let bgStroke = phase === 'prep' ? '#fef3c7' : '#ccfbf1'; // amber-50 : teal-50
+  let textColor = isLow ? '#ef4444' : strokeColor;
+
+  if (variant === 'dark') {
+    strokeColor = '#0f766e'; // teal-700
+    bgStroke = '#334155'; // slate-700
+    textColor = isLow ? '#ef4444' : '#0f172a'; // slate-900
+  }
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
@@ -86,7 +96,7 @@ export default function CountdownTimer({
           className="font-mono font-bold tabular-nums"
           style={{
             fontSize: size * 0.18,
-            color: isLow ? '#ef4444' : strokeColor,
+            color: textColor,
           }}
         >
           {timeStr}

@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mic, ChevronRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Mic, ChevronRight, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MicTestRecorder } from '@/components/shared/AudioRecorder';
 import { EXAM_PARTS, EXAM_QUESTIONS } from '@/lib/questions';
+import { supabase } from '@/lib/supabase';
+import { ExamQuestion } from '@/lib/types';
 
 type SetupStep = 'overview' | 'mictest' | 'ready';
 
@@ -14,6 +16,8 @@ export default function ExamSetupPage() {
   const [step, setStep] = useState<SetupStep>('overview');
   const [micPassed, setMicPassed] = useState(false);
   const [studentName, setStudentName] = useState('');
+  const [questions, setQuestions] = useState<ExamQuestion[] | null>(null);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
 
   useEffect(() => {
     const session = sessionStorage.getItem('examSession');
@@ -23,6 +27,54 @@ export default function ExamSetupPage() {
     }
     const parsed = JSON.parse(session);
     setStudentName(parsed.fullName?.split(' ')[0] ?? 'Student');
+
+    // Fetch random questions
+    const fetchQuestions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('questions')
+          .select('*')
+          .eq('is_active', true);
+
+        if (error) throw error;
+
+        // Shuffle utility
+        const shuffle = (arr: any[]) => [...arr].sort(() => 0.5 - Math.random());
+
+        // Part 1: 4 standard, 2 image
+        const p1Standard = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'standard')).slice(0, 4);
+        const p1Image = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'image')).slice(0, 2);
+        
+        // Part 2: 1 image
+        const p2Image = shuffle(data.filter(q => q.part === 'part2' && q.question_type === 'image')).slice(0, 1);
+        
+        // Part 3: 1 debate
+        const p3Debate = shuffle(data.filter(q => q.part === 'part3' && q.question_type === 'debate')).slice(0, 1);
+
+        const selectedQuestions = [...p1Standard, ...p1Image, ...p2Image, ...p3Debate].map((q, idx) => ({
+          id: q.id,
+          part: q.part,
+          partLabel: q.part === 'part1' ? 'Part 1' : q.part === 'part2' ? 'Part 2' : 'Part 3',
+          questionNumber: idx + 1,
+          text: q.text,
+          prepSeconds: q.prep_seconds,
+          speakSeconds: q.speak_seconds,
+          topic: q.topic,
+          imageUrl: q.image_url,
+          tableData: q.table_data
+        }));
+
+        setQuestions(selectedQuestions);
+      } catch (err) {
+        console.error('Failed to load questions:', err);
+        // Fallback to static if failed
+        setQuestions(EXAM_QUESTIONS);
+      } finally {
+        setIsLoadingQuestions(false);
+      }
+    };
+
+    fetchQuestions();
   }, [router]);
 
   const handleMicComplete = (passed: boolean) => {
@@ -31,7 +83,10 @@ export default function ExamSetupPage() {
   };
 
   const startExam = () => {
-    router.push('/exam/session');
+    if (questions) {
+      sessionStorage.setItem('randomQuestions', JSON.stringify(questions));
+      router.push('/exam/session');
+    }
   };
 
   return (
@@ -48,7 +103,7 @@ export default function ExamSetupPage() {
               <div>
                 <p className="font-black text-white text-lg leading-none">Speaking Mock</p>
                 <p className="text-teal-100 text-xs mt-0.5">
-                  {EXAM_QUESTIONS.length} questions · timed prep + speak
+                  8 questions · timed prep + speak
                 </p>
               </div>
             </div>

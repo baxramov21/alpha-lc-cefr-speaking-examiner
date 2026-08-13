@@ -34,8 +34,16 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     passcode_used TEXT NOT NULL,
     overall_score NUMERIC NOT NULL,
     overall_band TEXT NOT NULL,
+    evaluation_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+    admin_notes TEXT,
+    is_saved BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Migration command for existing databases:
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS evaluation_data JSONB NOT NULL DEFAULT '{}'::jsonb;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS admin_notes TEXT;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS is_saved BOOLEAN DEFAULT false;
 
 -- Enable RLS
 ALTER TABLE public.submissions ENABLE ROW LEVEL SECURITY;
@@ -79,7 +87,37 @@ CREATE POLICY "Allow public select on question_results"
     FOR SELECT
     USING (true);
 
--- 4. Seed initial mock passcodes (for testing)
+-- 4. Create Questions Table
+CREATE TABLE IF NOT EXISTS public.questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    part TEXT NOT NULL, -- 'part1', 'part2', 'part3'
+    question_type TEXT NOT NULL, -- 'standard', 'image', 'debate'
+    text TEXT NOT NULL,
+    prep_seconds INTEGER NOT NULL,
+    speak_seconds INTEGER NOT NULL,
+    topic TEXT,
+    image_url TEXT,
+    table_data JSONB,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
+
+-- Allow anonymous read
+CREATE POLICY "Allow public select on questions"
+    ON public.questions
+    FOR SELECT
+    USING (is_active = true);
+
+-- Allow admin full access
+CREATE POLICY "Allow all access for admin on questions"
+    ON public.questions
+    FOR ALL
+    USING (true);
+
+-- 5. Seed initial mock passcodes (for testing)
 INSERT INTO public.passcodes (code, group_name, teacher_name)
 VALUES 
     ('ALPHA-2024-X1', 'IELTS Morning 9AM', 'Mr. Jenkins'),

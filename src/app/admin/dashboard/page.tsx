@@ -10,8 +10,8 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import ScoreBadge from '@/components/shared/ScoreBadge';
-import { MOCK_SUBMISSION_SUMMARIES, CHART_DATA } from '@/lib/mockSubmissions';
-import { CefrBand } from '@/lib/types';
+import { CHART_DATA } from '@/lib/mockSubmissions';
+import { CefrBand, SubmissionSummary } from '@/lib/types';
 
 const KPI_CARDS = [
   {
@@ -52,12 +52,21 @@ const KPI_CARDS = [
   },
 ];
 
-const RECENT = MOCK_SUBMISSION_SUMMARIES.slice(0, 5);
-
 export default function AdminDashboardPage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [recent, setRecent] = useState<SubmissionSummary[]>([]);
 
-  useEffect(() => { setTimeout(() => setIsLoaded(true), 100); }, []);
+  useEffect(() => { 
+    setTimeout(() => setIsLoaded(true), 100); 
+    fetch('/api/admin/submissions')
+      .then(res => res.json())
+      .then(data => {
+        if (data.submissions) {
+          setRecent(data.submissions.slice(0, 5));
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <div className="p-8 space-y-7">
@@ -139,7 +148,10 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
           <div className="space-y-2">
-            {RECENT.map((sub) => (
+            {recent.length === 0 ? (
+              <p className="text-sm text-slate-500 text-center py-4">No recent submissions found.</p>
+            ) : (
+              recent.map((sub) => (
               <Link
                 key={sub.id}
                 href={`/admin/submissions/${sub.id}`}
@@ -163,7 +175,8 @@ export default function AdminDashboardPage() {
                   )}
                 </div>
               </Link>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

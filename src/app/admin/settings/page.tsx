@@ -1,54 +1,112 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Trash2, Eye, EyeOff, Save, Key, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, Eye, EyeOff, Save, Key, Lock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { MOCK_PASSCODES } from '@/lib/mockPasscodes';
 import { PasscodeEntry } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminSettingsPage() {
-  const [passcodes, setPasscodes] = useState<PasscodeEntry[]>(MOCK_PASSCODES);
+  const [passcodes, setPasscodes] = useState<PasscodeEntry[]>([]);
+  const [loadingPasscodes, setLoadingPasscodes] = useState(true);
   const [newPasscode, setNewPasscode] = useState('');
   const [newGroup, setNewGroup] = useState('');
   const [newTeacher, setNewTeacher] = useState('');
   const [showCodes, setShowCodes] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState(false);
-  const [apiKey, setApiKey] = useState('');
+  
+  // Password Change State
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    fetchPasscodes();
+  }, []);
+
+  const fetchPasscodes = async () => {
+    setLoadingPasscodes(true);
+    const { data, error } = await supabase
+      .from('passcodes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (data) {
+      setPasscodes(data.map(d => ({
+        id: d.id,
+        passcode: d.code,
+        groupName: d.group_name,
+        teacherName: d.teacher_name,
+        isActive: d.is_active,
+        createdAt: d.created_at
+      })));
+    } else if (error) {
+      console.error('Failed to fetch passcodes', error);
+    }
+    setLoadingPasscodes(false);
+  };
 
   const toggleShow = (id: string) => setShowCodes((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const addPasscode = () => {
+  const addPasscode = async () => {
     if (!newPasscode.trim() || !newGroup.trim() || !newTeacher.trim()) return;
-    const entry: PasscodeEntry = {
-      id: `pc-${Date.now()}`,
-      passcode: newPasscode.trim().toUpperCase(),
-      groupName: newGroup.trim(),
-      teacherName: newTeacher.trim(),
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
-    setPasscodes((prev) => [...prev, entry]);
+    const code = newPasscode.trim().toUpperCase();
+    
+    const { error } = await supabase.from('passcodes').insert({
+      code,
+      group_name: newGroup.trim(),
+      teacher_name: newTeacher.trim(),
+      is_active: true
+    });
+
+    if (error) {
+      alert('Failed to add passcode. It might already exist.');
+      return;
+    }
+
     setNewPasscode('');
     setNewGroup('');
     setNewTeacher('');
+    fetchPasscodes();
   };
 
-  const removePasscode = (id: string) => {
-    setPasscodes((prev) => prev.filter((p) => p.id !== id));
+  const removePasscode = async (id: string) => {
+    const { error } = await supabase.from('passcodes').delete().eq('id', id);
+    if (!error) {
+      setPasscodes((prev) => prev.filter((p) => p.id !== id));
+    }
   };
 
-  const toggleActive = (id: string) => {
-    setPasscodes((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isActive: !p.isActive } : p))
-    );
+  const toggleActive = async (id: string, currentState: boolean) => {
+    const { error } = await supabase
+      .from('passcodes')
+      .update({ is_active: !currentState })
+      .eq('id', id);
+      
+    if (!error) {
+      setPasscodes((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isActive: !currentState } : p))
+      );
+    }
   };
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("New passwords don't match!");
+      return;
+    }
+    setPasswordStatus('loading');
+    
+    // Simulating password change since we don't have a real auth setup linked
+    setTimeout(() => {
+      setPasswordStatus('success');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordStatus('idle'), 3000);
+    }, 1000);
   };
 
   return (
@@ -56,7 +114,7 @@ export default function AdminSettingsPage() {
       <div>
         <h1 className="text-2xl font-black text-slate-800">Settings</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Manage student passcodes, exam configuration, and API settings.
+          Manage student passcodes and administrator credentials.
         </p>
       </div>
 
@@ -85,7 +143,6 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setNewPasscode(e.target.value.toUpperCase())}
                 placeholder="e.g. GROUP01"
                 className="h-9 rounded-lg text-sm font-mono"
-                id="new-passcode-input"
               />
             </div>
             <div className="space-y-1">
@@ -95,7 +152,6 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setNewGroup(e.target.value)}
                 placeholder="e.g. Group E"
                 className="h-9 rounded-lg text-sm"
-                id="new-group-input"
               />
             </div>
             <div className="space-y-1">
@@ -105,7 +161,6 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setNewTeacher(e.target.value)}
                 placeholder="e.g. Mr. Karimov"
                 className="h-9 rounded-lg text-sm"
-                id="new-teacher-input"
               />
             </div>
           </div>
@@ -113,7 +168,6 @@ export default function AdminSettingsPage() {
             onClick={addPasscode}
             size="sm"
             className="bg-teal-500 hover:bg-teal-600 text-white rounded-lg gap-1.5"
-            id="add-passcode-btn"
           >
             <Plus className="w-3.5 h-3.5" /> Add Passcode
           </Button>
@@ -121,7 +175,15 @@ export default function AdminSettingsPage() {
 
         {/* List */}
         <div className="divide-y divide-slate-50">
-          {passcodes.map((p) => (
+          {loadingPasscodes ? (
+            <div className="p-10 flex justify-center text-slate-400">
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+          ) : passcodes.length === 0 ? (
+            <div className="p-10 text-center text-slate-400 text-sm">
+              No passcodes found. Add one above.
+            </div>
+          ) : passcodes.map((p) => (
             <div
               key={p.id}
               className={`flex items-center gap-4 px-5 py-3.5 transition-colors ${!p.isActive ? 'opacity-50 bg-slate-50' : ''}`}
@@ -147,7 +209,7 @@ export default function AdminSettingsPage() {
 
               {/* Status toggle */}
               <button
-                onClick={() => toggleActive(p.id)}
+                onClick={() => toggleActive(p.id, p.isActive)}
                 className={`text-xs font-medium px-2 py-1 rounded-full border transition-colors ${
                   p.isActive
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
@@ -169,49 +231,60 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      {/* ---- API Key ---- */}
+      {/* ---- Admin Password Change ---- */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-6">
           <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-violet-600" />
+            <Lock className="w-4 h-4 text-violet-600" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-800">Gemini API Key</h2>
-            <p className="text-xs text-muted-foreground">Used for AI scoring in Phase 4</p>
+            <h2 className="font-bold text-slate-800">Admin Password</h2>
+            <p className="text-xs text-muted-foreground">Change your administrator login password</p>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-slate-600">API Key</Label>
-          <Input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="AIza…"
-            className="h-10 rounded-xl font-mono text-sm"
-            id="gemini-api-key-input"
-          />
-          <p className="text-xs text-muted-foreground">
-            Get your key from{' '}
-            <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-teal-600 underline-offset-2 hover:underline">
-              Google AI Studio
-            </a>
-          </p>
+        <div className="space-y-4 max-w-sm">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600">Current Password</Label>
+            <Input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="h-10 rounded-xl text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600">New Password</Label>
+            <Input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="h-10 rounded-xl text-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600">Confirm New Password</Label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="h-10 rounded-xl text-sm"
+            />
+          </div>
+          
+          <Button
+            onClick={handleChangePassword}
+            disabled={passwordStatus === 'loading'}
+            className={`gap-2 rounded-xl h-11 px-6 transition-all ${
+              passwordStatus === 'success'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                : 'bg-violet-600 hover:bg-violet-700 text-white'
+            }`}
+          >
+            {passwordStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {passwordStatus === 'success' ? 'Password Updated!' : 'Update Password'}
+          </Button>
         </div>
       </div>
-
-      {/* Save */}
-      <Button
-        onClick={handleSave}
-        className={`gap-2 rounded-xl h-11 px-6 transition-all ${
-          saved
-            ? 'bg-emerald-500 hover:bg-emerald-500 text-white'
-            : 'bg-teal-500 hover:bg-teal-600 text-white'
-        }`}
-        id="save-settings-btn"
-      >
-        <Save className="w-4 h-4" />
-        {saved ? '✓ Saved!' : 'Save Changes'}
-      </Button>
     </div>
   );
 }

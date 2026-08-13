@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
+import { FINAL_SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
-// The user specified gemini-2.5-flash or gemini-1.5-flash.
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export async function POST(req: NextRequest) {
@@ -15,15 +14,19 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const questionsDataStr = formData.get('questionsData') as string;
+    const partialEvaluationStr = formData.get('partialEvaluation') as string;
     
-    if (!questionsDataStr) {
-      return NextResponse.json({ error: 'Missing questionsData.' }, { status: 400 });
+    if (!questionsDataStr || !partialEvaluationStr) {
+      return NextResponse.json({ error: 'Missing questionsData or partialEvaluation.' }, { status: 400 });
     }
 
     const questionsData: { id: string; text: string }[] = JSON.parse(questionsDataStr);
     const generativeParts: any[] = [];
 
-    // Build the prompt dynamically with all questions and their corresponding audio
+    // Provide the partial evaluation JSON
+    generativeParts.push(`\n--- PARTIAL EVALUATION (PARTS 1 & 2) ---\n\`\`\`json\n${partialEvaluationStr}\n\`\`\``);
+
+    // Build the prompt dynamically with Part 3 questions and audio
     for (const q of questionsData) {
       const audioFile = formData.get(`audio_${q.id}`) as Blob;
       
@@ -46,9 +49,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    generativeParts.push(`\n\n${SYSTEM_PROMPT}`);
+    generativeParts.push(`\n\n${FINAL_SYSTEM_PROMPT}`);
 
-    // Call Gemini Flash with all audio files and text prompts
+    // Call Gemini Flash with audio files and text prompts
     const result = await model.generateContent(generativeParts);
     const response = await result.response;
     const rawText = response.text();
@@ -57,12 +60,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {
-    console.error('Error evaluating audio:', error);
+    console.error('Error evaluating final audio:', error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate audio.', details: error.message },
+      { error: 'Failed to evaluate final audio.', details: error.message },
       { status: isRateLimit ? 429 : 500 }
     );
   }
 }
-

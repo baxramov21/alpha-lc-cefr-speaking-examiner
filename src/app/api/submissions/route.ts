@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { QuestionResult } from '@/lib/types';
+import { UzbmbEvaluation } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { studentName, groupName, teacherName, passcodeUsed, overallScore, overallBand, questionResults } = body;
+    const { studentName, groupName, teacherName, passcodeUsed, overallScore, overallBand, evaluation } = body;
+    const evalData = evaluation as UzbmbEvaluation;
 
     // 1. Insert the submission
     const { data: submissionData, error: submissionError } = await supabase
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
         passcode_used: passcodeUsed,
         overall_score: overallScore,
         overall_band: overallBand,
+        evaluation_data: evalData
       })
       .select('id')
       .single();
@@ -28,25 +30,39 @@ export async function POST(req: NextRequest) {
 
     const submissionId = submissionData.id;
 
-    // 2. Insert question results
-    const resultsToInsert = (questionResults as QuestionResult[]).map((qr) => ({
-      submission_id: submissionId,
-      question_id: qr.questionId,
-      transcript: qr.transcript,
-      overall_score: qr.overallScore,
-      cefr_band: qr.cefrBand,
-      ai_feedback: qr.aiFeedback,
-      rubric_scores: qr.rubricScores,
-    }));
+    // 2. Insert transcripts into question_results
+    let resultsToInsert: any[] = [];
+    
+    if (evalData.question_responses && evalData.question_responses.length > 0) {
+      resultsToInsert = evalData.question_responses.map((qr) => ({
+        submission_id: submissionId,
+        question_id: qr.question_id,
+        transcript: qr.transcript || '[No transcript]',
+        overall_score: qr.part_score,
+        cefr_band: '-',              // Dummy value or could map from score
+        ai_feedback: qr.grammar_feedback || 'See overall evaluation', 
+        rubric_scores: [],           // Dummy value
+      }));
+    } else if (evalData.transcripts) {
+      resultsToInsert = Object.keys(evalData.transcripts).map((qId) => ({
+        submission_id: submissionId,
+        question_id: qId,
+        transcript: evalData.transcripts?.[qId] || '[No transcript]',
+        overall_score: 0,            // Dummy value since we use monolithic scoring now
+        cefr_band: '-',              // Dummy value
+        ai_feedback: 'See overall evaluation', // Dummy value
+        rubric_scores: [],           // Dummy value
+      }));
+    }
 
-    const { error: resultsError } = await supabase
-      .from('question_results')
-      .insert(resultsToInsert);
+    if (resultsToInsert.length > 0) {
+      const { error: resultsError } = await supabase
+        .from('question_results')
+        .insert(resultsToInsert);
 
-    if (resultsError) {
-      console.error('Question results insert error:', resultsError);
-      // We might have a partial insert, but we'll flag it as 500
-      return NextResponse.json({ error: 'Failed to insert question results' }, { status: 500 });
+      if (resultsError) {
+        console.error('Question results insert error:', resultsError);
+      }
     }
 
     return NextResponse.json({ success: true, submissionId }, { status: 200 });
@@ -55,3 +71,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
