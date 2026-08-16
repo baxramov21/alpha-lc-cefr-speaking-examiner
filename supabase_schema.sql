@@ -19,11 +19,7 @@ CREATE POLICY "Allow public read access on passcodes"
     FOR SELECT
     USING (true);
 
--- Allow admin full access (Placeholder for future admin auth)
-CREATE POLICY "Allow all access for admin on passcodes"
-    ON public.passcodes
-    FOR ALL
-    USING (true);
+-- Admin access is implicitly allowed via the service_role key which bypasses RLS.
 
 -- 2. Create Submissions Table
 CREATE TABLE IF NOT EXISTS public.submissions (
@@ -54,11 +50,7 @@ CREATE POLICY "Allow public insert on submissions"
     FOR INSERT
     WITH CHECK (true);
 
--- Allow public read (for admin dashboard, assuming public for now since no admin auth is set up yet)
-CREATE POLICY "Allow public select on submissions"
-    ON public.submissions
-    FOR SELECT
-    USING (true);
+-- Admin read/update/delete is handled via service_role key which bypasses RLS.
 
 -- 3. Create Question Results Table
 CREATE TABLE IF NOT EXISTS public.question_results (
@@ -111,11 +103,7 @@ CREATE POLICY "Allow public select on questions"
     FOR SELECT
     USING (is_active = true);
 
--- Allow admin full access
-CREATE POLICY "Allow all access for admin on questions"
-    ON public.questions
-    FOR ALL
-    USING (true);
+-- Admin actions are handled via service_role key which bypasses RLS.
 
 -- 5. Seed initial mock passcodes (for testing)
 INSERT INTO public.passcodes (code, group_name, teacher_name)

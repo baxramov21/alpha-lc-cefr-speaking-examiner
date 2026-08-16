@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Home } from 'lucide-react';
+import { sanitizeTranscriptHtml } from '@/lib/sanitize';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { UzbmbEvaluation, CefrBand } from '@/lib/types';
@@ -163,7 +164,7 @@ export default function ExamResultsPage() {
                 </div>
 
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 italic">
-                  <div dangerouslySetInnerHTML={{ __html: qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]' }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeTranscriptHtml(qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]') }} />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">

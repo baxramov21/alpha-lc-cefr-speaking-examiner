@@ -25,7 +25,7 @@ export default function ExamSessionPage() {
   const startTimeRef = useRef<number>(0);
   const hasCheckedSession = useRef(false);
   const isSubmittingRef = useRef(false);
-  const partialEvalPromiseRef = useRef<Promise<any> | null>(null);
+  const evalPromisesRef = useRef<Promise<any>[]>([]);
 
   const question: ExamQuestion = examQuestions[currentIndex];
 
@@ -147,120 +147,128 @@ export default function ExamSessionPage() {
     const updatedRecordings = [...recordings, recording];
     setRecordings(updatedRecordings);
 
-    if (currentIndex < examQuestions.length - 1) {
-      // Trigger Phase 1 (Progressive Evaluation) when moving from Q7 (index 6, Part 2) to Q8 (index 7, Part 3)
-      if (currentIndex === 6) {
-        const formData = new FormData();
-        const questionsData = examQuestions.slice(0, 7).map(q => ({ id: q.id, text: q.text }));
-        formData.append('questionsData', JSON.stringify(questionsData));
-        
-        updatedRecordings.forEach((rec) => {
-          if (rec.audioBlob) {
-            formData.append(`audio_${rec.questionId}`, rec.audioBlob);
-          }
+    // Read session token once — used for all API calls in this callback
+    const sessionToken: string = JSON.parse(sessionStorage.getItem('examSession') || '{}').sessionToken ?? '';
+
+    // FIRE EVALUATE-SINGLE IMMEDIATELY in background
+    if (recording.audioBlob) {
+      const formDataSingle = new FormData();
+      formDataSingle.append('questionId', question.id);
+      formDataSingle.append('questionText', question.text);
+      formDataSingle.append('sessionToken', sessionToken);
+      formDataSingle.append('audio', recording.audioBlob);
+      
+      const singlePromise = fetch('/api/evaluate-single', {
+        method: 'POST',
+        body: formDataSingle,
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Single eval failed');
+          return res.json();
+        })
+        .catch(err => {
+          console.error(`Evaluation failed for ${question.id}:`, err);
+          return null; // Return null so Promise.all doesn't reject entirely
         });
         
-        // Fire in background and store promise
-        partialEvalPromiseRef.current = fetch('/api/evaluate-partial', {
-          method: 'POST',
-          body: formData,
-        })
-          .then(res => {
-            if (!res.ok) throw new Error('Partial eval failed');
-            return res.json();
-          })
-          .catch(err => {
-            console.error('Phase 1 failed silently in background:', err);
-            return null; // Signals fallback is needed
-          });
-      }
+      evalPromisesRef.current.push(singlePromise);
+    }
 
+    if (currentIndex < examQuestions.length - 1) {
       setCurrentIndex((i) => i + 1);
       setPhase('prep');
       setTimerKey((k) => k + 1);
     } else {
-      // Exam complete - Evaluate the whole exam monolithic style or progressive style
+      // Exam complete - Aggregate the results
       if (isSubmittingRef.current) return;
       isSubmittingRef.current = true;
       setIsSubmitting(true);
       
       try {
         let evaluation: UzbmbEvaluation | null = null;
-        let useFallback = false;
-
-        // Try Phase 2 if Phase 1 was triggered
-        if (partialEvalPromiseRef.current) {
-          const partialResult = await partialEvalPromiseRef.current;
-          
-          if (partialResult && partialResult.question_responses) {
-            // Phase 1 succeeded! Run Phase 2
-            const formDataFinal = new FormData();
-            
-            // Only send Q8 data
-            const q8 = examQuestions[7];
-            formDataFinal.append('questionsData', JSON.stringify([{ id: q8.id, text: q8.text }]));
-            
-            const q8Rec = updatedRecordings.find(r => r.questionId === q8.id);
-            if (q8Rec?.audioBlob) {
-              formDataFinal.append(`audio_${q8.id}`, q8Rec.audioBlob);
-            }
-            
-            formDataFinal.append('partialEvaluation', JSON.stringify(partialResult));
-            
-            const finalRes = await fetch('/api/evaluate-final', {
-              method: 'POST',
-              body: formDataFinal,
-            });
-
-            if (finalRes.ok) {
-              evaluation = await finalRes.json();
-            } else {
-              useFallback = true;
-            }
+        let evaluation: UzbmbEvaluation | null = null;
+        
+        // 1. Wait for all background evaluations
+        const partialResults = await Promise.all(evalPromisesRef.current);
+        
+        // 2. Identify missing responses and retry them granularly
+        let validResponses: any[] = [];
+        for (let i = 0; i < examQuestions.length; i++) {
+          const result = partialResults[i];
+          if (result && result.question_response) {
+            validResponses.push(result.question_response);
           } else {
-            useFallback = true;
+            console.warn(`Missing evaluation for Q${i+1}, attempting granular retry...`);
+            const q = examQuestions[i];
+            const rec = updatedRecordings.find(r => r.questionId === q.id);
+            
+            if (rec && rec.audioBlob) {
+              const formDataSingle = new FormData();
+              formDataSingle.append('questionId', q.id);
+              formDataSingle.append('questionText', q.text);
+              formDataSingle.append('sessionToken', sessionToken);
+              formDataSingle.append('audio', rec.audioBlob);
+              
+              let retrySuccess = false;
+              for (let retry = 0; retry < 2; retry++) {
+                try {
+                  const retryRes = await fetch('/api/evaluate-single', {
+                    method: 'POST',
+                    body: formDataSingle,
+                  });
+                  if (retryRes.ok) {
+                    const json = await retryRes.json();
+                    if (json.question_response) {
+                      validResponses.push(json.question_response);
+                      retrySuccess = true;
+                      break;
+                    }
+                  } else if (retryRes.status === 429) {
+                    await new Promise(resolve => setTimeout(resolve, 5000)); // wait 5s on rate limit
+                  }
+                } catch (e) {
+                  console.error('Retry failed:', e);
+                }
+              }
+              if (!retrySuccess) {
+                console.error(`Granular retry completely failed for Q${i+1}`);
+              }
+            }
           }
-        } else {
-          useFallback = true;
         }
-
-        // FALLBACK: Monolithic Evaluation
-        if (useFallback || !evaluation) {
-          console.warn('Falling back to monolithic evaluation...');
-          const formData = new FormData();
-          const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text }));
-          formData.append('questionsData', JSON.stringify(questionsData));
           
-          updatedRecordings.forEach((rec) => {
-            if (rec.audioBlob) {
-              formData.append(`audio_${rec.questionId}`, rec.audioBlob);
-            }
-          });
+        if (validResponses.length === 0) {
+          throw new Error('All single evaluations failed, even after retries.');
+        } 
 
-          let evalRes;
-          let retries = 2;
-          
-          while (retries >= 0) {
-            evalRes = await fetch('/api/evaluate', {
+        // 3. Aggregate route with retry
+        let aggResOk = false;
+        for (let retry = 0; retry < 3; retry++) {
+          try {
+            const aggRes = await fetch('/api/evaluate-aggregate', {
               method: 'POST',
-              body: formData,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionToken,
+                question_responses: validResponses
+              })
             });
-
-            if (evalRes.ok) break;
-
-            if (evalRes.status === 429 && retries > 0) {
-              console.warn(`Rate limit hit. Retrying in 25 seconds... (${retries} retries left)`);
-              await new Promise(resolve => setTimeout(resolve, 25000));
-              retries--;
-            } else {
+            
+            if (aggRes.ok) {
+              evaluation = await aggRes.json();
+              aggResOk = true;
               break;
+            } else if (aggRes.status === 429) {
+              await new Promise(resolve => setTimeout(resolve, 5000));
             }
+          } catch (e) {
+            console.error('Aggregate retry failed:', e);
           }
-
-          if (!evalRes || !evalRes.ok) throw new Error('Evaluation API failed');
-          evaluation = await evalRes.json();
         }
         
+        if (!aggResOk || !evaluation) {
+          throw new Error('Evaluation object is null after API call');
+        }
         
         // 2. Submit to Supabase
         const sessionInfoStr = sessionStorage.getItem('examSession');
@@ -273,7 +281,7 @@ export default function ExamSessionPage() {
               studentName: sessionInfo.fullName,
               groupName: sessionInfo.groupName,
               teacherName: sessionInfo.teacherName,
-              passcodeUsed: sessionInfo.passcode,
+              sessionToken: sessionInfo.sessionToken, // signed JWT — not raw passcode
               overallScore: evaluation.total_score,
               overallBand: evaluation.cefr_level,
               evaluation: evaluation
@@ -520,7 +528,7 @@ export default function ExamSessionPage() {
                         onClick={advanceQuestion}
                         className="w-full mt-2 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
                       >
-                        Skip remaining time
+                        {currentIndex === examQuestions.length - 1 ? 'Finish Exam' : 'Skip remaining time'}
                       </Button>
                     </div>
                   )}

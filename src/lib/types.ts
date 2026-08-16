@@ -107,6 +107,7 @@ export interface ExamResult {
   evaluation: UzbmbEvaluation;
   submittedAt: string;
   status: 'graded' | 'pending' | 'error';
+  adminNotes?: string;
 }
 
 // ----- Admin -----

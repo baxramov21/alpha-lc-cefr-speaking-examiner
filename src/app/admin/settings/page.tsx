@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, EyeOff, Save, Key, Lock, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Key, Lock, Loader2, Edit2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,11 +16,16 @@ export default function AdminSettingsPage() {
   const [newTeacher, setNewTeacher] = useState('');
   const [showCodes, setShowCodes] = useState<Record<string, boolean>>({});
   
+  // Edit Passcode State
+  const [editingPasscodeId, setEditingPasscodeId] = useState<string | null>(null);
+  const [editPasscodeValue, setEditPasscodeValue] = useState('');
+  
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
     fetchPasscodes();
@@ -28,24 +33,54 @@ export default function AdminSettingsPage() {
 
   const fetchPasscodes = async () => {
     setLoadingPasscodes(true);
-    const { data, error } = await supabase
-      .from('passcodes')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data) {
-      setPasscodes(data.map(d => ({
-        id: d.id,
-        passcode: d.code,
-        groupName: d.group_name,
-        teacherName: d.teacher_name,
-        isActive: d.is_active,
-        createdAt: d.created_at
-      })));
-    } else if (error) {
-      console.error('Failed to fetch passcodes', error);
+    try {
+      const res = await fetch('/api/admin/passcodes');
+      const data = await res.json();
+      if (data.passcodes) {
+        setPasscodes(data.passcodes.map((d: any) => ({
+          id: d.id,
+          passcode: d.code,
+          groupName: d.group_name,
+          teacherName: d.teacher_name,
+          isActive: d.is_active,
+          createdAt: d.created_at
+        })));
+      }
+    } catch (err) {
+      console.error('Failed to fetch passcodes', err);
     }
     setLoadingPasscodes(false);
+  };
+
+  const startEditingPasscode = (id: string, currentCode: string) => {
+    setEditingPasscodeId(id);
+    setEditPasscodeValue(currentCode);
+  };
+
+  const saveEditedPasscode = async (id: string) => {
+    if (!editPasscodeValue.trim() || editPasscodeValue.length < 4) {
+      alert('Passcode must be at least 4 characters long.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/passcodes/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: editPasscodeValue.trim() }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update passcode');
+
+      setPasscodes(prev => prev.map(p => 
+        p.id === id ? { ...p, passcode: editPasscodeValue.trim() } : p
+      ));
+      setEditingPasscodeId(null);
+      setEditPasscodeValue('');
+    } catch (error) {
+      console.error('Error saving edited passcode:', error);
+      alert('Failed to update passcode');
+    }
   };
 
   const toggleShow = (id: string) => setShowCodes((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -54,14 +89,19 @@ export default function AdminSettingsPage() {
     if (!newPasscode.trim() || !newGroup.trim() || !newTeacher.trim()) return;
     const code = newPasscode.trim().toUpperCase();
     
-    const { error } = await supabase.from('passcodes').insert({
-      code,
-      group_name: newGroup.trim(),
-      teacher_name: newTeacher.trim(),
-      is_active: true
-    });
-
-    if (error) {
+    try {
+      const res = await fetch('/api/admin/passcodes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          group_name: newGroup.trim(),
+          teacher_name: newTeacher.trim(),
+          is_active: true
+        })
+      });
+      if (!res.ok) throw new Error('Failed');
+    } catch (err) {
       alert('Failed to add passcode. It might already exist.');
       return;
     }
@@ -73,40 +113,69 @@ export default function AdminSettingsPage() {
   };
 
   const removePasscode = async (id: string) => {
-    const { error } = await supabase.from('passcodes').delete().eq('id', id);
-    if (!error) {
-      setPasscodes((prev) => prev.filter((p) => p.id !== id));
+    try {
+      const res = await fetch(`/api/admin/passcodes/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setPasscodes((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const toggleActive = async (id: string, currentState: boolean) => {
-    const { error } = await supabase
-      .from('passcodes')
-      .update({ is_active: !currentState })
-      .eq('id', id);
-      
-    if (!error) {
-      setPasscodes((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, isActive: !currentState } : p))
-      );
+    try {
+      const res = await fetch(`/api/admin/passcodes/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentState })
+      });
+      if (res.ok) {
+        setPasscodes((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, isActive: !currentState } : p))
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      alert("New passwords don't match!");
+      setPasswordError("New passwords don't match!");
       return;
     }
+    if (newPassword.length < 8) {
+      setPasswordError("New password must be at least 8 characters long.");
+      return;
+    }
+    if (!newPassword.trim() || !currentPassword.trim()) return;
+
     setPasswordStatus('loading');
-    
-    // Simulating password change since we don't have a real auth setup linked
-    setTimeout(() => {
+    setPasswordError('');
+
+    try {
+      const res = await fetch('/api/admin/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update password');
+      }
+
       setPasswordStatus('success');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPasswordStatus('idle'), 3000);
-    }, 1000);
+    } catch (err: any) {
+      setPasswordStatus('error');
+      setPasswordError(err.message || 'An error occurred');
+      setTimeout(() => setPasswordStatus('idle'), 4000);
+    }
   };
 
   return (
@@ -189,16 +258,28 @@ export default function AdminSettingsPage() {
               className={`flex items-center gap-4 px-5 py-3.5 transition-colors ${!p.isActive ? 'opacity-50 bg-slate-50' : ''}`}
             >
               {/* Code */}
-              <div className="flex items-center gap-2 w-28 flex-shrink-0">
-                <code className="text-sm font-mono font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg">
-                  {showCodes[p.id] ? p.passcode : '••••••'}
-                </code>
-                <button
-                  onClick={() => toggleShow(p.id)}
-                  className="text-muted-foreground hover:text-slate-600 transition-colors"
-                >
-                  {showCodes[p.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
+              <div className="flex items-center gap-2 w-32 flex-shrink-0">
+                {editingPasscodeId === p.id ? (
+                  <Input
+                    autoFocus
+                    value={editPasscodeValue}
+                    onChange={(e) => setEditPasscodeValue(e.target.value)}
+                    className="h-8 text-xs font-mono font-bold w-full"
+                    placeholder="New code"
+                  />
+                ) : (
+                  <>
+                    <code className="text-sm font-mono font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg">
+                      {showCodes[p.id] ? p.passcode : '••••••'}
+                    </code>
+                    <button
+                      onClick={() => toggleShow(p.id)}
+                      className="text-muted-foreground hover:text-slate-600 transition-colors"
+                    >
+                      {showCodes[p.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Info */}
@@ -207,25 +288,45 @@ export default function AdminSettingsPage() {
                 <p className="text-xs text-muted-foreground truncate">{p.teacherName}</p>
               </div>
 
-              {/* Status toggle */}
-              <button
-                onClick={() => toggleActive(p.id, p.isActive)}
-                className={`text-xs font-medium px-2 py-1 rounded-full border transition-colors ${
-                  p.isActive
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-                    : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'
-                }`}
-              >
-                {p.isActive ? 'Active' : 'Disabled'}
-              </button>
+              {/* Actions */}
+              <div className="flex items-center gap-2">
+                {/* Save or Edit */}
+                {editingPasscodeId === p.id ? (
+                  <button
+                    onClick={() => saveEditedPasscode(p.id)}
+                    className="text-emerald-600 hover:text-emerald-700 transition-colors p-1"
+                  >
+                    <Save className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => startEditingPasscode(p.id, p.passcode)}
+                    className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
 
-              {/* Delete */}
-              <button
-                onClick={() => removePasscode(p.id)}
-                className="text-muted-foreground hover:text-red-500 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+                {/* Status toggle */}
+                <button
+                  onClick={() => toggleActive(p.id, p.isActive)}
+                  className={`text-xs font-medium px-2 py-1 rounded-full border transition-colors ${
+                    p.isActive
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                      : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'
+                  }`}
+                >
+                  {p.isActive ? 'Active' : 'Disabled'}
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={() => removePasscode(p.id)}
+                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -270,6 +371,10 @@ export default function AdminSettingsPage() {
               className="h-10 rounded-xl text-sm"
             />
           </div>
+
+          {passwordError && (
+            <p className="text-red-500 text-xs font-medium">{passwordError}</p>
+          )}
           
           <Button
             onClick={handleChangePassword}

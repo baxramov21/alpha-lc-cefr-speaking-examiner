@@ -9,7 +9,7 @@ import { Mic, Lock, User, Users, GraduationCap, ChevronRight, Eye, EyeOff } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { supabase } from '@/lib/supabase';
+// Passcode verification is now handled server-side via /api/auth/verify-passcode
 
 const schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -37,45 +37,42 @@ export default function StudentLoginPage() {
     setAuthError('');
 
     try {
-      let isValid = false;
+      // Verify passcode server-side — never trust client-only validation
+      const res = await fetch('/api/auth/verify-passcode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: data.passcode }),
+      });
 
-      if (data.passcode === '12345') {
-        isValid = true;
-      } else {
-        const { data: passcodeData, error } = await supabase
-          .from('passcodes')
-          .select('*')
-          .eq('code', data.passcode)
-          .eq('is_active', true)
-          .single();
-        
-        if (!error && passcodeData) {
-          isValid = true;
-        }
+      if (res.status === 429) {
+        setAuthError('Too many attempts. Please wait 15 minutes and try again.');
+        setIsLoading(false);
+        return;
       }
 
-      if (!isValid) {
+      if (!res.ok) {
         setAuthError('Invalid or inactive passcode. Please check with your teacher.');
         setIsLoading(false);
         return;
       }
 
-      // Store session in sessionStorage for exam pages
+      const { token: sessionToken } = await res.json();
+
+      // Store session metadata and the signed JWT — NOT the raw passcode
       sessionStorage.setItem(
         'examSession',
         JSON.stringify({
           fullName: data.fullName,
-          groupName: data.groupName, // Alternatively, you could force the DB values here if you want
+          groupName: data.groupName,
           teacherName: data.teacherName,
-          passcode: data.passcode,
+          sessionToken,          // signed JWT — never the raw passcode
           startedAt: new Date().toISOString(),
         })
       );
 
       router.push('/exam/setup');
-    } catch (err) {
-      console.error(err);
-      setAuthError('An error occurred while verifying the passcode.');
+    } catch {
+      setAuthError('An error occurred while verifying the passcode. Please try again.');
       setIsLoading(false);
     }
   };
@@ -237,11 +234,6 @@ export default function StudentLoginPage() {
                   <span>{authError}</span>
                 </div>
               )}
-
-              {/* Demo hint */}
-              <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 text-xs text-teal-700">
-                <strong>Demo passcode:</strong> <code className="font-mono bg-teal-100 px-1.5 py-0.5 rounded">12345</code>
-              </div>
 
               {/* Submit */}
               <Button

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Star, TrendingUp, Calendar, ArrowRight, Award, ChevronRight, User } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, CartesianAxes } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/lib/supabase';
 
 type SavedSubmission = {
@@ -23,14 +23,13 @@ export default function StudentsPage() {
   useEffect(() => {
     async function fetchSaved() {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('is_saved', true)
-        .order('created_at', { ascending: true });
-        
-      if (data) setSubmissions(data);
-      if (error) console.error(error);
+      try {
+        const res = await fetch('/api/admin/submissions?saved=true');
+        const data = await res.json();
+        if (data.submissions) setSubmissions(data.submissions);
+      } catch (error) {
+        console.error(error);
+      }
       setIsLoading(false);
     }
     fetchSaved();

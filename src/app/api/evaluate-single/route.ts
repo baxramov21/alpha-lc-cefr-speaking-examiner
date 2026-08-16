@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { PARTIAL_SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
+import { SINGLE_QUESTION_PROMPT, cleanJsonResponse } from '@/lib/gemini';
 import { apiRateLimiter } from '@/lib/rateLimit';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
+
+// Force dynamic evaluation and set maxDuration to 60s
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; 
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
@@ -23,60 +27,53 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
 
-    // Fix #3: Verify student session token before calling the paid Gemini API.
     const sessionToken = formData.get('sessionToken') as string | null;
     const session = await verifyStudentSessionToken(sessionToken);
     if (!session) {
       return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
     }
 
-    const questionsDataStr = formData.get('questionsData') as string;
+    const questionId = formData.get('questionId') as string;
+    const questionText = formData.get('questionText') as string;
+    const audioFile = formData.get('audio') as Blob;
     
-    if (!questionsDataStr) {
-      return NextResponse.json({ error: 'Missing questionsData.' }, { status: 400 });
+    if (!questionId || !questionText) {
+      return NextResponse.json({ error: 'Missing question metadata.' }, { status: 400 });
     }
 
-    const questionsData: { id: string; text: string }[] = JSON.parse(questionsDataStr);
     const generativeParts: any[] = [];
-
-    // Build the prompt dynamically with all questions and their corresponding audio
-    for (const q of questionsData) {
-      const audioFile = formData.get(`audio_${q.id}`) as Blob;
+    generativeParts.push(`\n--- QUESTION ${questionId.toUpperCase()} ---\nQuestion text: "${questionText}"\nCandidate's Answer:`);
+    
+    if (audioFile && audioFile.size > 0) {
+      const arrayBuffer = await audioFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Audio = buffer.toString('base64');
+      const mimeType = audioFile.type || 'audio/webm';
       
-      generativeParts.push(`\n--- QUESTION ${q.id.toUpperCase()} ---\nQuestion text: "${q.text}"\nCandidate's Answer:`);
-      
-      if (audioFile && audioFile.size > 0) {
-        const arrayBuffer = await audioFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const base64Audio = buffer.toString('base64');
-        const mimeType = audioFile.type || 'audio/webm';
-        
-        generativeParts.push({
-          inlineData: {
-            data: base64Audio,
-            mimeType: mimeType,
-          },
-        });
-      } else {
-        generativeParts.push("[No audio recorded for this question]");
-      }
+      generativeParts.push({
+        inlineData: {
+          data: base64Audio,
+          mimeType: mimeType,
+        },
+      });
+    } else {
+      generativeParts.push("[No audio recorded for this question]");
     }
 
-    generativeParts.push(`\n\n${PARTIAL_SYSTEM_PROMPT}`);
+    generativeParts.push(`\n\n${SINGLE_QUESTION_PROMPT}`);
 
-    // Call Gemini Flash with all audio files and text prompts
     const result = await model.generateContent(generativeParts);
     const response = await result.response;
     const rawText = response.text();
 
     const evaluationJSON = cleanJsonResponse(rawText);
 
-    return NextResponse.json(evaluationJSON, { status: 200 });
+    return NextResponse.json({ question_response: evaluationJSON }, { status: 200 });
   } catch (error: any) {
-    console.error('Error evaluating partial audio:', error);
+    console.error('Error evaluating single audio:', error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate partial audio. An internal error occurred.' },
+      { error: 'Failed to evaluate audio.' },
       { status: isRateLimit ? 429 : 500 }
     );
   }

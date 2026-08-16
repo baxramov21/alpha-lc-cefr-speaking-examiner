@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
   try {
-    const { data: submissions, error } = await supabase
-      .from('submissions')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { searchParams } = new URL(req.url);
+    const saved = searchParams.get('saved') === 'true';
+
+    let query = supabase.from('submissions').select('*').order('created_at', { ascending: false });
+    
+    if (saved) {
+      query = query.eq('is_saved', true).order('created_at', { ascending: true });
+    }
+
+    const { data: submissions, error } = await query;
 
     if (error) {
       console.error('Error fetching submissions:', error);
       return NextResponse.json({ error: 'Failed to fetch submissions' }, { status: 500 });
+    }
+
+    if (saved) {
+      return NextResponse.json({ submissions }, { status: 200 });
     }
 
     // Map to SubmissionSummary

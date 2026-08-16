@@ -1,19 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
+import { apiRateLimiter } from '@/lib/rateLimit';
+import { verifyStudentSessionToken } from '@/lib/sessionToken';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
-// The user specified gemini-2.5-flash or gemini-1.5-flash.
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'anonymous';
+    const { success } = await apiRateLimiter.limit(ip);
+    
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     if (!API_KEY) {
       return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
     }
 
     const formData = await req.formData();
+
+    // Fix #3: Verify student session token before calling the paid Gemini API.
+    // This prevents unauthenticated users from abusing this endpoint.
+    const sessionToken = formData.get('sessionToken') as string | null;
+    const session = await verifyStudentSessionToken(sessionToken);
+    if (!session) {
+      return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
+    }
+
     const questionsDataStr = formData.get('questionsData') as string;
     
     if (!questionsDataStr) {
@@ -60,9 +77,8 @@ export async function POST(req: NextRequest) {
     console.error('Error evaluating audio:', error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate audio.', details: error.message },
+      { error: 'Failed to evaluate audio. An internal error occurred.' },
       { status: isRateLimit ? 429 : 500 }
     );
   }
 }
-

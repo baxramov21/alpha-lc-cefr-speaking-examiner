@@ -2,67 +2,105 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  FileText, TrendingUp, Clock, CheckCircle2,
-  ArrowUpRight, ChevronRight,
-} from 'lucide-react';
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import { FileText, TrendingUp, Clock, CheckCircle2, ArrowUpRight, ChevronRight, BarChart2, LineChart } from 'lucide-react';
+import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ScoreBadge from '@/components/shared/ScoreBadge';
-import { CHART_DATA } from '@/lib/mockSubmissions';
-import { CefrBand, SubmissionSummary } from '@/lib/types';
-
-const KPI_CARDS = [
-  {
-    label: 'Total Submissions',
-    value: '7',
-    delta: '+3 today',
-    icon: FileText,
-    color: 'text-teal-600',
-    bg: 'bg-teal-50',
-    border: 'border-teal-100',
-  },
-  {
-    label: 'Average Band Score',
-    value: '6.8',
-    delta: '↑ 0.3 vs last week',
-    icon: TrendingUp,
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
-    border: 'border-violet-100',
-  },
-  {
-    label: 'Pending Review',
-    value: '2',
-    delta: 'Awaiting AI scoring',
-    icon: Clock,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-100',
-  },
-  {
-    label: 'Graded Today',
-    value: '5',
-    delta: '100% accuracy',
-    icon: CheckCircle2,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-100',
-  },
-];
+import { SubmissionSummary } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [recent, setRecent] = useState<SubmissionSummary[]>([]);
+  const [kpiCards, setKpiCards] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartType, setChartType] = useState<'bar' | 'area'>('bar');
 
-  useEffect(() => { 
-    setTimeout(() => setIsLoaded(true), 100); 
+  useEffect(() => {
+    setTimeout(() => setIsLoaded(true), 100);
     fetch('/api/admin/submissions')
       .then(res => res.json())
       .then(data => {
         if (data.submissions) {
-          setRecent(data.submissions.slice(0, 5));
+          const submissions: SubmissionSummary[] = data.submissions;
+          setRecent(submissions.slice(0, 5));
+
+          // Calculate KPI Data
+          const total = submissions.length;
+          
+          const todayStr = new Date().toISOString().split('T')[0];
+          const todayCount = submissions.filter(s => {
+            const dateStr = (s as any).submittedAt || (s as any).created_at || '';
+            return dateStr.startsWith(todayStr);
+          }).length;
+          
+          const avgScore = total > 0 ? (submissions.reduce((acc, s) => acc + ((s as any).overallScore || (s as any).overall_score || 0), 0) / total).toFixed(1) : '0.0';
+          
+          setKpiCards([
+            {
+              label: 'Total Submissions',
+              value: total.toString(),
+              delta: `+${todayCount} today`,
+              icon: FileText,
+              color: 'text-teal-600',
+              bg: 'bg-teal-50',
+              border: 'border-teal-100',
+            },
+            {
+              label: 'Average Score',
+              value: avgScore,
+              delta: 'Out of 75',
+              icon: TrendingUp,
+              color: 'text-violet-600',
+              bg: 'bg-violet-50',
+              border: 'border-violet-100',
+            },
+            {
+              label: 'Pending Review',
+              value: '0',
+              delta: 'Awaiting AI scoring',
+              icon: Clock,
+              color: 'text-amber-600',
+              bg: 'bg-amber-50',
+              border: 'border-amber-100',
+            },
+            {
+              label: 'Graded Today',
+              value: todayCount.toString(),
+              delta: '100% automated',
+              icon: CheckCircle2,
+              color: 'text-emerald-600',
+              bg: 'bg-emerald-50',
+              border: 'border-emerald-100',
+            },
+          ]);
+
+          // Calculate Chart Data (last 7 days)
+          const chartMap = new Map<string, { count: number; totalScore: number }>();
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateKey = d.toISOString().split('T')[0];
+            const shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            chartMap.set(dateKey, { count: 0, totalScore: 0, shortDate } as any);
+          }
+
+          submissions.forEach(s => {
+            const dateStr = (s as any).submittedAt || (s as any).created_at || '';
+            if (!dateStr) return;
+            const dateKey = dateStr.split('T')[0];
+            if (chartMap.has(dateKey)) {
+              const entry: any = chartMap.get(dateKey);
+              entry.count++;
+              entry.totalScore += ((s as any).overallScore || (s as any).overall_score || 0);
+            }
+          });
+
+          const finalChartData = Array.from(chartMap.values()).map((val: any) => ({
+            date: val.shortDate,
+            submissions: val.count,
+            avgScore: val.count > 0 ? (val.totalScore / val.count).toFixed(1) : 0
+          }));
+          
+          setChartData(finalChartData);
         }
       })
       .catch(console.error);
@@ -80,7 +118,7 @@ export default function AdminDashboardPage() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        {KPI_CARDS.map((kpi, i) => {
+        {kpiCards.map((kpi, i) => {
           const Icon = kpi.icon;
           return (
             <div
@@ -110,29 +148,58 @@ export default function AdminDashboardPage() {
               <h2 className="font-bold text-slate-800">Submissions Over Time</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Last 7 days</p>
             </div>
-            <TrendingUp className="w-5 h-5 text-teal-500" />
+            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100">
+              <button 
+                onClick={() => setChartType('bar')}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                title="Bar Chart"
+              >
+                <BarChart2 className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setChartType('area')}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                title="Line/Area Chart"
+              >
+                <LineChart className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={CHART_DATA}>
-              <defs>
-                <linearGradient id="gradSubmissions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gradScore" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
-              />
-              <Area type="monotone" dataKey="submissions" stroke="#14b8a6" fill="url(#gradSubmissions)" strokeWidth={2} name="Submissions" />
-              <Area type="monotone" dataKey="avgScore" stroke="#8b5cf6" fill="url(#gradScore)" strokeWidth={2} name="Avg Score" />
-            </AreaChart>
+            {chartType === 'bar' ? (
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  cursor={{ fill: '#f8fafc' }}
+                />
+                <Bar dataKey="submissions" fill="#14b8a6" radius={[4, 4, 0, 0]} name="Submissions" barSize={32} />
+                <Bar dataKey="avgScore" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Avg Score" barSize={32} />
+              </BarChart>
+            ) : (
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradSubmissions" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gradScore" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
+                />
+                <Area type="monotone" dataKey="submissions" stroke="#14b8a6" fill="url(#gradSubmissions)" strokeWidth={2} name="Submissions" />
+                <Area type="monotone" dataKey="avgScore" stroke="#8b5cf6" fill="url(#gradScore)" strokeWidth={2} name="Avg Score" />
+              </AreaChart>
+            )}
           </ResponsiveContainer>
         </div>
 

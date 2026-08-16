@@ -70,10 +70,10 @@ export async function POST(req: NextRequest) {
     const parsedJSON = cleanJsonResponse(rawText);
 
     return NextResponse.json(parsedJSON, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error parsing PDF:', error);
     return NextResponse.json(
-      { error: 'Failed to parse PDF.', details: error.message },
+      { error: 'Failed to parse PDF.' },
       { status: 500 }
     );
   }

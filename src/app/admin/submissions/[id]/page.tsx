@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExamResult } from '@/lib/types';
 import { EXAM_QUESTIONS } from '@/lib/questions';
+import { sanitizeTranscriptHtml } from '@/lib/sanitize';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-GB', {
@@ -299,7 +300,7 @@ ${ev.question_responses ? ev.question_responses.map(qr => `[Question: ${qr.quest
               </div>
 
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 italic">
-                <div dangerouslySetInnerHTML={{ __html: qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]' }} />
+                <div dangerouslySetInnerHTML={{ __html: sanitizeTranscriptHtml(qr.corrected_transcript_html || qr.transcript || '[No audible speech detected]') }} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">

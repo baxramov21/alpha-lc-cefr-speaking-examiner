@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function GET() {
-  if (!API_KEY || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+// POST method only — GET is cacheable and could be triggered by proxies/prefetchers
+export async function POST() {
+  if (!API_KEY || !SUPABASE_URL) {
     return NextResponse.json({ error: 'Missing environment variables.' }, { status: 500 });
   }
 
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Fix #5: Use supabaseAdmin (service role) — the anon client would silently
+  // fail delete/insert operations once RLS write-restriction policies are applied.
 
   try {
     // 1. Generate 40 Part 1 questions
@@ -90,17 +91,17 @@ export async function GET() {
     const allQuestions = [...p1Questions, ...p3Questions, ...imageQuestions];
 
     // Delete existing to avoid duplicates if run multiple times
-    await supabase.from('questions').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+    await supabaseAdmin.from('questions').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
 
     // Insert all
-    const { error } = await supabase.from('questions').insert(allQuestions);
+    const { error } = await supabaseAdmin.from('questions').insert(allQuestions);
     
     if (error) throw error;
 
     return NextResponse.json({ message: 'Seeded successfully', count: allQuestions.length }, { status: 200 });
 
-  } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to seed', details: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('Seed error:', error);
+    return NextResponse.json({ error: 'Failed to seed questions. Check server logs.' }, { status: 500 });
   }
 }

@@ -33,14 +33,26 @@ export default function AdminLoginPage() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     setAuthError('');
-    await new Promise((r) => setTimeout(r, 700));
-    if (data.email === ADMIN_EMAIL && data.password === ADMIN_PASSWORD) {
-      sessionStorage.setItem('adminAuth', JSON.stringify({ email: data.email, loggedIn: true }));
-      router.push('/admin/dashboard');
-    } else {
-      setAuthError('Invalid credentials. Use the demo credentials below.');
+    
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, password: data.password })
+      });
+
+      if (res.ok) {
+        // Success - cookies are set automatically
+        router.push('/admin/dashboard');
+      } else {
+        const errorData = await res.json();
+        setAuthError(errorData.error || 'Invalid credentials. Use the demo credentials below.');
+      }
+    } catch (err) {
+      setAuthError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (

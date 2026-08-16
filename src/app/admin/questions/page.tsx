@@ -47,13 +47,13 @@ export default function AdminQuestionsPage() {
 
   const fetchQuestions = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (data) setQuestions(data);
-    if (error) console.error(error);
+    try {
+      const res = await fetch('/api/admin/questions');
+      const data = await res.json();
+      if (data.questions) setQuestions(data.questions);
+    } catch (err) {
+      console.error(err);
+    }
     setIsLoading(false);
   };
 
@@ -104,14 +104,21 @@ export default function AdminQuestionsPage() {
 
   const handleCreate = async () => {
     if (!newQ.text) return;
-    const { error } = await supabase.from('questions').insert([
-      { ...newQ, is_active: true }
-    ]);
-    if (!error) {
-      setIsCreating(false);
-      setNewQ({ part: 'part1', question_type: 'standard', text: '', prep_seconds: 30, speak_seconds: 120, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
-      fetchQuestions();
-    } else {
+    try {
+      const res = await fetch('/api/admin/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newQ, is_active: true })
+      });
+      if (res.ok) {
+        setIsCreating(false);
+        setNewQ({ part: 'part1', question_type: 'standard', text: '', prep_seconds: 30, speak_seconds: 120, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
+        fetchQuestions();
+      } else {
+        alert('Error creating question');
+      }
+    } catch (err) {
+      console.error(err);
       alert('Error creating question');
     }
   };
@@ -128,33 +135,43 @@ export default function AdminQuestionsPage() {
 
   const saveEdit = async () => {
     if (!editingId) return;
-    const { error } = await supabase
-      .from('questions')
-      .update({
-        part: editForm.part,
-        question_type: editForm.question_type,
-        text: editForm.text,
-        prep_seconds: editForm.prep_seconds,
-        speak_seconds: editForm.speak_seconds,
-        is_active: editForm.is_active,
-        image_url: editForm.image_url,
-        table_data: editForm.table_data
-      })
-      .eq('id', editingId);
+    try {
+      const res = await fetch(`/api/admin/questions/${editingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          part: editForm.part,
+          question_type: editForm.question_type,
+          text: editForm.text,
+          prep_seconds: editForm.prep_seconds,
+          speak_seconds: editForm.speak_seconds,
+          is_active: editForm.is_active,
+          image_url: editForm.image_url,
+          table_data: editForm.table_data
+        })
+      });
       
-    if (!error) {
-      setEditingId(null);
-      setIsModalEdit(false);
-      fetchQuestions();
-    } else {
+      if (res.ok) {
+        setEditingId(null);
+        setIsModalEdit(false);
+        fetchQuestions();
+      } else {
+        alert('Error updating question');
+      }
+    } catch (err) {
+      console.error(err);
       alert('Error updating question');
     }
   };
 
   const deleteQuestion = async (id: string) => {
     if (!confirm('Are you sure you want to delete this question?')) return;
-    const { error } = await supabase.from('questions').delete().eq('id', id);
-    if (!error) fetchQuestions();
+    try {
+      const res = await fetch(`/api/admin/questions/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchQuestions();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const renderFormFields = (data: Partial<Question>, isEdit: boolean, setter: Function) => (
@@ -410,10 +427,10 @@ export default function AdminQuestionsPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 relative z-10">
-                      <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); startEdit(q); }} className="text-slate-400 hover:text-teal-600">
+                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); startEdit(q); }} className="text-slate-400 hover:text-teal-600">
                         <Edit2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }} className="text-slate-400 hover:text-red-600">
+                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); deleteQuestion(q.id); }} className="text-slate-400 hover:text-red-600">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
