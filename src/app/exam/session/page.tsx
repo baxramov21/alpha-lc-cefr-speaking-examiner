@@ -186,7 +186,6 @@ export default function ExamSessionPage() {
       
       try {
         let evaluation: UzbmbEvaluation | null = null;
-        let evaluation: UzbmbEvaluation | null = null;
         
         // 1. Wait for all background evaluations
         const partialResults = await Promise.all(evalPromisesRef.current);
