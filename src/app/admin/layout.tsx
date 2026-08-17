@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   FileText,
@@ -42,6 +43,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push('/admin');
   };
 
+  if (pathname === '/admin') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50" suppressHydrationWarning>
       {/* ---- Sidebar ---- */}
@@ -49,12 +54,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="px-5 py-6 border-b border-slate-700/50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl brand-gradient flex items-center justify-center flex-shrink-0">
-              <Mic className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <Mic className="w-4 h-4 text-teal-400" />
             </div>
             <div>
-              <p className="font-black text-white text-sm leading-none">LC Alpha</p>
-              <p className="text-slate-400 text-xs mt-0.5">Examiner</p>
+              <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 text-base leading-none tracking-tight">Alpha LC</p>
+              <p className="text-slate-400 text-xs mt-1 font-medium tracking-wide">Examiner</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, EyeOff, Key, Lock, Loader2, Edit2, Save } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Key, Lock, Loader2, Edit2, Save, Brain, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,16 +9,10 @@ import { PasscodeEntry } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminSettingsPage() {
-  const [passcodes, setPasscodes] = useState<PasscodeEntry[]>([]);
-  const [loadingPasscodes, setLoadingPasscodes] = useState(true);
-  const [newPasscode, setNewPasscode] = useState('');
-  const [newGroup, setNewGroup] = useState('');
-  const [newTeacher, setNewTeacher] = useState('');
-  const [showCodes, setShowCodes] = useState<Record<string, boolean>>({});
-  
-  // Edit Passcode State
-  const [editingPasscodeId, setEditingPasscodeId] = useState<string | null>(null);
-  const [editPasscodeValue, setEditPasscodeValue] = useState('');
+  // Auth Settings State
+  const [studentPassword, setStudentPassword] = useState('ALPHA2024');
+  const [allowSkip, setAllowSkip] = useState(true);
+  const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -27,116 +21,94 @@ export default function AdminSettingsPage() {
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [passwordError, setPasswordError] = useState('');
 
+  // AI Model Config State
+  const [partModel, setPartModel] = useState('gemini-2.5-flash-lite');
+  const [finalModel, setFinalModel] = useState('gemini-2.5-flash');
+  const [writingTime, setWritingTime] = useState(60);
+  const [readingTime, setReadingTime] = useState(60);
+  const [listeningReps, setListeningReps] = useState(2);
+  const [modelStatus, setModelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
   useEffect(() => {
-    fetchPasscodes();
+    fetchAuthSettings();
+    fetchModelConfig();
   }, []);
 
-  const fetchPasscodes = async () => {
-    setLoadingPasscodes(true);
+  const fetchModelConfig = async () => {
     try {
-      const res = await fetch('/api/admin/passcodes');
-      const data = await res.json();
-      if (data.passcodes) {
-        setPasscodes(data.passcodes.map((d: any) => ({
-          id: d.id,
-          passcode: d.code,
-          groupName: d.group_name,
-          teacherName: d.teacher_name,
-          isActive: d.is_active,
-          createdAt: d.created_at
-        })));
+      const res = await fetch('/api/admin/settings/models');
+      if (res.ok) {
+        const data = await res.json();
+        setPartModel(data.part_model || 'gemini-2.5-flash-lite');
+        setFinalModel(data.final_model || 'gemini-2.5-flash');
+        setWritingTime(data.writing_time_minutes || 60);
+        setReadingTime(data.reading_time_minutes || 60);
+        setListeningReps(data.listening_repetitions || 2);
       }
     } catch (err) {
-      console.error('Failed to fetch passcodes', err);
+      console.error('Failed to fetch model config', err);
     }
-    setLoadingPasscodes(false);
   };
 
-  const startEditingPasscode = (id: string, currentCode: string) => {
-    setEditingPasscodeId(id);
-    setEditPasscodeValue(currentCode);
-  };
-
-  const saveEditedPasscode = async (id: string) => {
-    if (!editPasscodeValue.trim() || editPasscodeValue.length < 4) {
-      alert('Passcode must be at least 4 characters long.');
-      return;
-    }
-
+  const handleSaveModelConfig = async () => {
+    setModelStatus('loading');
     try {
-      const res = await fetch(`/api/admin/passcodes/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: editPasscodeValue.trim() }),
-      });
-
-      if (!res.ok) throw new Error('Failed to update passcode');
-
-      setPasscodes(prev => prev.map(p => 
-        p.id === id ? { ...p, passcode: editPasscodeValue.trim() } : p
-      ));
-      setEditingPasscodeId(null);
-      setEditPasscodeValue('');
-    } catch (error) {
-      console.error('Error saving edited passcode:', error);
-      alert('Failed to update passcode');
-    }
-  };
-
-  const toggleShow = (id: string) => setShowCodes((prev) => ({ ...prev, [id]: !prev[id] }));
-
-  const addPasscode = async () => {
-    if (!newPasscode.trim() || !newGroup.trim() || !newTeacher.trim()) return;
-    const code = newPasscode.trim().toUpperCase();
-    
-    try {
-      const res = await fetch('/api/admin/passcodes', {
+      const res = await fetch('/api/admin/settings/models', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code,
-          group_name: newGroup.trim(),
-          teacher_name: newTeacher.trim(),
-          is_active: true
+        body: JSON.stringify({ 
+          part_model: partModel, 
+          final_model: finalModel,
+          writing_time_minutes: writingTime,
+          reading_time_minutes: readingTime,
+          listening_repetitions: listeningReps
         })
       });
-      if (!res.ok) throw new Error('Failed');
-    } catch (err) {
-      alert('Failed to add passcode. It might already exist.');
-      return;
-    }
-
-    setNewPasscode('');
-    setNewGroup('');
-    setNewTeacher('');
-    fetchPasscodes();
-  };
-
-  const removePasscode = async (id: string) => {
-    try {
-      const res = await fetch(`/api/admin/passcodes/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setPasscodes((prev) => prev.filter((p) => p.id !== id));
+        setModelStatus('success');
+        setTimeout(() => setModelStatus('idle'), 3000);
+      } else {
+        throw new Error('Failed');
       }
     } catch (err) {
-      console.error(err);
+      setModelStatus('error');
+      setTimeout(() => setModelStatus('idle'), 3000);
     }
   };
 
-  const toggleActive = async (id: string, currentState: boolean) => {
+  const fetchAuthSettings = async () => {
     try {
-      const res = await fetch(`/api/admin/passcodes/${id}`, {
-        method: 'PATCH',
+      const res = await fetch('/api/admin/settings/auth');
+      if (res.ok) {
+        const data = await res.json();
+        setStudentPassword(data.student_password || 'ALPHA2024');
+        setAllowSkip(data.allow_skip ?? true);
+      }
+    } catch (err) {
+      console.error('Failed to fetch auth settings', err);
+    }
+  };
+
+  const handleSaveAuthSettings = async () => {
+    setAuthStatus('loading');
+    try {
+      const res = await fetch('/api/admin/settings/auth', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !currentState })
+        body: JSON.stringify({ 
+          student_password: studentPassword,
+          allow_skip: allowSkip
+        })
       });
       if (res.ok) {
-        setPasscodes((prev) =>
-          prev.map((p) => (p.id === id ? { ...p, isActive: !currentState } : p))
-        );
+        setAuthStatus('success');
+        setTimeout(() => setAuthStatus('idle'), 3000);
+      } else {
+        throw new Error('Failed');
       }
     } catch (err) {
-      console.error(err);
+      setAuthStatus('error');
+      setTimeout(() => setAuthStatus('idle'), 3000);
     }
   };
 
@@ -187,148 +159,121 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      {/* ---- Passcode Management ---- */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
-            <Key className="w-4 h-4 text-teal-600" />
+      {/* Exam Configuration Card */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 lg:p-8 relative overflow-hidden group mb-8">
+        <div className="absolute top-0 left-0 w-full h-1 bg-amber-500" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Clock className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-800">Student Passcodes</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {passcodes.filter((p) => p.isActive).length} active passcodes
-            </p>
+            <h2 className="text-xl font-bold text-slate-800">Exam Configuration</h2>
+            <p className="text-sm text-slate-500">Configure timings and repetitions</p>
           </div>
         </div>
 
-        {/* Add new */}
-        <div className="p-5 border-b border-slate-100 bg-slate-50/50">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Add New Passcode</p>
-          <div className="grid grid-cols-3 gap-3 mb-3">
-            <div className="space-y-1">
-              <Label className="text-xs text-slate-600">Passcode</Label>
-              <Input
-                value={newPasscode}
-                onChange={(e) => setNewPasscode(e.target.value.toUpperCase())}
-                placeholder="e.g. GROUP01"
-                className="h-9 rounded-lg text-sm font-mono"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Writing Duration (minutes)</Label>
+            <div className="relative">
+              <Input 
+                type="number"
+                value={writingTime} 
+                onChange={(e) => setWritingTime(Number(e.target.value))}
+                className="rounded-xl border-slate-200 h-12 text-slate-700 font-medium bg-slate-50 focus:bg-white transition-colors"
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-slate-600">Group Name</Label>
-              <Input
-                value={newGroup}
-                onChange={(e) => setNewGroup(e.target.value)}
-                placeholder="e.g. Group E"
-                className="h-9 rounded-lg text-sm"
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Listening Audio Repetitions</Label>
+            <div className="relative">
+              <Input 
+                type="number"
+                value={listeningReps} 
+                onChange={(e) => setListeningReps(Number(e.target.value))}
+                className="rounded-xl border-slate-200 h-12 text-slate-700 font-medium bg-slate-50 focus:bg-white transition-colors"
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-slate-600">Teacher Name</Label>
-              <Input
-                value={newTeacher}
-                onChange={(e) => setNewTeacher(e.target.value)}
-                placeholder="e.g. Mr. Karimov"
-                className="h-9 rounded-lg text-sm"
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Reading Duration (minutes)</Label>
+            <div className="relative">
+              <Input 
+                type="number"
+                value={readingTime} 
+                onChange={(e) => setReadingTime(Number(e.target.value))}
+                className="rounded-xl border-slate-200 h-12 text-slate-700 font-medium bg-slate-50 focus:bg-white transition-colors"
               />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+          <p className="text-xs text-slate-400 font-medium">Changes will be saved along with the AI Models configuration.</p>
+        </div>
+      </div>
+
+      {/* ---- Universal Access Settings ---- */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+              <Key className="w-4 h-4 text-teal-600" />
+            </div>
+            <div>
+              <h2 className="font-bold text-slate-800">Universal Student Access</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Manage the master password and exam capabilities
+              </p>
             </div>
           </div>
           <Button
-            onClick={addPasscode}
+            onClick={handleSaveAuthSettings}
+            disabled={authStatus === 'loading'}
             size="sm"
-            className="bg-teal-500 hover:bg-teal-600 text-white rounded-lg gap-1.5"
+            className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl gap-2 shadow-lg shadow-teal-600/20"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Passcode
+            {authStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Access Settings
           </Button>
         </div>
 
-        {/* List */}
-        <div className="divide-y divide-slate-50">
-          {loadingPasscodes ? (
-            <div className="p-10 flex justify-center text-slate-400">
-              <Loader2 className="w-6 h-6 animate-spin" />
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Universal Student Password</Label>
+            <div className="relative">
+              <Input 
+                type="text"
+                value={studentPassword}
+                onChange={(e) => setStudentPassword(e.target.value.toUpperCase())}
+                className="rounded-xl border-slate-200 h-12 text-slate-700 font-bold font-mono tracking-widest bg-slate-50 focus:bg-white uppercase"
+              />
             </div>
-          ) : passcodes.length === 0 ? (
-            <div className="p-10 text-center text-slate-400 text-sm">
-              No passcodes found. Add one above.
-            </div>
-          ) : passcodes.map((p) => (
-            <div
-              key={p.id}
-              className={`flex items-center gap-4 px-5 py-3.5 transition-colors ${!p.isActive ? 'opacity-50 bg-slate-50' : ''}`}
-            >
-              {/* Code */}
-              <div className="flex items-center gap-2 w-32 flex-shrink-0">
-                {editingPasscodeId === p.id ? (
-                  <Input
-                    autoFocus
-                    value={editPasscodeValue}
-                    onChange={(e) => setEditPasscodeValue(e.target.value)}
-                    className="h-8 text-xs font-mono font-bold w-full"
-                    placeholder="New code"
-                  />
-                ) : (
-                  <>
-                    <code className="text-sm font-mono font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg">
-                      {showCodes[p.id] ? p.passcode : '••••••'}
-                    </code>
-                    <button
-                      onClick={() => toggleShow(p.id)}
-                      className="text-muted-foreground hover:text-slate-600 transition-colors"
-                    >
-                      {showCodes[p.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </>
-                )}
-              </div>
+            <p className="text-xs text-slate-500">Students will use this to enter the exam.</p>
+          </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-700 truncate">{p.groupName}</p>
-                <p className="text-xs text-muted-foreground truncate">{p.teacherName}</p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2">
-                {/* Save or Edit */}
-                {editingPasscodeId === p.id ? (
-                  <button
-                    onClick={() => saveEditedPasscode(p.id)}
-                    className="text-emerald-600 hover:text-emerald-700 transition-colors p-1"
-                  >
-                    <Save className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => startEditingPasscode(p.id, p.passcode)}
-                    className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                )}
-
-                {/* Status toggle */}
-                <button
-                  onClick={() => toggleActive(p.id, p.isActive)}
-                  className={`text-xs font-medium px-2 py-1 rounded-full border transition-colors ${
-                    p.isActive
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-                      : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200'
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Allow Skipping Questions</Label>
+            <div className="flex items-center gap-3 h-12">
+              <button
+                onClick={() => setAllowSkip(!allowSkip)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  allowSkip ? 'bg-teal-500' : 'bg-slate-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    allowSkip ? 'translate-x-6' : 'translate-x-1'
                   }`}
-                >
-                  {p.isActive ? 'Active' : 'Disabled'}
-                </button>
-
-                {/* Delete */}
-                <button
-                  onClick={() => removePasscode(p.id)}
-                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+                />
+              </button>
+              <span className="text-sm font-medium text-slate-600">
+                {allowSkip ? 'Enabled (Students can skip prep/questions)' : 'Disabled (Forced to wait)'}
+              </span>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
@@ -387,6 +332,57 @@ export default function AdminSettingsPage() {
           >
             {passwordStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {passwordStatus === 'success' ? 'Password Updated!' : 'Update Password'}
+          </Button>
+        </div>
+      </div>
+
+      {/* ---- AI Model Configuration ---- */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Brain className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="font-bold text-slate-800">AI Model Configuration</h2>
+            <p className="text-xs text-muted-foreground">Select active Gemini models for evaluation</p>
+          </div>
+        </div>
+        <div className="space-y-4 max-w-md">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600">Part Evaluator (Audio parts, high volume)</Label>
+            <select
+              value={partModel}
+              onChange={(e) => setPartModel(e.target.value)}
+              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white"
+            >
+              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+            </select>
+          </div>
+          
+          <div className="space-y-1.5">
+            <Label className="text-xs text-slate-600">Final Evaluator (Aggregation & Writing)</Label>
+            <select
+              value={finalModel}
+              onChange={(e) => setFinalModel(e.target.value)}
+              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white"
+            >
+              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+            </select>
+          </div>
+
+          <Button
+            onClick={handleSaveModelConfig}
+            disabled={modelStatus === 'loading'}
+            className={`gap-2 rounded-xl h-11 px-6 transition-all mt-2 ${
+              modelStatus === 'success'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {modelStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {modelStatus === 'success' ? 'Models Updated!' : 'Save AI Models'}
           </Button>
         </div>
       </div>

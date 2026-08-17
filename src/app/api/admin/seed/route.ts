@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getModelConfig } from '@/lib/modelHelper';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,7 +13,8 @@ export async function POST() {
   }
 
   const genAI = new GoogleGenerativeAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const config = await getModelConfig();
+  const model = genAI.getGenerativeModel({ model: config.final_model });
   // Fix #5: Use supabaseAdmin (service role) — the anon client would silently
   // fail delete/insert operations once RLS write-restriction policies are applied.
 
@@ -81,11 +83,11 @@ export async function POST() {
       { part: 'part1', question_type: 'image', text: 'Compare reading a physical book to reading on a tablet. What are the pros and cons?', prep_seconds: 30, speak_seconds: 45, topic: 'Reading Habits', image_url: '/images/exam_samples/part1_reading_book_vs_tablet_1786650645886.png', is_active: true },
       
       // Part 2 Image Questions (5)
-      { part: 'part2', question_type: 'image', text: 'Look at this infographic about career paths. Describe the steps involved in achieving success and how networking plays a role.', prep_seconds: 60, speak_seconds: 120, topic: 'Career Path', image_url: '/images/exam_samples/part2_career_path_1786650667719.png', is_active: true },
-      { part: 'part2', question_type: 'image', text: 'Look at this infographic comparing environmental impacts. Discuss the transition from fossil fuels to renewable energy.', prep_seconds: 60, speak_seconds: 120, topic: 'Environment', image_url: '/images/exam_samples/part2_environmental_impact_1786650678421.png', is_active: true },
-      { part: 'part2', question_type: 'image', text: 'Look at this timeline of technology evolution. Discuss how communication has changed over the decades.', prep_seconds: 60, speak_seconds: 120, topic: 'Technology', image_url: '/images/exam_samples/part2_technology_evolution_1786650690041.png', is_active: true },
-      { part: 'part2', question_type: 'image', text: 'Look at this infographic about a healthy lifestyle. Discuss the importance of balancing physical exercise and mental well-being.', prep_seconds: 60, speak_seconds: 120, topic: 'Health', image_url: '/images/exam_samples/part2_healthy_lifestyle_1786650700681.png', is_active: true },
-      { part: 'part2', question_type: 'image', text: 'Look at this infographic on financial planning. Discuss the steps necessary to secure a stable financial future.', prep_seconds: 60, speak_seconds: 120, topic: 'Finance', image_url: '/images/exam_samples/part2_financial_planning_1786650712694.png', is_active: true }
+      { part: 'part2', question_type: 'image', text: 'Look at this infographic about career paths. What steps are involved in achieving career success? How does networking play a role in this journey? Why is it important to have a clear career plan?', prep_seconds: 60, speak_seconds: 120, topic: 'Career Path', image_url: '/images/exam_samples/part2_career_path_1786650667719.png', is_active: true },
+      { part: 'part2', question_type: 'image', text: 'Look at this infographic comparing environmental impacts. What are the main differences between fossil fuels and renewable energy? How can society successfully transition to renewable energy sources? What role do individuals play in this transition?', prep_seconds: 60, speak_seconds: 120, topic: 'Environment', image_url: '/images/exam_samples/part2_environmental_impact_1786650678421.png', is_active: true },
+      { part: 'part2', question_type: 'image', text: 'Look at this timeline of technology evolution. How has communication technology changed over the decades? What impact has this had on society and personal relationships? What future technological advancements do you anticipate?', prep_seconds: 60, speak_seconds: 120, topic: 'Technology', image_url: '/images/exam_samples/part2_technology_evolution_1786650690041.png', is_active: true },
+      { part: 'part2', question_type: 'image', text: 'Look at this infographic about a healthy lifestyle. Why is it important to balance physical exercise and mental well-being? What are some effective ways to maintain this balance? How does a healthy lifestyle impact overall productivity?', prep_seconds: 60, speak_seconds: 120, topic: 'Health', image_url: '/images/exam_samples/part2_healthy_lifestyle_1786650700681.png', is_active: true },
+      { part: 'part2', question_type: 'image', text: 'Look at this infographic on financial planning. What are the necessary steps to secure a stable financial future? Why is it important to start financial planning early? What common mistakes do people make when managing their finances?', prep_seconds: 60, speak_seconds: 120, topic: 'Finance', image_url: '/images/exam_samples/part2_financial_planning_1786650712694.png', is_active: true }
     ];
 
     const allQuestions = [...p1Questions, ...p3Questions, ...imageQuestions];

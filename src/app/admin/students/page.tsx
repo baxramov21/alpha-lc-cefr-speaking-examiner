@@ -13,11 +13,13 @@ type SavedSubmission = {
   overall_band: string;
   created_at: string;
   admin_notes: string;
+  evaluation_data?: any;
 };
 
 export default function StudentsPage() {
   const [submissions, setSubmissions] = useState<SavedSubmission[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [skillTab, setSkillTab] = useState<'speaking' | 'writing' | 'listening'>('speaking');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,13 +39,15 @@ export default function StudentsPage() {
 
   const studentsMap = useMemo(() => {
     const map = new Map<string, SavedSubmission[]>();
-    submissions.forEach(sub => {
-      const arr = map.get(sub.student_name) || [];
-      arr.push(sub);
-      map.set(sub.student_name, arr);
-    });
+    submissions
+      .filter(sub => (sub.evaluation_data?.examType || 'speaking') === skillTab)
+      .forEach(sub => {
+        const arr = map.get(sub.student_name) || [];
+        arr.push(sub);
+        map.set(sub.student_name, arr);
+      });
     return map;
-  }, [submissions]);
+  }, [submissions, skillTab]);
 
   const studentsList = useMemo(() => {
     return Array.from(studentsMap.entries()).map(([name, subs]) => {
@@ -53,10 +57,14 @@ export default function StudentsPage() {
   }, [studentsMap]);
 
   useEffect(() => {
-    if (studentsList.length > 0 && !selectedStudent) {
-      setSelectedStudent(studentsList[0].name);
+    if (studentsList.length > 0) {
+      if (!selectedStudent || !studentsList.find(s => s.name === selectedStudent)) {
+        setSelectedStudent(studentsList[0].name);
+      }
+    } else {
+      setSelectedStudent(null);
     }
-  }, [studentsList, selectedStudent]);
+  }, [studentsList, selectedStudent, skillTab]);
 
   if (isLoading) {
     return <div className="p-12 text-center text-slate-500">Loading Analytics...</div>;
@@ -79,6 +87,48 @@ export default function StudentsPage() {
         <p className="text-muted-foreground text-sm mt-1">
           Track the progression and performance of your bookmarked top performers.
         </p>
+      </div>
+
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setSkillTab('speaking')}
+          className={`px-6 py-3 font-bold transition-all relative ${
+            skillTab === 'speaking' 
+              ? 'text-teal-600' 
+              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+          }`}
+        >
+          Speaking Analytics
+          {skillTab === 'speaking' && (
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setSkillTab('writing')}
+          className={`px-6 py-3 font-bold transition-all relative ${
+            skillTab === 'writing' 
+              ? 'text-emerald-600' 
+              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+          }`}
+        >
+          Writing Analytics
+          {skillTab === 'writing' && (
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />
+          )}
+        </button>
+        <button
+          onClick={() => setSkillTab('listening')}
+          className={`px-6 py-3 font-bold transition-all relative ${
+            skillTab === 'listening' 
+              ? 'text-indigo-600' 
+              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+          }`}
+        >
+          Listening Analytics
+          {skillTab === 'listening' && (
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 rounded-t-full" />
+          )}
+        </button>
       </div>
 
       <div className="flex flex-1 gap-8 min-h-0">

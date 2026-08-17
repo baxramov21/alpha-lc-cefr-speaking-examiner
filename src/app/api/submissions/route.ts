@@ -14,7 +14,13 @@ export async function POST(req: NextRequest) {
     }
     
     const body = parsed.data;
-    const { studentName, groupName, teacherName, sessionToken, overallScore, overallBand, evaluation } = body;
+    const { studentName, groupName, teacherName, sessionToken, overallScore, overallBand, evaluation, examType } = body;
+
+    // Inject examType directly into the evaluation JSONB before saving to Supabase
+    // This allows us to filter submissions by exam type without running a DB migration
+    if (examType) {
+      evaluation.examType = examType;
+    }
 
     // Fix #2: Verify the student session token (signed JWT) and extract the passcode.
     // The raw passcode is never sent by the client — only the token is.
@@ -61,8 +67,9 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let resultsToInsert: any[] = [];
     
-    if (evaluation.question_responses && evaluation.question_responses.length > 0) {
-      resultsToInsert = evaluation.question_responses.map((qr) => ({
+    const evalData = evaluation as any;
+    if (evalData.question_responses && evalData.question_responses.length > 0) {
+      resultsToInsert = evalData.question_responses.map((qr: any) => ({
         submission_id: submissionId,
         question_id: qr.question_id,
         transcript: qr.transcript || '[No transcript]',
@@ -71,11 +78,11 @@ export async function POST(req: NextRequest) {
         ai_feedback: qr.grammar_feedback || 'See overall evaluation', 
         rubric_scores: [],
       }));
-    } else if (evaluation.transcripts) {
-      resultsToInsert = Object.keys(evaluation.transcripts).map((qId) => ({
+    } else if (evalData.transcripts) {
+      resultsToInsert = Object.keys(evalData.transcripts).map((qId) => ({
         submission_id: submissionId,
         question_id: qId,
-        transcript: evaluation.transcripts?.[qId] || '[No transcript]',
+        transcript: evalData.transcripts?.[qId] || '[No transcript]',
         overall_score: 0,
         cefr_band: '-',
         ai_feedback: 'See overall evaluation',

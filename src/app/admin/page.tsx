@@ -2,23 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { LayoutDashboard, Mail, Lock, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Lock, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const schema = z.object({
-  email: z.string().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 type FormData = z.infer<typeof schema>;
-
-// Demo credentials
-const ADMIN_EMAIL = 'admin@lcalpha.uz';
-const ADMIN_PASSWORD = 'admin123';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -38,7 +34,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email, password: data.password })
+        body: JSON.stringify({ password: data.password })
       });
 
       if (res.ok) {
@@ -46,7 +42,7 @@ export default function AdminLoginPage() {
         router.push('/admin/dashboard');
       } else {
         const errorData = await res.json();
-        setAuthError(errorData.error || 'Invalid credentials. Use the demo credentials below.');
+        setAuthError(errorData.error || 'Invalid credentials.');
       }
     } catch (err) {
       setAuthError('An error occurred. Please try again.');
@@ -69,29 +65,15 @@ export default function AdminLoginPage() {
           <div className="w-16 h-16 rounded-2xl brand-gradient flex items-center justify-center mx-auto mb-4 shadow-lg shadow-teal-500/30">
             <LayoutDashboard className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-black text-white">LC Alpha</h1>
-          <p className="text-slate-400 text-sm mt-1">Examiner Dashboard</p>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 tracking-tight">Alpha LC</h1>
+          <p className="text-slate-400 text-sm mt-1 font-medium">Examiner Dashboard</p>
         </div>
 
         <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
           <h2 className="text-lg font-bold text-white mb-6">Admin Sign In</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" id="admin-login-form">
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label htmlFor="admin-email" className="text-sm font-medium text-slate-300">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <Input
-                  id="admin-email"
-                  type="email"
-                  placeholder="admin@lcalpha.uz"
-                  className="pl-10 h-11 rounded-xl bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
-                  {...register('email')}
-                />
-              </div>
-              {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-            </div>
+
 
             {/* Password */}
             <div className="space-y-1.5">
@@ -123,11 +105,7 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {/* Demo credentials hint */}
-            <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-3 text-xs text-teal-300 space-y-1">
-              <p><strong>Demo email:</strong> admin@lcalpha.uz</p>
-              <p><strong>Demo password:</strong> admin123</p>
-            </div>
+
 
             <Button
               type="submit"

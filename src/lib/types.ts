@@ -21,7 +21,7 @@ export interface PasscodeEntry {
 }
 
 // ----- Exam Structure -----
-export type ExamPart = 'part1' | 'part2' | 'part3';
+export type ExamPart = 'part1' | 'part2' | 'part3' | 'task1' | 'task2';
 export type QuestionPhase = 'prep' | 'speak' | 'complete';
 
 export interface ExamQuestion {
@@ -89,12 +89,42 @@ export interface UzbmbEvaluation {
   };
   strengths: string[];
   areas_for_improvement: string[];
-  // Legacy backward-compatibility for older submissions
   transcripts?: {
     [questionId: string]: string;
   };
-  // New granular question breakdown
   question_responses?: QuestionResponseEval[];
+}
+
+// ----- Listening -----
+export interface ListeningSubQuestion {
+  id: string;
+  number: number;
+  text: string;
+  type: 'multiple_choice' | 'fill_in_blank';
+  options?: string[]; // For multiple choice
+  correctAnswer: string;
+}
+
+export interface ListeningTask {
+  id: string;
+  partLabel: string; // e.g. "Part 1"
+  audioUrl: string;
+  instructions: string;
+  questions: ListeningSubQuestion[];
+}
+
+export interface ListeningEvaluation {
+  total_score: number;       // e.g. 35
+  max_score: number;         // e.g. 40
+  cefr_level: CefrBand;      // Estimated based on score
+  correct_answers: number;
+  incorrect_answers: number;
+  question_results: {
+    question_id: string;
+    user_answer: string;
+    correct_answer: string;
+    is_correct: boolean;
+  }[];
 }
 
 export interface ExamResult {
@@ -104,11 +134,36 @@ export interface ExamResult {
   teacherName: string;
   overallScore: number;
   overallCefrBand: CefrBand;
-  evaluation: UzbmbEvaluation;
+  evaluation: any;
   submittedAt: string;
   status: 'graded' | 'pending' | 'error';
   adminNotes?: string;
 }
+
+// ----- Reading -----
+export interface ReadingTask {
+  id: string;
+  partLabel: string;
+  pdfUrl: string;
+  passageText: string;
+  instructions: string;
+  questions: ListeningSubQuestion[]; // Re-using sub question type
+}
+
+export interface ReadingEvaluation {
+  total_score: number;
+  max_score: number;
+  cefr_level: CefrBand;
+  correct_answers: number;
+  incorrect_answers: number;
+  question_results: {
+    question_id: string;
+    user_answer: string;
+    correct_answer: string;
+    is_correct: boolean;
+  }[];
+}
+
 
 // ----- Admin -----
 export interface SubmissionSummary {
@@ -120,6 +175,7 @@ export interface SubmissionSummary {
   overallCefrBand: CefrBand;
   status: 'graded' | 'pending' | 'error';
   submittedAt: string;
+  examType?: 'speaking' | 'writing' | 'reading' | 'listening';
 }
 
 export interface AdminUser {
@@ -135,4 +191,42 @@ export interface ExamSessionState {
   isRecording: boolean;
   recordings: QuestionRecording[];
   isPaused: boolean;
+}
+
+// ----- Writing Types -----
+export interface WritingQuestion {
+  id: string;
+  taskNumber: 1 | 2;
+  title: string;
+  instructions: string;
+  imageUrl?: string;
+  minWords: number;
+  recommendedMinutes: number;
+}
+
+export interface WritingTaskEval {
+  word_count: number;
+  corrected_text_html: string;
+  feedback: string;
+}
+
+export interface WritingEvaluation {
+  total_score: number;
+  cefr_level: CefrBand;
+  task_scores: {
+    task_1_score: number;
+    task_2_score: number;
+  };
+  criteria_ratings: {
+    task_achievement: CefrBand;
+    coherence_cohesion: CefrBand;
+    lexical_resource: CefrBand;
+    grammar_accuracy: CefrBand;
+  };
+  task_1_eval: WritingTaskEval;
+  task_2_eval: WritingTaskEval;
+  global_feedback: {
+    strengths: string[];
+    areas_for_improvement: string[];
+  };
 }

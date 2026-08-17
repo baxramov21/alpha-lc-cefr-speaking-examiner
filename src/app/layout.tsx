@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Merriweather, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const merriweather = Merriweather({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "700", "900"],
 });
 
 const geistMono = Geist_Mono({
@@ -13,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LC Alpha — CEFR Speaking Examiner",
+  title: "Alpha LC — CEFR Speaking Examiner",
   description:
-    "AI-powered CEFR speaking assessment platform. Instant, accurate band scoring with Gemini Flash.",
+    "AI-powered CEFR speaking assessment platform. Instant, accurate band scoring with Professional AI.",
   keywords: ["CEFR", "IELTS", "speaking exam", "AI assessment", "language learning"],
 };
 
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${merriweather.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col">{children}</body>
     </html>

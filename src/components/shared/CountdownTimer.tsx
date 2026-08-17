@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 interface CountdownTimerProps {
   totalSeconds: number;
   onComplete?: () => void;
+  onTenSecondsLeft?: () => void;
+  onLowTimeTick?: () => void;
   phase: 'prep' | 'speak';
   isPaused?: boolean;
   size?: number;
@@ -14,6 +16,8 @@ interface CountdownTimerProps {
 export default function CountdownTimer({
   totalSeconds,
   onComplete,
+  onTenSecondsLeft,
+  onLowTimeTick,
   phase,
   isPaused = false,
   size = 140,
@@ -22,6 +26,10 @@ export default function CountdownTimer({
   const [timeLeft, setTimeLeft] = useState(totalSeconds);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const onTenSecondsLeftRef = useRef(onTenSecondsLeft);
+  onTenSecondsLeftRef.current = onTenSecondsLeft;
+  const onLowTimeTickRef = useRef(onLowTimeTick);
+  onLowTimeTickRef.current = onLowTimeTick;
 
   // Reset when totalSeconds changes (new question)
   useEffect(() => {
@@ -32,6 +40,14 @@ export default function CountdownTimer({
     if (isPaused || timeLeft <= 0) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
+        if (prev === 11 && phase === 'speak') {
+          // It will become 10 on this tick
+          setTimeout(() => onTenSecondsLeftRef.current?.(), 0);
+        }
+        if (prev <= 6 && prev > 1 && phase === 'speak') {
+          // It will become 5, 4, 3, 2, 1 on this tick
+          setTimeout(() => onLowTimeTickRef.current?.(), 0);
+        }
         if (prev <= 1) {
           clearInterval(interval);
           setTimeout(() => onCompleteRef.current?.(), 0);
@@ -41,7 +57,7 @@ export default function CountdownTimer({
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [isPaused, timeLeft]);
+  }, [isPaused, timeLeft, phase]);
 
   const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;

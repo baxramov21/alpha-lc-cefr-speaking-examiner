@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { FileText, TrendingUp, Clock, CheckCircle2, ArrowUpRight, ChevronRight, BarChart2, LineChart } from 'lucide-react';
 import { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ScoreBadge from '@/components/shared/ScoreBadge';
-import { SubmissionSummary } from '@/lib/types';
+import { SubmissionSummary, CefrBand } from '@/lib/types';
 
 export default function AdminDashboardPage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [allSubmissions, setAllSubmissions] = useState<SubmissionSummary[]>([]);
+  const [activeSkill, setActiveSkill] = useState<'speaking' | 'writing' | 'listening'>('speaking');
   const [recent, setRecent] = useState<SubmissionSummary[]>([]);
   const [kpiCards, setKpiCards] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
@@ -20,100 +22,148 @@ export default function AdminDashboardPage() {
       .then(res => res.json())
       .then(data => {
         if (data.submissions) {
-          const submissions: SubmissionSummary[] = data.submissions;
-          setRecent(submissions.slice(0, 5));
-
-          // Calculate KPI Data
-          const total = submissions.length;
-          
-          const todayStr = new Date().toISOString().split('T')[0];
-          const todayCount = submissions.filter(s => {
-            const dateStr = (s as any).submittedAt || (s as any).created_at || '';
-            return dateStr.startsWith(todayStr);
-          }).length;
-          
-          const avgScore = total > 0 ? (submissions.reduce((acc, s) => acc + ((s as any).overallScore || (s as any).overall_score || 0), 0) / total).toFixed(1) : '0.0';
-          
-          setKpiCards([
-            {
-              label: 'Total Submissions',
-              value: total.toString(),
-              delta: `+${todayCount} today`,
-              icon: FileText,
-              color: 'text-teal-600',
-              bg: 'bg-teal-50',
-              border: 'border-teal-100',
-            },
-            {
-              label: 'Average Score',
-              value: avgScore,
-              delta: 'Out of 75',
-              icon: TrendingUp,
-              color: 'text-violet-600',
-              bg: 'bg-violet-50',
-              border: 'border-violet-100',
-            },
-            {
-              label: 'Pending Review',
-              value: '0',
-              delta: 'Awaiting AI scoring',
-              icon: Clock,
-              color: 'text-amber-600',
-              bg: 'bg-amber-50',
-              border: 'border-amber-100',
-            },
-            {
-              label: 'Graded Today',
-              value: todayCount.toString(),
-              delta: '100% automated',
-              icon: CheckCircle2,
-              color: 'text-emerald-600',
-              bg: 'bg-emerald-50',
-              border: 'border-emerald-100',
-            },
-          ]);
-
-          // Calculate Chart Data (last 7 days)
-          const chartMap = new Map<string, { count: number; totalScore: number }>();
-          for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateKey = d.toISOString().split('T')[0];
-            const shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            chartMap.set(dateKey, { count: 0, totalScore: 0, shortDate } as any);
-          }
-
-          submissions.forEach(s => {
-            const dateStr = (s as any).submittedAt || (s as any).created_at || '';
-            if (!dateStr) return;
-            const dateKey = dateStr.split('T')[0];
-            if (chartMap.has(dateKey)) {
-              const entry: any = chartMap.get(dateKey);
-              entry.count++;
-              entry.totalScore += ((s as any).overallScore || (s as any).overall_score || 0);
-            }
-          });
-
-          const finalChartData = Array.from(chartMap.values()).map((val: any) => ({
-            date: val.shortDate,
-            submissions: val.count,
-            avgScore: val.count > 0 ? (val.totalScore / val.count).toFixed(1) : 0
-          }));
-          
-          setChartData(finalChartData);
+          setAllSubmissions(data.submissions);
         }
       })
       .catch(console.error);
   }, []);
 
+  useEffect(() => {
+    if (!allSubmissions.length) return;
+
+    // Filter submissions by the active skill
+    const filteredSubmissions = allSubmissions.filter(s => {
+      // Default missing examType to speaking for legacy data
+      const type = s.examType || 'speaking';
+      return type === activeSkill;
+    });
+
+    setRecent(filteredSubmissions.slice(0, 5));
+
+    // Calculate KPI Data
+    const total = filteredSubmissions.length;
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayCount = filteredSubmissions.filter(s => {
+      const dateStr = (s as any).submittedAt || (s as any).created_at || '';
+      return dateStr.startsWith(todayStr);
+    }).length;
+    
+    const avgScore = total > 0 ? (filteredSubmissions.reduce((acc, s) => acc + ((s as any).overallScore || (s as any).overall_score || 0), 0) / total).toFixed(1) : '0.0';
+    
+    setKpiCards([
+      {
+        label: `Total ${activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Tests`,
+        value: total.toString(),
+        delta: `+${todayCount} today`,
+        icon: FileText,
+        color: 'text-teal-600',
+        bg: 'bg-teal-50',
+        border: 'border-teal-100',
+      },
+      {
+        label: 'Average Score',
+        value: avgScore,
+        delta: 'Out of 75',
+        icon: TrendingUp,
+        color: 'text-violet-600',
+        bg: 'bg-violet-50',
+        border: 'border-violet-100',
+      },
+      {
+        label: 'Pending Review',
+        value: '0',
+        delta: 'Awaiting AI scoring',
+        icon: Clock,
+        color: 'text-amber-600',
+        bg: 'bg-amber-50',
+        border: 'border-amber-100',
+      },
+      {
+        label: 'Graded Today',
+        value: todayCount.toString(),
+        delta: '100% automated',
+        icon: CheckCircle2,
+        color: 'text-emerald-600',
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-100',
+      },
+    ]);
+
+    // Calculate Chart Data (last 7 days)
+    const chartMap = new Map<string, { count: number; totalScore: number; shortDate: string }>();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateKey = d.toISOString().split('T')[0];
+      const shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      chartMap.set(dateKey, { count: 0, totalScore: 0, shortDate });
+    }
+
+    filteredSubmissions.forEach(s => {
+      const dateStr = (s as any).submittedAt || (s as any).created_at || '';
+      if (!dateStr) return;
+      const dateKey = dateStr.split('T')[0];
+      if (chartMap.has(dateKey)) {
+        const entry = chartMap.get(dateKey)!;
+        entry.count++;
+        entry.totalScore += ((s as any).overallScore || (s as any).overall_score || 0);
+      }
+    });
+
+    const finalChartData = Array.from(chartMap.values()).map(val => ({
+      date: val.shortDate,
+      submissions: val.count,
+      avgScore: val.count > 0 ? Number((val.totalScore / val.count).toFixed(1)) : 0
+    }));
+    
+    setChartData(finalChartData);
+  }, [allSubmissions, activeSkill]);
+
   return (
     <div className="p-8 space-y-7">
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-black text-slate-800">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Overview of all student submissions and exam activity.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Overview of student submissions filtered by skill.
+          </p>
+        </div>
+        
+        {/* Skill Tabs */}
+        <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+          <button
+            onClick={() => setActiveSkill('speaking')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+              activeSkill === 'speaking' 
+                ? 'bg-teal-500 text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            Speaking
+          </button>
+          <button
+            onClick={() => setActiveSkill('writing')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+              activeSkill === 'writing' 
+                ? 'bg-emerald-500 text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            Writing
+          </button>
+          <button
+            onClick={() => setActiveSkill('listening')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+              activeSkill === 'listening' 
+                ? 'bg-indigo-500 text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            }`}
+          >
+            Listening
+          </button>
+        </div>
       </div>
 
       {/* KPI cards */}
@@ -206,7 +256,7 @@ export default function AdminDashboardPage() {
         {/* Recent submissions */}
         <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-800">Recent Submissions</h2>
+            <h2 className="font-bold text-slate-800">Recent {activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Submissions</h2>
             <Link
               href="/admin/submissions"
               className="text-xs text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-1"

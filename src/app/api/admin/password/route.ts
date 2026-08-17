@@ -40,12 +40,11 @@ export async function POST(req: NextRequest) {
     const { currentPassword, newPassword } = parsed.data;
 
     // 3. Verify current password
-    // We fetch from admin_users table. (If lazy migration hasn't happened yet, this will fail. 
-    // They must log in at least once so the system migrates their credentials to the DB).
+    // We just fetch the single admin user since email is no longer used for login
     const { data: adminUser, error: dbError } = await supabaseAdmin
       .from('admin_users')
-      .select('password_hash')
-      .eq('email', adminEmail)
+      .select('password_hash, email')
+      .limit(1)
       .single();
 
     if (dbError || !adminUser) {
@@ -67,7 +66,7 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabaseAdmin
       .from('admin_users')
       .update({ password_hash: newHashedPassword })
-      .eq('email', adminEmail);
+      .eq('email', adminUser.email);
 
     if (updateError) {
       throw updateError;

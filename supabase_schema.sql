@@ -112,3 +112,25 @@ VALUES
     ('ALPHA-2024-X2', 'B2 Upper-Int', 'Ms. Sarah'),
     ('ALPHA-2024-X3', 'C1 Advanced', 'Mr. Jenkins')
 ON CONFLICT (code) DO NOTHING;
+
+-- 5. Create App Settings Table
+CREATE TABLE IF NOT EXISTS public.app_settings (
+    key TEXT PRIMARY KEY,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Insert default model config
+INSERT INTO public.app_settings (key, value) 
+VALUES ('model_config', '{"part_model": "gemini-2.5-flash-lite", "final_model": "gemini-2.5-flash"}'::jsonb) 
+ON CONFLICT (key) DO NOTHING;
+
+-- Enable RLS
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow anonymous read access
+CREATE POLICY "Allow public read access on app_settings"
+    ON public.app_settings
+    FOR SELECT
+    USING (true);
+

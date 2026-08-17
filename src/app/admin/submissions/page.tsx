@@ -12,6 +12,7 @@ import { MOCK_SUBMISSION_SUMMARIES } from '@/lib/mockSubmissions';
 import { CefrBand, SubmissionSummary } from '@/lib/types';
 
 type StatusFilter = 'all' | 'graded' | 'pending';
+type SkillFilter = 'speaking' | 'writing' | 'listening' | 'reading';
 
 function StatusBadge({ status }: { status: SubmissionSummary['status'] }) {
   if (status === 'graded') {
@@ -33,6 +34,7 @@ export default function SubmissionsPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [skillFilter, setSkillFilter] = useState<SkillFilter>('speaking');
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,7 +62,10 @@ export default function SubmissionsPage() {
       s.groupName.toLowerCase().includes(q) ||
       s.teacherName.toLowerCase().includes(q);
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const type = s.examType || 'speaking';
+    const matchesSkill = type === skillFilter;
+    
+    return matchesSearch && matchesStatus && matchesSkill;
   });
 
   const exportCSV = () => {
@@ -85,7 +90,7 @@ export default function SubmissionsPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-800">Submissions</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {MOCK_SUBMISSION_SUMMARIES.length} total submissions
+            {submissions.length} total submissions
           </p>
         </div>
         <Button
@@ -97,6 +102,34 @@ export default function SubmissionsPage() {
           <Download className="w-4 h-4" />
           Export CSV
         </Button>
+      </div>
+
+      {/* Skill Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200">
+        <button
+          onClick={() => setSkillFilter('speaking')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'speaking' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          Speaking
+        </button>
+        <button
+          onClick={() => setSkillFilter('writing')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'writing' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          Writing
+        </button>
+        <button
+          onClick={() => setSkillFilter('listening')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          Listening
+        </button>
+        <button
+          onClick={() => setSkillFilter('reading')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-fuchsia-100 text-fuchsia-700' : 'text-slate-500 hover:bg-slate-100'}`}
+        >
+          Reading
+        </button>
       </div>
 
       {/* Filters */}
@@ -142,6 +175,7 @@ export default function SubmissionsPage() {
                 <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">
                   <span className="flex items-center gap-1">Band <ArrowUpDown className="w-3 h-3" /></span>
                 </th>
+                <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Exam Type</th>
                 <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Submitted</th>
                 <th className="px-4 py-3.5" />
@@ -176,6 +210,15 @@ export default function SubmissionsPage() {
                         <span className="text-muted-foreground text-xs">—</span>
                       ) : (
                         <ScoreBadge band={sub.overallCefrBand as CefrBand} score={sub.overallScore} showScore size="sm" />
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      {sub.examType === 'writing' ? (
+                        <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">Writing</Badge>
+                      ) : sub.examType === 'listening' ? (
+                        <Badge className="bg-purple-100 text-purple-700 border-purple-200">Listening</Badge>
+                      ) : (
+                        <Badge className="bg-blue-100 text-blue-700 border-blue-200">Speaking</Badge>
                       )}
                     </td>
                     <td className="px-4 py-4">

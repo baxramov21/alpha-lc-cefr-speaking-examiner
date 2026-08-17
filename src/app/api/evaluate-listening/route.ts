@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { ListeningEvaluation, CefrBand } from '@/lib/types';
+import { verifyStudentSessionToken } from '@/lib/sessionToken';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+// Force dynamic evaluation
+export const dynamic = 'force-dynamic';
+
+function determineCefrBand(score: number, maxScore: number): CefrBand {
+  const percentage = score / maxScore;
+  if (percentage >= 0.85) return 'C1';
+  if (percentage >= 0.65) return 'B2';
+  if (percentage >= 0.45) return 'B1';
+  if (percentage >= 0.25) return 'A2';
+  return 'A1';
+}
+
+function normalizeText(text: string) {
+  return text.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { sessionToken, studentName, groupName, teacherName, answers } = await req.json();
+    
+    const session = await verifyStudentSessionToken(sessionToken);
+    if (!session) {
+      return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
+    }
+
+    // Save to Supabase Submissions Table
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
+
+    const { data: dbTasks, error: taskError } = await supabaseAdmin.from('listening_tasks').select('*');
+    if (taskError) throw new Error('Could not load listening tasks for evaluation');
+
+    // Calculate Score
+    let correctAnswers = 0;
+    let incorrectAnswers = 0;
+    const questionResults = [];
+    let maxScore = 0;
+
+    for (const task of dbTasks) {
+      const taskQuestions = task.questions || [];
+      for (const q of taskQuestions) {
+        maxScore++;
+        const userAnswerRaw = answers[q.id] || '';
+        const correctAnswerRaw = q.correctAnswer;
+        
+        let isCorrect = false;
+        if (q.type === 'multiple_choice') {
+          isCorrect = userAnswerRaw === correctAnswerRaw;
+        } else {
+          isCorrect = normalizeText(userAnswerRaw) === normalizeText(correctAnswerRaw);
+        }
+
+        if (isCorrect) correctAnswers++;
+        else incorrectAnswers++;
+
+        questionResults.push({
+          question_id: q.id,
+          user_answer: userAnswerRaw,
+          correct_answer: correctAnswerRaw,
+          is_correct: isCorrect
+        });
+      }
+    }
+
+    const evaluation: ListeningEvaluation = {
+      total_score: correctAnswers,
+      max_score: maxScore,
+      cefr_level: determineCefrBand(correctAnswers, maxScore),
+      correct_answers: correctAnswers,
+      incorrect_answers: incorrectAnswers,
+      question_results: questionResults
+    };
+
+    const submissionData = {
+      student_name: studentName || 'Unknown',
+      group_name: groupName || 'Unknown',
+      teacher_name: teacherName || 'Unknown',
+      passcode_used: session.passcode,
+      overall_score: evaluation.total_score,
+      overall_band: evaluation.cefr_level,
+      evaluation_data: { ...evaluation, examType: 'listening' },
+      is_saved: false
+    };
+
+    const { error } = await supabaseAdmin.from('submissions').insert([submissionData]);
+    if (error) {
+      console.error('Supabase insert error:', error);
+    }
+
+    return NextResponse.json(evaluation, { status: 200 });
+  } catch (error: any) {
+    console.error('Error evaluating listening:', error);
+    return NextResponse.json({ error: 'Failed to grade listening test.' }, { status: 500 });
+  }
+}

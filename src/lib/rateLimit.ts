@@ -46,5 +46,5 @@ class InMemoryRateLimiter {
 // 30 requests per 60 seconds per IP — for AI evaluate endpoints (allows 8 progressive questions + 1 aggregate per student)
 export const apiRateLimiter = new InMemoryRateLimiter(30, 60);
 
-// 5 attempts per 15 minutes per IP — for admin login
-export const loginRateLimiter = new InMemoryRateLimiter(5, 15 * 60);
+// 5 attempts per 5 minutes per IP — for admin/student login
+export const loginRateLimiter = new InMemoryRateLimiter(5, 5 * 60);

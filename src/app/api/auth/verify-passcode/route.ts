@@ -50,17 +50,22 @@ export async function POST(req: NextRequest) {
 
   const { passcode } = parsed.data;
 
-  // Server-side passcode verification — never trust the client
-  const { data: passcodeRecord, error } = await supabase
-    .from('passcodes')
-    .select('code')
-    .eq('code', passcode.toUpperCase())
-    .eq('is_active', true)
+  // Server-side passcode verification
+  const { data: settingsData, error } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'auth_settings')
     .single();
 
-  if (error || !passcodeRecord) {
+  const validPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
+
+  if (error && error.code !== 'PGRST116') {
+    return NextResponse.json({ error: 'Database error while verifying passcode.' }, { status: 500 });
+  }
+
+  if (passcode.toUpperCase() !== validPasscode.toUpperCase()) {
     return NextResponse.json(
-      { error: 'Invalid or inactive passcode. Please check with your teacher.' },
+      { error: 'Invalid passcode. Please check with your teacher.' },
       { status: 403 }
     );
   }
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
   // Issue a short-lived student session token (2 hours)
   const encodedSecret = new TextEncoder().encode(JWT_SECRET);
   const token = await new SignJWT({
-    passcode: passcodeRecord.code,
+    passcode: validPasscode.toUpperCase(),
     type: 'student_session',
   })
     .setProtectedHeader({ alg: 'HS256' })
@@ -76,5 +81,8 @@ export async function POST(req: NextRequest) {
     .setExpirationTime('2h')
     .sign(encodedSecret);
 
-  return NextResponse.json({ token }, { status: 200 });
+  return NextResponse.json({ 
+    token,
+    allowSkip: settingsData?.value?.allow_skip ?? true 
+  }, { status: 200 });
 }

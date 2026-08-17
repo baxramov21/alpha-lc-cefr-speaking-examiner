@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { FINAL_SYSTEM_PROMPT, cleanJsonResponse } from '@/lib/gemini';
+import { FINAL_UZBMB_PROMPT, cleanJsonResponse, generateWithRetry } from '@/lib/gemini';
+import { getModelConfig } from '@/lib/modelHelper';
 import { apiRateLimiter } from '@/lib/rateLimit';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
 
+// Force dynamic evaluation and set maxDuration to 60s
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; 
+
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,66 +25,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
     }
 
-    const formData = await req.formData();
+    const config = await getModelConfig();
+    const model = genAI.getGenerativeModel({ model: config.final_model });
+    
+    console.log(`[AI Engine] Running Final Evaluator with model: ${config.final_model}`);
+    
+    const body = await req.json();
+    const { sessionToken, part_evaluations } = body;
 
-    // Fix #3: Verify student session token before calling the paid Gemini API.
-    const sessionToken = formData.get('sessionToken') as string | null;
     const session = await verifyStudentSessionToken(sessionToken);
     if (!session) {
       return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
     }
 
-    const questionsDataStr = formData.get('questionsData') as string;
-    const partialEvaluationStr = formData.get('partialEvaluation') as string;
-    
-    if (!questionsDataStr || !partialEvaluationStr) {
-      return NextResponse.json({ error: 'Missing questionsData or partialEvaluation.' }, { status: 400 });
+    if (!part_evaluations || !Array.isArray(part_evaluations) || part_evaluations.length !== 3) {
+      return NextResponse.json({ error: 'Missing or invalid part_evaluations.' }, { status: 400 });
     }
 
-    const questionsData: { id: string; text: string }[] = JSON.parse(questionsDataStr);
-    const generativeParts: any[] = [];
+    const generativeParts = [
+      `Here are the part-by-part evaluations for the entire exam:\n\n${JSON.stringify(part_evaluations, null, 2)}`,
+      `\n\n${FINAL_UZBMB_PROMPT}`
+    ];
 
-    // Provide the partial evaluation JSON
-    generativeParts.push(`\n--- PARTIAL EVALUATION (PARTS 1 & 2) ---\n\`\`\`json\n${partialEvaluationStr}\n\`\`\``);
-
-    // Build the prompt dynamically with Part 3 questions and audio
-    for (const q of questionsData) {
-      const audioFile = formData.get(`audio_${q.id}`) as Blob;
-      
-      generativeParts.push(`\n--- QUESTION ${q.id.toUpperCase()} ---\nQuestion text: "${q.text}"\nCandidate's Answer:`);
-      
-      if (audioFile && audioFile.size > 0) {
-        const arrayBuffer = await audioFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const base64Audio = buffer.toString('base64');
-        const mimeType = audioFile.type || 'audio/webm';
-        
-        generativeParts.push({
-          inlineData: {
-            data: base64Audio,
-            mimeType: mimeType,
-          },
-        });
-      } else {
-        generativeParts.push("[No audio recorded for this question]");
-      }
-    }
-
-    generativeParts.push(`\n\n${FINAL_SYSTEM_PROMPT}`);
-
-    // Call Gemini Flash with audio files and text prompts
-    const result = await model.generateContent(generativeParts);
+    const result = await generateWithRetry(model, generativeParts);
     const response = await result.response;
     const rawText = response.text();
 
     const evaluationJSON = cleanJsonResponse(rawText);
+    
+    // Merge question_responses from the part evaluations
+    const allQuestionResponses = [];
+    for (const part of part_evaluations) {
+      if (part && part.question_responses) {
+        allQuestionResponses.push(...part.question_responses);
+      }
+    }
+    evaluationJSON.question_responses = allQuestionResponses;
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {
-    console.error('Error evaluating final audio:', error);
+    console.error('Error evaluating final output:', error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate final audio. An internal error occurred.' },
+      { error: 'Failed to evaluate final output. An internal error occurred.' },
       { status: isRateLimit ? 429 : 500 }
     );
   }

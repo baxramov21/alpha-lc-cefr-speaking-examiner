@@ -72,7 +72,7 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
     part: 'part2',
     partLabel: 'Part 2',
     questionNumber: 7,
-    text: 'Tell me about a critical decision you have made.\n\nHow has this decision influenced you and your life?\n\nWhat factors have the highest impact on the decisions people make?',
+    text: 'Tell me about a critical decision you have made. What factors had the highest impact on your choice? How has this decision influenced your life today?',
     prepSeconds: 60,
     speakSeconds: 120,
     topic: 'Important Decision',

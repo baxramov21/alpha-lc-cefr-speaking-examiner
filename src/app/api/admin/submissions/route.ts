@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
       overallCefrBand: s.overall_band,
       status: 'graded', // Supabase submissions are always graded in this flow
       submittedAt: s.created_at,
+      examType: s.evaluation_data?.examType || 'speaking',
     }));
 
     return NextResponse.json({ submissions: mapped }, { status: 200 });

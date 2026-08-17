@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModelConfig } from '@/lib/modelHelper';
+
 // Dynamic import used later
 import { cleanJsonResponse } from '@/lib/gemini';
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 const PDF_PARSER_PROMPT = `
 You are an expert at extracting and formatting questions from UZBMB CEFR Mock Exam PDFs.
@@ -42,6 +43,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
     }
 
+    const config = await getModelConfig();
+    const model = genAI.getGenerativeModel({ model: config.final_model });
+    
     const formData = await req.formData();
     const file = formData.get('file') as Blob;
     
