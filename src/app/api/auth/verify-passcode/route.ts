@@ -17,9 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { loginRateLimiter } from '@/lib/rateLimit';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('FATAL: JWT_SECRET must be set.');
-}
+
 
 const schema = z.object({
   passcode: z.string().min(4).max(64),
@@ -27,6 +25,10 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!JWT_SECRET) {
+    return NextResponse.json({ error: 'Server misconfiguration: missing JWT_SECRET.' }, { status: 500 });
+  }
+
   // Rate-limit passcode verification to prevent enumeration attacks.
   // Uses the same limiter as admin login (5 attempts / 15 min per IP).
   const ip =
