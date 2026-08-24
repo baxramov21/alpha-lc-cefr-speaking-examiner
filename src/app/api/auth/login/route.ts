@@ -9,11 +9,13 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const ENV_ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ENV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-if (!JWT_SECRET) {
-  throw new Error('FATAL: JWT_SECRET must be set in environment variables.');
-}
+
 
 export async function POST(req: NextRequest) {
+  if (!JWT_SECRET) {
+    return NextResponse.json({ error: 'Server misconfiguration: missing JWT_SECRET.' }, { status: 500 });
+  }
+
   try {
     // Rate limit: 5 attempts per 5 minutes per IP
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'anonymous';
