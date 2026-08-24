@@ -11,6 +11,7 @@ import type { QuestionPhase } from '@/lib/types';
 import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Bot, Loader2, Sparkles, CheckCircle2, AlertTriangle, Mic, Square, Play, ArrowRight, GraduationCap } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const playBeep = (freq: number, type: OscillatorType, duration: number, vol: number = 0.1) => {
   try {
@@ -217,11 +218,14 @@ export default function ExamSessionPage() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 },
+        audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 24000 },
       });
       const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
         .find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
-      const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      const mr = new MediaRecorder(stream, { 
+        mimeType: mimeType || undefined, 
+        audioBitsPerSecond: 24000 
+      });
       mrRef.current = mr;
       chunksRef.current = [];
       startTimeRef.current = Date.now();
@@ -341,7 +345,20 @@ export default function ExamSessionPage() {
 
           for (const r of updatedRecordings) {
             if (r.audioBlob && r.durationSeconds > 1) {
-              formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+              try {
+                const fileName = `session_${sessionToken}/${r.groupId}_${Date.now()}.webm`;
+                const { error: uploadError } = await supabase.storage.from('speaking-audio').upload(fileName, r.audioBlob);
+                if (uploadError) {
+                  console.error('Audio upload failed:', uploadError);
+                  formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+                } else {
+                  const { data } = supabase.storage.from('speaking-audio').getPublicUrl(fileName);
+                  formData.append(`audioGroup_${r.groupId}`, data.publicUrl);
+                }
+              } catch (e) {
+                console.error('Upload exception:', e);
+                formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+              }
             }
           }
           
@@ -415,7 +432,20 @@ export default function ExamSessionPage() {
 
       for (const r of recordings) {
         if (r.audioBlob && r.durationSeconds > 1) {
-          formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+          try {
+            const fileName = `session_${sessionToken}/${r.groupId}_${Date.now()}_retry.webm`;
+            const { error: uploadError } = await supabase.storage.from('speaking-audio').upload(fileName, r.audioBlob);
+            if (uploadError) {
+              console.error('Audio upload failed:', uploadError);
+              formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+            } else {
+              const { data } = supabase.storage.from('speaking-audio').getPublicUrl(fileName);
+              formData.append(`audioGroup_${r.groupId}`, data.publicUrl);
+            }
+          } catch (e) {
+            console.error('Upload exception:', e);
+            formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+          }
         }
       }
       

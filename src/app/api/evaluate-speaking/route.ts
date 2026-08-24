@@ -66,7 +66,22 @@ export async function POST(req: NextRequest) {
     }
 
     for (const [groupId, qs] of Object.entries(groupedQuestions)) {
-      const audioFile = formData.get(`audioGroup_${groupId}`) as Blob;
+      const audioField = formData.get(`audioGroup_${groupId}`);
+      let buffer: Buffer | null = null;
+      let mimeType = 'audio/webm';
+
+      if (typeof audioField === 'string' && audioField.startsWith('http')) {
+        const resp = await fetch(audioField);
+        if (resp.ok) {
+          buffer = Buffer.from(await resp.arrayBuffer());
+          mimeType = resp.headers.get('content-type') || 'audio/webm';
+        } else {
+          console.error(`Failed to fetch audio from URL: ${audioField}`);
+        }
+      } else if (audioField instanceof Blob && audioField.size > 0) {
+        buffer = Buffer.from(await audioField.arrayBuffer());
+        mimeType = audioField.type || 'audio/webm';
+      }
       
       generativeParts.push(`\n--- ${groupId.toUpperCase()} ---\n`);
       for (const q of qs) {
@@ -74,11 +89,8 @@ export async function POST(req: NextRequest) {
       }
       generativeParts.push(`Candidate's Answer for these questions:`);
       
-      if (audioFile && audioFile.size > 0) {
-        const arrayBuffer = await audioFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+      if (buffer) {
         const base64Audio = buffer.toString('base64');
-        const mimeType = audioFile.type || 'audio/webm';
         
         // Collect for background dispatch later
         audioFilesForTelegram.push({
