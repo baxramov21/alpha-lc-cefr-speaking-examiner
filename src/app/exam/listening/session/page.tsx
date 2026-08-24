@@ -301,7 +301,7 @@ export default function ListeningSessionPage() {
                   key={task.id}
                   onClick={() => setCurrentTaskIndex(idx)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTaskIndex === idx ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    currentTaskIndex === idx ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                   }`}
                 >
                   Part {idx + 1}
@@ -321,7 +321,7 @@ export default function ListeningSessionPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 dark:bg-slate-800">
+      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
         <div className="h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Left Column: Audio & Passage */}
@@ -384,17 +384,17 @@ export default function ListeningSessionPage() {
 
             {/* Passage Content (Scrollable) */}
             <div id="listening-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
-              <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+              <div className="mb-6 pb-6 border-b border-slate-100 ">
                 <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Kontekst</h2>
                 <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
               </div>
               {currentTask.passage_html ? (
                 <div 
-                  className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200"
+                  className="prose prose-sm md:prose-base max-w-none text-slate-800 "
                   dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center h-40 text-slate-400 dark:text-slate-500">
+                <div className="flex flex-col items-center justify-center h-40 text-slate-400 ">
                   <p>Ushbu qism uchun matn taqdim etilmagan.</p>
                 </div>
               )}
@@ -403,9 +403,9 @@ export default function ListeningSessionPage() {
 
           {/* Right Column: Questions */}
           <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 dark:border-slate-700">
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Savollar</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">Barcha savollarga audio asosida javob bering.</p>
+            <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 ">
+              <h2 className="text-xl font-bold text-slate-800 ">Savollar</h2>
+              <p className="text-sm text-slate-500  ">Barcha savollarga audio asosida javob bering.</p>
             </div>
             
             <div id="listening-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
@@ -425,7 +425,7 @@ export default function ListeningSessionPage() {
                               <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                                 answers[q.id] === opt 
                                   ? 'border-teal-500 bg-teal-50 shadow-sm' 
-                                  : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50 dark:bg-slate-950'
+                                  : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50 '
                               }`}>
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
                                   answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300'
@@ -440,7 +440,7 @@ export default function ListeningSessionPage() {
                                   onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                                   className="hidden"
                                 />
-                                <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900' : 'text-slate-700 dark:text-slate-300'}`}>
+                                <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900' : 'text-slate-700 '}`}>
                                   <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
                                 </span>
                               </label>
@@ -454,7 +454,7 @@ export default function ListeningSessionPage() {
                             value={answers[q.id] || ''}
                             onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                             placeholder="Javobingizni bu yerga yozing..."
-                            className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium text-slate-800 dark:text-slate-200"
+                            className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium text-slate-800 "
                           />
                         )}
                       </div>

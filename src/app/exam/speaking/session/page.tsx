@@ -466,7 +466,7 @@ export default function ExamSessionPage() {
 
 
   // Part info
-  const currentPart = EXAM_PARTS.find((p) => p.part === question.part) || { label: 'Part', description: 'Speaking Exam', color: 'bg-slate-50 dark:bg-slate-9500', questionRange: '' };
+  const currentPart = EXAM_PARTS.find((p) => p.part === question.part) || { label: 'Part', description: 'Speaking Exam', color: 'bg-slate-50 ', questionRange: '' };
   const partIndex = EXAM_PARTS.findIndex((p) => p.part === question.part);
   const progressPercent = (currentIndex / EXAM_QUESTIONS.length) * 100;
 
@@ -492,13 +492,13 @@ export default function ExamSessionPage() {
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30 scale-110'
                     : partIndex > idx
                       ? 'bg-teal-100 text-teal-600 border-2 border-teal-300'
-                      : 'bg-slate-100 text-slate-400 border-2 border-slate-200 dark:border-slate-700'
+                      : 'bg-slate-100 text-slate-400 border-2 border-slate-200 '
                     }`}
                 >
                   {partIndex > idx ? '✓' : idx + 1}
                 </div>
                 {idx < EXAM_PARTS.length - 1 && (
-                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200 '}`} />
                 )}
               </div>
             ))}
@@ -514,7 +514,7 @@ export default function ExamSessionPage() {
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-slate-100 dark:bg-slate-800">
+        <div className="h-1 bg-slate-100 ">
           <div
             className="h-full bg-teal-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -570,11 +570,11 @@ export default function ExamSessionPage() {
                 <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
                   <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
                     <CheckCircle2 className="w-6 h-6 text-teal-500 shrink-0" />
-                    <span className="font-medium text-slate-700 dark:text-slate-300">Audio processing complete</span>
+                    <span className="font-medium text-slate-700 ">Audio processing complete</span>
                   </div>
                   <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm opacity-80">
                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
-                    <span className="font-medium text-slate-700 dark:text-slate-300">Analyzing CEFR criteria...</span>
+                    <span className="font-medium text-slate-700 ">Analyzing CEFR criteria...</span>
                   </div>
                 </div>
               </>
@@ -837,7 +837,7 @@ export default function ExamSessionPage() {
                   ? 'bg-slate-800 scale-125'
                   : idx < currentIndex
                     ? 'bg-emerald-500'
-                    : 'bg-slate-200 dark:bg-slate-700'
+                    : 'bg-slate-200 '
                   }`}
               />
             ))}

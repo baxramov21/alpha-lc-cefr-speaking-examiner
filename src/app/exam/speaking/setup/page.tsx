@@ -154,11 +154,11 @@ export default function ExamSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800">
+    <div className="min-h-screen bg-slate-50  flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl bg-white  rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 ">
         
         {/* Header Area */}
-        <div className="bg-slate-900 dark:bg-slate-950 text-white p-8 pb-10 text-center relative overflow-hidden">
+        <div className="bg-slate-900  text-white p-8 pb-10 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
           <div className="absolute opacity-10 -right-12 -top-12">
             <Mic size={180} />
@@ -198,9 +198,9 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">1-qism: Qisqa javob va Rasmlarni solishtirish</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">1-qism: Qisqa javob va Rasmlarni solishtirish</h3>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                <p className="text-slate-600  leading-relaxed mb-3">
                   1-6 savollar. Har bir savolga tayyorgarlik ko'rish uchun 5-10 soniya va javob berish uchun 30-45 soniya vaqtingiz bo'ladi.
                 </p>
                 <div className="flex gap-3 text-xs">
@@ -216,9 +216,9 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">2-qism: Mavzu yuzasidan taqdimot</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">2-qism: Mavzu yuzasidan taqdimot</h3>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                <p className="text-slate-600  leading-relaxed mb-3">
                   7-savol. Maxsus ssenariy haqida gapirish uchun sizda 60 soniya tayyorgarlik va 120 soniya javob vaqti bo'ladi.
                 </p>
                 <div className="flex gap-3 text-xs">
@@ -234,9 +234,9 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">3-qism: Mavhum mavzuda muhokama</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">3-qism: Mavhum mavzuda muhokama</h3>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+                <p className="text-slate-600  leading-relaxed mb-3">
                   8-savol. Mavhum tushunchalarni muhokama qilish va bahslashish uchun sizda 60 soniya tayyorgarlik va 120 soniya javob vaqti bo'ladi.
                 </p>
                 <div className="flex gap-3 text-xs">
@@ -285,8 +285,8 @@ export default function ExamSetupPage() {
                 <Shield className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Imtihon shartlari</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                <h3 className="text-lg font-bold text-slate-900  mb-1">Imtihon shartlari</h3>
+                <p className="text-slate-600  leading-relaxed">
                   Kam shovqinli tinch xonani toping. Aniq va tabiiy tezlikda gapiring. Fikrlaringizni tartibga solish uchun tayyorgarlik vaqtidan foydalaning. Vaqtingiz tugaganda imtihon avtomatik ravishda keyingi bosqichga o'tadi.
                 </p>
               </div>
@@ -326,8 +326,8 @@ export default function ExamSetupPage() {
                   <ArrowLeft className="w-4 h-4" /> Orqaga
                 </button>
 
-                <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 mb-1.5">Mikrofonni tekshirish</h2>
-                <p className="text-muted-foreground dark:text-slate-400 text-sm mb-6">
+                <h2 className="text-xl font-black text-slate-800  mb-1.5">Mikrofonni tekshirish</h2>
+                <p className="text-muted-foreground  text-sm mb-6">
                   Imtihonni ochish uchun qisqa ovoz namunasini yozib oling.
                 </p>
 
@@ -350,13 +350,13 @@ export default function ExamSetupPage() {
                 <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5">
                   <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2">Barchasi tayyor!</h2>
-                <p className="text-muted-foreground dark:text-slate-400 mb-8">
+                <h2 className="text-2xl font-black text-slate-800  mb-2">Barchasi tayyor!</h2>
+                <p className="text-muted-foreground  mb-8">
                   Mikrofon ishlayapti. Boshlash tugmasini bosganingizda imtihon boshlanadi.
                 </p>
 
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 mb-8 text-left space-y-2">
-                  <p className="text-sm text-muted-foreground dark:text-slate-400 font-medium mb-3">Imtihon xulosasi:</p>
+                <div className="bg-slate-50  rounded-2xl p-5 mb-8 text-left space-y-2">
+                  <p className="text-sm text-muted-foreground  font-medium mb-3">Imtihon xulosasi:</p>
                   {[
                     { label: 'Jami savollar', value: `${EXAM_QUESTIONS.length} ta savol` },
                     { label: 'Qismlar', value: '3 qism' },
@@ -364,8 +364,8 @@ export default function ExamSetupPage() {
                     { label: 'Avtomatik o\'tish', value: 'Ha (taymer orqali boshqariladi)' },
                   ].map((item) => (
                     <div key={item.label} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground dark:text-slate-400">{item.label}</span>
-                      <span className="font-semibold text-slate-700 dark:text-slate-200">{item.value}</span>
+                      <span className="text-muted-foreground ">{item.label}</span>
+                      <span className="font-semibold text-slate-700 ">{item.value}</span>
                     </div>
                   ))}
                 </div>

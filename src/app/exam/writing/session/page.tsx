@@ -257,7 +257,7 @@ export default function WritingSessionPage() {
               <button
                 onClick={() => setCurrentTask(1)}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                  currentTask === 1 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                  currentTask === 1 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                 }`}
               >
                 Task 1
@@ -266,7 +266,7 @@ export default function WritingSessionPage() {
                 <button
                   onClick={() => setCurrentTask(1.2)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTask === 1.2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    currentTask === 1.2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                   }`}
                 >
                   Task 1.2
@@ -275,7 +275,7 @@ export default function WritingSessionPage() {
               <button
                 onClick={() => setCurrentTask(2)}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                  currentTask === 2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                  currentTask === 2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                 }`}
               >
                 Task 2
@@ -285,7 +285,7 @@ export default function WritingSessionPage() {
           
           <div className="flex items-center gap-6">
             
-            <div className={`flex items-center gap-2 font-mono text-lg font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-700 dark:text-slate-300'}`}>
+            <div className={`flex items-center gap-2 font-mono text-lg font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-700 '}`}>
               <Clock className="w-5 h-5" />
               {formatTime(timeLeft)}
             </div>
@@ -307,7 +307,7 @@ export default function WritingSessionPage() {
         {/* Left Panel: Prompt */}
         <div className="w-1/3 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden shrink-0">
           <div className="bg-slate-50 border-b border-slate-100 px-6 py-4">
-            <h2 className="font-bold text-slate-800 dark:text-slate-200">{activeQuestion.title}</h2>
+            <h2 className="font-bold text-slate-800 ">{activeQuestion.title}</h2>
             <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
               <span>Min {activeQuestion.minWords} words</span>
               <span>•</span>
@@ -316,7 +316,7 @@ export default function WritingSessionPage() {
           </div>
           <div className="p-6 overflow-y-auto grow text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
             {activeQuestion.imageUrl && (
-              <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 dark:bg-slate-950">
+              <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 ">
                 <img src={activeQuestion.imageUrl} alt="Task Image" className="w-full h-auto object-cover max-h-64" />
               </div>
             )}
@@ -358,7 +358,7 @@ export default function WritingSessionPage() {
 
       {/* Loading Overlay */}
       {isSubmitting && (
-        <div className="fixed inset-0 bg-white dark:bg-slate-900/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-white  backdrop-blur-sm z-50 flex flex-col items-center justify-center">
           <div className="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-teal-500/10 ring-1 ring-teal-100 animate-bounce">
             <PenTool className="w-10 h-10 text-teal-500" />
           </div>

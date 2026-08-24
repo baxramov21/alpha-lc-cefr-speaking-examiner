@@ -207,7 +207,7 @@ export default function ReadingSessionPage() {
                   key={task.id}
                   onClick={() => setCurrentTaskIndex(idx)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTaskIndex === idx ? 'bg-white shadow-sm text-fuchsia-600' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    currentTaskIndex === idx ? 'bg-white shadow-sm text-fuchsia-600' : 'text-slate-500 hover:text-slate-700 '
                   }`}
                 >
                   Part {idx + 1}
@@ -219,9 +219,9 @@ export default function ReadingSessionPage() {
           <div className="flex items-center gap-6">
             
             <div className={`flex items-center gap-2 font-mono text-xl font-bold px-4 py-1.5 rounded-lg transition-colors ${
-              isWarning ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-700 dark:text-slate-300'
+              isWarning ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-700 '
             }`}>
-              <Clock className={`w-5 h-5 ${isWarning ? 'text-red-500' : 'text-slate-400 dark:text-slate-500'}`} />
+              <Clock className={`w-5 h-5 ${isWarning ? 'text-red-500' : 'text-slate-400 '}`} />
               {timeString}
             </div>
             <Button 
@@ -237,7 +237,7 @@ export default function ReadingSessionPage() {
       </header>
 
       {/* Main Split Screen Area */}
-      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 dark:bg-slate-800">
+      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
         <div className="h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Left Column: Passage */}
@@ -249,7 +249,7 @@ export default function ReadingSessionPage() {
             </div>
             
             <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
-              <div className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200">
+              <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
                 {currentTask.passage_html ? (
                   <div dangerouslySetInnerHTML={{ 
                     __html: currentTask.passage_html
@@ -258,7 +258,7 @@ export default function ReadingSessionPage() {
                       .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
                   }} />
                 ) : (
-                  <div className="p-8 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500">Matn mavjud emas.</div>
+                  <div className="p-8 text-center text-slate-500  ">Matn mavjud emas.</div>
                 )}
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function ReadingSessionPage() {
           <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <div id="reading-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
               <div className="max-w-2xl mx-auto">
-                <div className="mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+                <div className="mb-8 pb-6 border-b border-slate-200 ">
               <h2 className="text-2xl font-black text-slate-800 mb-2">Savollar</h2>
               <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
             </div>
@@ -289,7 +289,7 @@ export default function ReadingSessionPage() {
                             <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                               answers[q.id] === opt 
                                 ? 'border-indigo-500 bg-indigo-50 shadow-sm' 
-                                : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 dark:bg-slate-950'
+                                : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 '
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
                                 answers[q.id] === opt ? 'border-indigo-500' : 'border-slate-300'
@@ -304,7 +304,7 @@ export default function ReadingSessionPage() {
                                 onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                                 className="hidden"
                               />
-                              <span className={`font-medium ${answers[q.id] === opt ? 'text-indigo-900' : 'text-slate-700 dark:text-slate-300'}`}>
+                              <span className={`font-medium ${answers[q.id] === opt ? 'text-indigo-900' : 'text-slate-700 '}`}>
                                 <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
                               </span>
                             </label>
@@ -329,12 +329,12 @@ export default function ReadingSessionPage() {
               ))}
             </div>
 
-            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-200 dark:border-slate-700">
+            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-200 ">
               <Button 
                 variant="outline" 
                 onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
                 disabled={currentTaskIndex === 0}
-                className="font-semibold text-slate-600 dark:text-slate-300"
+                className="font-semibold text-slate-600 "
               >
                 Oldingi qism
               </Button>
