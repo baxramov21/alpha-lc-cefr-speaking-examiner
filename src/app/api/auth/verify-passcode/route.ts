@@ -23,6 +23,7 @@ if (!JWT_SECRET) {
 
 const schema = z.object({
   passcode: z.string().min(4).max(64),
+  fullName: z.string().min(1).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   }
 
-  const { passcode } = parsed.data;
+  const { passcode, fullName } = parsed.data;
 
   // Server-side passcode verification
   const { data: settingsData, error } = await supabase
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
   const encodedSecret = new TextEncoder().encode(JWT_SECRET);
   const token = await new SignJWT({
     passcode: validPasscode.toUpperCase(),
+    fullName: fullName || '',
     type: 'student_session',
   })
     .setProtectedHeader({ alg: 'HS256' })

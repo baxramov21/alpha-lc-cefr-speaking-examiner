@@ -37,7 +37,7 @@ export default function WritingSetupPage() {
         const { data, error } = await supabase
           .from('questions')
           .select('*')
-          .in('part', ['task1', 'task2'])
+          .in('part', ['task1', 'task1_2', 'task2'])
           .eq('is_active', true);
 
         if (error) throw error;
@@ -45,6 +45,7 @@ export default function WritingSetupPage() {
         const shuffle = (arr: any[]) => [...arr].sort(() => 0.5 - Math.random());
         
         const task1Questions = shuffle(data.filter(q => q.part === 'task1')).slice(0, 1);
+        const task1_2Questions = shuffle(data.filter(q => q.part === 'task1_2')).slice(0, 1);
         const task2Questions = shuffle(data.filter(q => q.part === 'task2')).slice(0, 1);
 
         if (task1Questions.length === 0 || task2Questions.length === 0) {
@@ -52,15 +53,34 @@ export default function WritingSetupPage() {
           return;
         }
 
-        const selectedQuestions = [...task1Questions, ...task2Questions].map(q => ({
-          id: q.id,
-          taskNumber: q.part === 'task1' ? 1 : 2,
-          title: q.part === 'task1' ? 'Task 1' : 'Task 2',
-          instructions: q.text,
-          imageUrl: q.image_url,
-          minWords: q.speak_seconds || (q.part === 'task1' ? 150 : 250),
-          recommendedMinutes: q.prep_seconds || (q.part === 'task1' ? 20 : 40)
-        }));
+        const selectedQuestions = [...task1Questions, ...task1_2Questions, ...task2Questions].map(q => {
+          let taskNumber: number | string = 1;
+          let title = 'Task 1';
+          let minW = 150;
+          let recMin = 20;
+
+          if (q.part === 'task1_2') {
+            taskNumber = 1.2;
+            title = 'Task 1.2';
+            minW = 150;
+            recMin = 20;
+          } else if (q.part === 'task2') {
+            taskNumber = 2;
+            title = 'Task 2';
+            minW = 250;
+            recMin = 40;
+          }
+
+          return {
+            id: q.id,
+            taskNumber: taskNumber,
+            title: title,
+            instructions: q.text,
+            imageUrl: q.image_url,
+            minWords: q.speak_seconds || minW,
+            recommendedMinutes: q.prep_seconds || recMin
+          };
+        });
 
         sessionStorage.setItem('randomWritingTasks', JSON.stringify(selectedQuestions));
       } catch (err) {

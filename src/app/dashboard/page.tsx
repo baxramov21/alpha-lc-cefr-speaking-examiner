@@ -26,6 +26,9 @@ export default function DashboardPage() {
   const [session, setSession] = useState<SessionData | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'speaking' | 'writing' | 'listening' | 'reading'>('speaking');
+  const [fullExamModeEnabled, setFullExamModeEnabled] = useState(false);
+  const [fullExamSequence, setFullExamSequence] = useState<string[]>([]);
 
   useEffect(() => {
     const rawSession = sessionStorage.getItem('examSession');
@@ -48,8 +51,15 @@ export default function DashboardPage() {
           const data = await res.json();
           setSubmissions(data.submissions || []);
         }
+        
+        const configRes = await fetch('/api/admin/settings/models');
+        if (configRes.ok) {
+          const configData = await configRes.json();
+          setFullExamModeEnabled(configData.full_exam_mode_enabled ?? false);
+          setFullExamSequence(configData.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing']);
+        }
       } catch (err) {
-        console.error('Failed to fetch submissions', err);
+        console.error('Failed to fetch dashboard data', err);
       } finally {
         setIsLoading(false);
       }
@@ -61,6 +71,20 @@ export default function DashboardPage() {
   const handleLogout = () => {
     sessionStorage.removeItem('examSession');
     router.push('/');
+  };
+
+  const handleStartFullExam = () => {
+    if (fullExamSequence.length === 0) return;
+    sessionStorage.setItem('fullExamState', JSON.stringify({
+      sequence: fullExamSequence,
+      currentIndex: 0
+    }));
+    router.push(`/exam/${fullExamSequence[0]}/setup`);
+  };
+
+  const handleStartSingleExam = (path: string) => {
+    sessionStorage.removeItem('fullExamState');
+    router.push(path);
   };
 
   if (!session || isLoading) {
@@ -108,6 +132,10 @@ export default function DashboardPage() {
     ? readingSubmissions.sort((a, b) => (b.overall_score || 0) - (a.overall_score || 0))[0]?.overall_band 
     : '--';
 
+  const filteredSubmissions = activeTab === 'speaking' ? speakingSubmissions :
+                              activeTab === 'writing' ? writingSubmissions :
+                              activeTab === 'listening' ? listeningSubmissions : readingSubmissions;
+
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-20">
       {/* Header */}
@@ -115,8 +143,8 @@ export default function DashboardPage() {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/20">
-              <Mic className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-teal-500 border border-teal-400 shadow-lg shadow-teal-500/30 relative">
+              <Mic className="w-5 h-5 text-white relative z-10" />
             </div>
             <div>
               <h1 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 leading-tight tracking-tight text-lg">Alpha LC</h1>
@@ -125,6 +153,7 @@ export default function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
+            
             <span className="text-xs font-medium text-slate-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
               UZ
             </span>
@@ -208,6 +237,27 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {fullExamModeEnabled && (
+          <section className="bg-gradient-to-r from-teal-500 to-emerald-600 rounded-[var(--radius-lg)] p-8 text-white shadow-lg relative overflow-hidden border border-teal-400">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-black mb-2 tracking-tight">Full Test CEFR</h2>
+                <p className="text-teal-100 text-sm max-w-xl">
+                  Barcha bo'limlarni ({fullExamSequence.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}) bitta ketma-ketlikda, tanaffuslarsiz topshiring.
+                </p>
+              </div>
+              <Button 
+                onClick={handleStartFullExam}
+                className="bg-white text-teal-700 hover:bg-slate-50 font-bold h-14 px-8 rounded-xl shadow-md text-lg whitespace-nowrap"
+              >
+                Imtihonni Boshlash
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+          </section>
+        )}
+
         {/* Skills Grid */}
         <section>
           <div className="flex items-center gap-4 mb-6">
@@ -239,7 +289,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-400 font-medium">{speakingAttempts} ta urinish</span>
                 <Button 
-                  onClick={() => router.push('/exam/speaking/setup')}
+                  onClick={() => handleStartSingleExam('/exam/speaking/setup')}
                   variant="ghost" 
                   className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
                 >
@@ -267,7 +317,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-400 font-medium">{writingAttempts} ta urinish</span>
                 <Button 
-                  onClick={() => router.push('/exam/writing/setup')}
+                  onClick={() => handleStartSingleExam('/exam/writing/setup')}
                   variant="ghost" 
                   className="text-purple-600 font-bold hover:bg-purple-50 hover:text-purple-700 p-0 h-auto"
                 >
@@ -299,7 +349,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-400 font-medium">{readingAttempts} ta urinish</span>
                 <Button 
-                  onClick={() => router.push('/exam/reading/setup')}
+                  onClick={() => handleStartSingleExam('/exam/reading/setup')}
                   variant="ghost" 
                   className="text-emerald-600 font-bold hover:bg-emerald-50 hover:text-emerald-700 p-0 h-auto"
                 >
@@ -327,7 +377,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-400 font-medium">{listeningAttempts} ta urinish</span>
                 <Button 
-                  onClick={() => router.push('/exam/listening/setup')}
+                  onClick={() => handleStartSingleExam('/exam/listening/setup')}
                   variant="ghost" 
                   className="text-amber-600 font-bold hover:bg-amber-50 hover:text-amber-700 p-0 h-auto"
                 >
@@ -346,28 +396,45 @@ export default function DashboardPage() {
               <h3 className="text-xl font-bold text-slate-800">Mening imtihonlarim</h3>
             </div>
             <span className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
-              JAMI: {speakingAttempts} TA
+              JAMI: {submissions.length} TA
             </span>
           </div>
 
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="flex border-b border-slate-200 px-2 pt-2">
-              <button className="px-6 py-3 border-b-2 border-blue-600 text-blue-600 font-bold text-sm flex items-center gap-2">
-                <Mic className="w-4 h-4" /> Speaking <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">{speakingAttempts}</span>
+            <div className="flex border-b border-slate-200 px-2 pt-2 overflow-x-auto">
+              <button 
+                onClick={() => setActiveTab('speaking')}
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'speaking' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Mic className="w-4 h-4" /> Speaking <span className={`${activeTab === 'speaking' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{speakingAttempts}</span>
               </button>
-              <button className="px-6 py-3 border-b-2 border-transparent text-slate-500 font-medium text-sm flex items-center gap-2 hover:text-slate-700">
-                <PenTool className="w-4 h-4" /> Writing <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs">0</span>
+              <button 
+                onClick={() => setActiveTab('writing')}
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'writing' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <PenTool className="w-4 h-4" /> Writing <span className={`${activeTab === 'writing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{writingAttempts}</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('listening')}
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'listening' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Headphones className="w-4 h-4" /> Listening <span className={`${activeTab === 'listening' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{listeningAttempts}</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('reading')}
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'reading' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <BookOpen className="w-4 h-4" /> Reading <span className={`${activeTab === 'reading' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{readingAttempts}</span>
               </button>
             </div>
 
             <div className="p-6">
-              {submissions.length === 0 ? (
+              {filteredSubmissions.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Mic className="w-8 h-8 text-slate-300" />
+                    {activeTab === 'speaking' && <Mic className="w-8 h-8 text-slate-300" />}
+                    {activeTab === 'writing' && <PenTool className="w-8 h-8 text-slate-300" />}
+                    {activeTab === 'listening' && <Headphones className="w-8 h-8 text-slate-300" />}
+                    {activeTab === 'reading' && <BookOpen className="w-8 h-8 text-slate-300" />}
                   </div>
                   <h4 className="text-slate-800 font-bold mb-1">Hech qanday imtihon yo'q</h4>
-                  <p className="text-slate-500 text-sm">Hali speaking imtihonini topshirmadingiz</p>
+                  <p className="text-slate-500 text-sm">Hali {activeTab} imtihonini topshirmadingiz</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -381,7 +448,7 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {submissions.map((sub) => (
+                      {filteredSubmissions.map((sub) => (
                         <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
                           <td className="py-4 pl-4 text-sm font-medium text-slate-700">
                             {new Date(sub.created_at).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '')}

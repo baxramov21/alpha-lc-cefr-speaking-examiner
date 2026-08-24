@@ -4,7 +4,7 @@ export const MOCK_LISTENING_TASKS: ListeningTask[] = [
   {
     id: 'lt_1',
     partLabel: 'Part 1',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Placeholder audio
+    audioUrls: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'], // Placeholder audio
     instructions: 'Listen to the conversation between a travel agent and a customer. Answer questions 1 to 4.',
     questions: [
       {
@@ -37,7 +37,7 @@ export const MOCK_LISTENING_TASKS: ListeningTask[] = [
         id: 'l1_q3',
         number: 3,
         text: 'What is the maximum budget per person?',
-        type: 'fill_in_blank',
+        type: 'fill_in',
         correctAnswer: '1500' // They might write $1500 or 1500, we'll strip non-alphanumerics in grading
       },
       {
@@ -58,14 +58,14 @@ export const MOCK_LISTENING_TASKS: ListeningTask[] = [
   {
     id: 'lt_2',
     partLabel: 'Part 2',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', // Placeholder audio
+    audioUrls: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'], // Placeholder audio
     instructions: 'Listen to a monologue about a local community project. Answer questions 5 to 8.',
     questions: [
       {
         id: 'l2_q5',
         number: 5,
         text: 'The community project primarily focuses on planting...',
-        type: 'fill_in_blank',
+        type: 'fill_in',
         correctAnswer: 'trees'
       },
       {
@@ -98,7 +98,7 @@ export const MOCK_LISTENING_TASKS: ListeningTask[] = [
         id: 'l2_q8',
         number: 8,
         text: 'The main goal of the project is to improve the neighborhood’s...',
-        type: 'fill_in_blank',
+        type: 'fill_in',
         correctAnswer: 'air quality'
       }
     ]

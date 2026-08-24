@@ -1,4 +1,14 @@
 {
   "part_model": "gemini-2.5-flash-lite",
-  "final_model": "gemini-2.5-flash"
+  "final_model": "gemini-2.5-flash",
+  "writing_time_minutes": 60,
+  "reading_time_minutes": 60,
+  "listening_repetitions": 2,
+  "full_exam_mode_enabled": true,
+  "full_exam_sequence": [
+    "speaking",
+    "listening",
+    "reading",
+    "writing"
+  ]
 }

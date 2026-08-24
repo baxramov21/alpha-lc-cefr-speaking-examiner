@@ -7,6 +7,8 @@ export interface ModelConfig {
   writing_time_minutes?: number;
   reading_time_minutes?: number;
   listening_repetitions?: number;
+  full_exam_mode_enabled?: boolean;
+  full_exam_sequence?: string[];
 }
 
 const CONFIG_PATH = path.join(process.cwd(), 'src', 'config', 'models.json');
@@ -19,11 +21,13 @@ export async function getModelConfig(): Promise<ModelConfig> {
   } catch (error) {
     // Return defaults if file is missing or unreadable
     return applyFallbackLogic({
-      part_model: 'gemini-2.5-flash-lite',
-      final_model: 'gemini-2.5-flash',
+      part_model: 'gemini-3.5-flash-lite',
+      final_model: 'gemini-3.5-flash',
       writing_time_minutes: 60,
       reading_time_minutes: 60,
-      listening_repetitions: 2
+      listening_repetitions: 2,
+      full_exam_mode_enabled: false,
+      full_exam_sequence: ['speaking', 'listening', 'reading', 'writing']
     });
   }
 }
@@ -33,24 +37,12 @@ export async function updateModelConfig(config: ModelConfig): Promise<void> {
 }
 
 function applyFallbackLogic(config: ModelConfig): ModelConfig {
-  // Auto-fallback to 3.5 series on October 19, 2026
-  const fallbackDate = new Date('2026-10-19T00:00:00Z');
-  const now = new Date();
-
-  if (now >= fallbackDate) {
-    return {
-      part_model: 'gemini-3.5-flash-lite',
-      final_model: 'gemini-3.5-flash-lite',
-      writing_time_minutes: config.writing_time_minutes || 60,
-      reading_time_minutes: config.reading_time_minutes || 60,
-      listening_repetitions: config.listening_repetitions || 2
-    };
-  }
-
   return {
     ...config,
     writing_time_minutes: config.writing_time_minutes || 60,
     reading_time_minutes: config.reading_time_minutes || 60,
-    listening_repetitions: config.listening_repetitions || 2
+    listening_repetitions: config.listening_repetitions || 2,
+    full_exam_mode_enabled: config.full_exam_mode_enabled ?? false,
+    full_exam_sequence: config.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing']
   };
 }

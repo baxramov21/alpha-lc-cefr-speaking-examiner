@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Award, BookOpen, CheckCircle, AlertCircle, RefreshCw, PenTool, ArrowRight } from 'lucide-react';
+import FullExamNextAction from '@/components/FullExamNextAction';
 import { Button } from '@/components/ui/button';
 import { WritingEvaluation } from '@/lib/types';
 
 export default function WritingResultsPage() {
   const router = useRouter();
   const [evaluation, setEvaluation] = useState<WritingEvaluation | null>(null);
-  const [activeTask, setActiveTask] = useState<1 | 2>(1);
+  const [activeTask, setActiveTask] = useState<1 | 1.2 | 2>(1);
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -34,8 +35,17 @@ export default function WritingResultsPage() {
 
   if (!evaluation) return null;
 
-  const activeEval = activeTask === 1 ? evaluation.task_1_eval : evaluation.task_2_eval;
-  const activePrompt = questions[activeTask - 1];
+  let activeEval;
+  if (activeTask === 1) activeEval = evaluation.task_1_eval;
+  else if (activeTask === 1.2) activeEval = evaluation.task_1_2_eval;
+  else activeEval = evaluation.task_2_eval;
+
+  if (!activeEval) return null;
+
+  let activePrompt;
+  if (activeTask === 1) activePrompt = questions[0];
+  else if (activeTask === 1.2) activePrompt = questions[1];
+  else activePrompt = questions[2];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col pb-20">
@@ -47,9 +57,12 @@ export default function WritingResultsPage() {
             <Award className="w-10 h-10 text-teal-300" />
           </div>
           <h1 className="text-4xl font-extrabold mb-4 tracking-tight">Writing Assessment Complete</h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-8">
             Your essays have been evaluated based on the official UZBMB standards.
           </p>
+          <div className="flex justify-center mt-6">
+            <FullExamNextAction />
+          </div>
         </div>
       </header>
 
@@ -71,20 +84,25 @@ export default function WritingResultsPage() {
 
           <div className="w-px h-24 bg-slate-100 hidden md:block" />
 
-          <div className="flex-1 w-full grid grid-cols-2 gap-x-8 gap-y-4">
+          <div className="flex-1 w-full grid grid-cols-3 gap-x-6 gap-y-4">
             <div>
-              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 1 (33%)</div>
+              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 1 (25%)</div>
               <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_1_score}</div>
             </div>
             <div>
-              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 2 (67%)</div>
-              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_2_score}</div>
+              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 1.2 (25%)</div>
+              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_1_2_score}</div>
             </div>
             <div>
+              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 2 (50%)</div>
+              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_2_score}</div>
+            </div>
+            <div className="col-span-3 h-px bg-slate-100 my-2" />
+            <div className="col-span-1">
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Grammar & Lexical</div>
               <div className="text-sm font-semibold text-slate-700">{evaluation.criteria_ratings.grammar_accuracy} / {evaluation.criteria_ratings.lexical_resource}</div>
             </div>
-            <div>
+            <div className="col-span-2">
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task & Coherence</div>
               <div className="text-sm font-semibold text-slate-700">{evaluation.criteria_ratings.task_achievement} / {evaluation.criteria_ratings.coherence_cohesion}</div>
             </div>
@@ -139,6 +157,16 @@ export default function WritingResultsPage() {
             >
               Task 1 Review
             </button>
+            {questions.length > 2 && (
+              <button
+                onClick={() => setActiveTask(1.2)}
+                className={`flex-1 py-4 text-sm font-semibold transition-colors ${
+                  activeTask === 1.2 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                Task 1.2 Review
+              </button>
+            )}
             <button
               onClick={() => setActiveTask(2)}
               className={`flex-1 py-4 text-sm font-semibold transition-colors ${
@@ -202,17 +230,7 @@ export default function WritingResultsPage() {
           </div>
         </div>
 
-        {/* Action Bar */}
-        <div className="flex justify-center mt-12 pb-12">
-          <Button 
-            size="lg" 
-            className="rounded-full px-8 gap-2 bg-slate-800 hover:bg-slate-700" 
-            onClick={() => router.push('/dashboard')}
-          >
-            Return to Dashboard
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
+
 
       </main>
     </div>

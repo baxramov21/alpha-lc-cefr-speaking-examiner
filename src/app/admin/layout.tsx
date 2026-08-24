@@ -19,6 +19,8 @@ const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/submissions', label: 'Submissions', icon: FileText },
   { href: '/admin/questions', label: 'Questions', icon: Database },
+  { href: '/admin/exams/upload', label: 'Canonical Upload', icon: FileText },
+  { href: '/admin/exams/canonical', label: 'Canonical Exams', icon: Database },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
@@ -54,8 +56,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Brand */}
         <div className="px-5 py-6 border-b border-slate-700/50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 shadow-inner">
-              <Mic className="w-4 h-4 text-teal-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-teal-500 border border-teal-400 shadow-lg shadow-teal-500/30 relative">
+              <Mic className="w-5 h-5 text-white relative z-10" />
             </div>
             <div>
               <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 text-base leading-none tracking-tight">Alpha LC</p>

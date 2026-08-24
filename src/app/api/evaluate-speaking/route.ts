@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { PART_EVALUATION_PROMPT, cleanJsonResponse, generateWithRetry } from '@/lib/gemini';
+import { generateSpeakingPrompt, cleanJsonResponse, generateWithRetry } from '@/lib/gemini';
 import { apiRateLimiter } from '@/lib/rateLimit';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
 import { getModelConfig } from '@/lib/modelHelper';
+import { sendFinalSpeakingEvaluationToTelegram } from '@/lib/telegram';
 
 // Force dynamic evaluation and set maxDuration to 60s
 export const dynamic = 'force-dynamic';
@@ -15,9 +16,14 @@ const genAI = new GoogleGenerativeAI(API_KEY || '');
 export async function POST(req: NextRequest) {
   try {
     const config = await getModelConfig();
-    const model = genAI.getGenerativeModel({ model: config.part_model });
+    const model = genAI.getGenerativeModel({ 
+      model: config.final_model || 'gemini-2.5-flash',
+      generationConfig: {
+        temperature: 0.4
+      }
+    });
     
-    console.log(`[AI Engine] Running Part Evaluator with model: ${config.part_model}`);
+    console.log(`[AI Engine] Running Final Speaking Evaluator with model: ${config.final_model}`);
 
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'anonymous';
     const { success } = await apiRateLimiter.limit(ip);
@@ -38,22 +44,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
     }
 
-    const partNumber = formData.get('part') as string;
     const questionsDataStr = formData.get('questionsData') as string;
+    const examMode = (formData.get('examMode') as string) || 'full';
     
-    if (!partNumber || !questionsDataStr) {
-      return NextResponse.json({ error: 'Missing part number or questions data.' }, { status: 400 });
+    if (!questionsDataStr) {
+      return NextResponse.json({ error: 'Missing questions data.' }, { status: 400 });
     }
 
-    const questionsData: { id: string; text: string }[] = JSON.parse(questionsDataStr);
+    const questionsData: { id: string; text: string; imageUrl?: string; part?: string }[] = JSON.parse(questionsDataStr);
     const generativeParts: any[] = [];
+    const audioFilesForTelegram: { buffer: Buffer; mimeType: string; groupId: string }[] = [];
     
-    generativeParts.push(`\n--- PART ${partNumber} ---\n`);
+    generativeParts.push(`\n--- SPEAKING EXAM ---\n`);
 
+    const getGroupId = (q: any) => `${q.part}_${q.imageUrl ? 'withImage' : 'noImage'}`;
+    const groupedQuestions: Record<string, typeof questionsData> = {};
     for (const q of questionsData) {
-      const audioFile = formData.get(`audio_${q.id}`) as Blob;
+      const groupId = getGroupId(q);
+      if (!groupedQuestions[groupId]) groupedQuestions[groupId] = [];
+      groupedQuestions[groupId].push(q);
+    }
+
+    for (const [groupId, qs] of Object.entries(groupedQuestions)) {
+      const audioFile = formData.get(`audioGroup_${groupId}`) as Blob;
       
-      generativeParts.push(`\n--- QUESTION ${q.id.toUpperCase()} ---\nQuestion text: "${q.text}"\nCandidate's Answer:`);
+      generativeParts.push(`\n--- ${groupId.toUpperCase()} ---\n`);
+      for (const q of qs) {
+        generativeParts.push(`Question: "${q.text}"\n`);
+      }
+      generativeParts.push(`Candidate's Answer for these questions:`);
       
       if (audioFile && audioFile.size > 0) {
         const arrayBuffer = await audioFile.arrayBuffer();
@@ -61,6 +80,13 @@ export async function POST(req: NextRequest) {
         const base64Audio = buffer.toString('base64');
         const mimeType = audioFile.type || 'audio/webm';
         
+        // Collect for background dispatch later
+        audioFilesForTelegram.push({
+          buffer,
+          mimeType,
+          groupId
+        });
+
         generativeParts.push({
           inlineData: {
             data: base64Audio,
@@ -72,7 +98,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    generativeParts.push(`\n\n${PART_EVALUATION_PROMPT}`);
+    generativeParts.push(`\n\n${generateSpeakingPrompt(examMode)}`);
 
     const result = await generateWithRetry(model, generativeParts);
     const response = await result.response;
@@ -80,8 +106,23 @@ export async function POST(req: NextRequest) {
 
     const evaluationJSON = cleanJsonResponse(rawText);
 
-    // Make sure 'part' is attached correctly
-    evaluationJSON.part = parseInt(partNumber, 10);
+    // Calculate total score based on the 4 criteria
+    const totalScore = Math.round(
+      ((evaluationJSON.fluency_score || 0) +
+       (evaluationJSON.lexical_score || 0) +
+       (evaluationJSON.grammar_score || 0) +
+       (evaluationJSON.pronunciation_score || 0)) / 4
+    );
+    evaluationJSON.total_score = totalScore;
+
+    // Background dispatch to Telegram
+    const studentName = formData.get('studentName') as string || 'Unknown Student';
+    sendFinalSpeakingEvaluationToTelegram(
+      studentName,
+      evaluationJSON,
+      questionsData,
+      audioFilesForTelegram
+    ).catch(err => console.error('Background telegram dispatch error:', err));
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {

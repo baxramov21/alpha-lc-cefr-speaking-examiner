@@ -9,7 +9,8 @@ import { EXAM_QUESTIONS, EXAM_PARTS } from '@/lib/questions';
 import { ExamQuestion, QuestionRecording, UzbmbEvaluation } from '@/lib/types';
 import type { QuestionPhase } from '@/lib/types';
 import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
-import { Bot, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { handleExamCompletion } from '@/lib/fullExamSequence';
+import { Bot, Loader2, Sparkles, CheckCircle2, AlertTriangle, Mic, Square, Play, ArrowRight, GraduationCap } from 'lucide-react';
 
 const playBeep = (freq: number, type: OscillatorType, duration: number, vol: number = 0.1) => {
   try {
@@ -58,8 +59,9 @@ export default function ExamSessionPage() {
   const [examQuestions, setExamQuestions] = useState<ExamQuestion[]>(EXAM_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<QuestionPhase>('prep');
-  const [recordings, setRecordings] = useState<QuestionRecording[]>([]);
+  const [recordings, setRecordings] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [evalError, setEvalError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [waveform, setWaveform] = useState<number[]>(Array(24).fill(4));
   const [timerKey, setTimerKey] = useState(0); // used to reset timer on skip
@@ -203,8 +205,16 @@ export default function ExamSessionPage() {
     };
   }, [isRecording, animateWave]);
 
-  // Start recording audio
-  const startRecording = useCallback(async () => {
+  // Start or Resume recording audio
+  const startOrResumeRecording = useCallback(async () => {
+    if (mrRef.current && mrRef.current.state === 'paused') {
+      mrRef.current.resume();
+      setIsRecording(true);
+      return;
+    }
+    if (mrRef.current && mrRef.current.state === 'recording') {
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 },
@@ -225,7 +235,14 @@ export default function ExamSessionPage() {
     }
   }, []);
 
-  const stopRecording = useCallback((): QuestionRecording => {
+  const pauseRecording = useCallback(() => {
+    if (mrRef.current && mrRef.current.state === 'recording') {
+      mrRef.current.pause();
+    }
+    setIsRecording(false);
+  }, []);
+
+  const stopGroupRecording = useCallback((groupId: string) => {
     if (mrRef.current && mrRef.current.state !== 'inactive') {
       mrRef.current.requestData();
       mrRef.current.stop();
@@ -235,14 +252,17 @@ export default function ExamSessionPage() {
     const blob = chunksRef.current.length > 0
       ? new Blob(chunksRef.current, { type: mimeType || 'audio/webm' })
       : undefined;
+    const dur = Math.round((Date.now() - startTimeRef.current) / 1000);
+    mrRef.current = null;
+    chunksRef.current = [];
     return {
-      questionId: question.id,
+      groupId,
       audioBlob: blob,
       audioUrl: blob ? URL.createObjectURL(blob) : undefined,
-      durationSeconds: Math.round((Date.now() - startTimeRef.current) / 1000),
+      durationSeconds: dur,
       recordedAt: new Date().toISOString(),
     };
-  }, [question.id]);
+  }, []);
 
   // Advance from prep to speak
   const skipPrep = useCallback(() => {
@@ -251,105 +271,52 @@ export default function ExamSessionPage() {
     setTimerKey((k) => k + 1);
   }, []);
 
-  // Start recording immediately when phase becomes 'speak'
+  // Global unmount cleanup for MediaRecorder
+  useEffect(() => {
+    return () => {
+      if (mrRef.current && mrRef.current.state !== 'inactive') {
+        mrRef.current.stop();
+      }
+    };
+  }, []);
+
+  // Start/Resume recording immediately when phase becomes 'speak'
   useEffect(() => {
     if (phase === 'speak') {
       // Longer, distinct start tone
       playBeep(600, 'triangle', 1.2, 0.2); 
-      startRecording();
+      startOrResumeRecording();
+    } else {
+      pauseRecording();
     }
-    return () => {
-      // Stop any active recording when question changes or unmount
-      if (mrRef.current && mrRef.current.state !== 'inactive') {
-        mrRef.current.requestData();
-        mrRef.current.stop();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, phase]);
+  }, [currentIndex, phase, startOrResumeRecording, pauseRecording]);
 
   // Advance to next question or results
   const advanceQuestion = useCallback(async () => {
     window.speechSynthesis.cancel();
     playBeep(330, 'square', 0.6, 0.1); // Stop beep
-    const recording = stopRecording();
-    const updatedRecordings = [...recordings, recording];
-    setRecordings(updatedRecordings);
 
-    // Read session token once
-    const sessionToken: string = JSON.parse(sessionStorage.getItem('examSession') || '{}').sessionToken ?? '';
-
-    // Check if this is the end of the current part
+    const currentGroupId = `${question.part}_${question.imageUrl ? 'withImage' : 'noImage'}`;
     const isLastQuestionInExam = currentIndex === examQuestions.length - 1;
     const nextQuestion = isLastQuestionInExam ? null : examQuestions[currentIndex + 1];
-    const isEndOfPart = isLastQuestionInExam || question.part !== nextQuestion?.part;
+    const nextGroupId = nextQuestion ? `${nextQuestion.part}_${nextQuestion.imageUrl ? 'withImage' : 'noImage'}` : null;
+    const isEndOfGroup = currentGroupId !== nextGroupId;
 
-    if (isEndOfPart) {
-      const currentPartQs = examQuestions.filter(q => q.part === question.part);
-      const partRecordings = updatedRecordings.filter(r => currentPartQs.some(q => q.id === r.questionId));
-
-      const formDataPart = new FormData();
-      const partNum = question.part.replace('part', '');
-      formDataPart.append('part', partNum);
-      formDataPart.append('sessionToken', sessionToken);
-      
-      const questionsData = currentPartQs.map(q => ({ id: q.id, text: q.text }));
-      formDataPart.append('questionsData', JSON.stringify(questionsData));
-
-      let hasValidAudio = false;
-      for (const r of partRecordings) {
-        if (r.audioBlob && r.durationSeconds > 5) {
-          formDataPart.append(`audio_${r.questionId}`, r.audioBlob);
-          hasValidAudio = true;
-        }
-      }
-
-      if (hasValidAudio) {
-        const partPromise = fetchWithRetry('/api/evaluate-part', {
-          method: 'POST',
-          body: formDataPart,
-        }, 3, 2000)
-          .then(res => {
-            if (!res.ok) throw new Error(`Part ${partNum} eval failed`);
-            return res.json();
-          })
-          .catch(err => {
-            console.warn(`Evaluation failed for Part ${partNum}:`, err);
-            // Fallback response for the part
-            return {
-              part: parseInt(partNum, 10),
-              part_score: 0,
-              max_part_score: 25,
-              question_responses: currentPartQs.map(q => ({
-                question_id: q.id,
-                transcript: "[Question Skipped or Error]",
-                is_skipped: true,
-                grammar_feedback: "Xatolik yuz berdi.",
-                pronunciation_notes: ""
-              })),
-              part_summary_feedback: "Baholashda xatolik yuz berdi."
-            };
-          });
-
-        evalPromisesRef.current.push(partPromise);
-      } else {
-        // Entire part was skipped or audio was too short
-        const dummyPartRes = {
-          part: parseInt(partNum, 10),
-          part_score: 0,
-          max_part_score: 25,
-          question_responses: currentPartQs.map(q => ({
-            question_id: q.id,
-            transcript: "[Question Skipped]",
-            is_skipped: true,
-            grammar_feedback: "Savol o'tkazib yuborildi.",
-            pronunciation_notes: ""
-          })),
-          part_summary_feedback: "Bu bo'lim o'tkazib yuborildi."
-        };
-        evalPromisesRef.current.push(Promise.resolve(dummyPartRes));
-      }
+    let updatedRecordings = recordings;
+    if (isEndOfGroup) {
+      const recording = stopGroupRecording(currentGroupId);
+      updatedRecordings = [...recordings, recording];
+      setRecordings(updatedRecordings);
+    } else {
+      pauseRecording();
     }
+
+    // Read session token once
+    const examSession = JSON.parse(sessionStorage.getItem('examSession') || '{}');
+    const sessionToken: string = examSession.sessionToken ?? '';
+    const studentName: string = examSession.fullName ?? 'Unknown Student';
+
+    // No more part-by-part evaluation. We evaluate everything at the end.
 
     if (currentIndex < examQuestions.length - 1) {
       setCurrentIndex((i) => i + 1);
@@ -363,33 +330,143 @@ export default function ExamSessionPage() {
 
       const attemptEvaluation = async () => {
         try {
-          // 1. Wait for all background part evaluations
-          await Promise.allSettled(evalPromisesRef.current);
+          const formData = new FormData();
+          formData.append('sessionToken', sessionToken);
+          formData.append('studentName', studentName);
+          const examMode = sessionStorage.getItem('examMode') || 'full';
+          formData.append('examMode', examMode);
           
-          // 2. Finalize evaluation on backend
-          const finalRes = await fetchWithRetry('/api/student/evaluate', {
+          const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
+          formData.append('questionsData', JSON.stringify(questionsData));
+
+          for (const r of updatedRecordings) {
+            if (r.audioBlob && r.durationSeconds > 1) {
+              formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+            }
+          }
+          
+          const finalRes = await fetchWithRetry('/api/evaluate-speaking', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionToken, finalize: true }),
-          });
+            body: formData,
+          }, 3, 2000);
           
           if (finalRes.ok) {
+            const finalData = await finalRes.json();
+            
+            // Save submission to database
+            const sessionInfoStr = sessionStorage.getItem('examSession');
+            if (sessionInfoStr) {
+              const sessionInfo = JSON.parse(sessionInfoStr);
+              await fetchWithRetry('/api/submissions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  studentName: sessionInfo.fullName,
+                  groupName: sessionInfo.groupName,
+                  teacherName: sessionInfo.teacherName,
+                  sessionToken: sessionInfo.sessionToken,
+                  overallScore: finalData.total_score,
+                  overallBand: finalData.cefr_level,
+                  fluencyScore: finalData.fluency_score,
+                  lexicalScore: finalData.lexical_score,
+                  grammarScore: finalData.grammar_score,
+                  pronunciationScore: finalData.pronunciation_score,
+                  evaluation: finalData,
+                  examType: 'speaking'
+                })
+              }, 3, 2000);
+            }
+
+            sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
             clearExamState(sessionToken, 'speaking');
-            router.replace('/exam/speaking/results');
+            handleExamCompletion(router, '/exam/speaking/results');
           } else {
             console.error('Finalize returned non-OK status');
+            setEvalError("Evaluation failed. The AI engine encountered an error while grading your exam.");
           }
         } catch (err) {
           console.error('Finalize API failed:', err);
+          setEvalError("A network error occurred while submitting your exam.");
         }
       };
       
       attemptEvaluation();
     }
-  }, [currentIndex, recordings, stopRecording, router, question.part, examQuestions]);
+  }, [currentIndex, recordings, stopGroupRecording, pauseRecording, router, question.part, question.imageUrl, examQuestions]);
+
+  const retryEvaluation = async () => {
+    setIsSubmitting(true);
+    setEvalError(null);
+    isSubmittingRef.current = true;
+    
+    const examSession = JSON.parse(sessionStorage.getItem('examSession') || '{}');
+    const sessionToken: string = examSession.sessionToken ?? '';
+    const studentName: string = examSession.fullName ?? 'Unknown Student';
+
+    try {
+      const formData = new FormData();
+      formData.append('sessionToken', sessionToken);
+      formData.append('studentName', studentName);
+      const examMode = sessionStorage.getItem('examMode') || 'full';
+      formData.append('examMode', examMode);
+      
+      const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
+      formData.append('questionsData', JSON.stringify(questionsData));
+
+      for (const r of recordings) {
+        if (r.audioBlob && r.durationSeconds > 1) {
+          formData.append(`audioGroup_${r.groupId}`, r.audioBlob);
+        }
+      }
+      
+      const finalRes = await fetchWithRetry('/api/evaluate-speaking', {
+        method: 'POST',
+        body: formData,
+      }, 3, 2000);
+      
+      if (finalRes.ok) {
+        const finalData = await finalRes.json();
+
+        // Save submission to database
+        const sessionInfoStr = sessionStorage.getItem('examSession');
+        if (sessionInfoStr) {
+          const sessionInfo = JSON.parse(sessionInfoStr);
+          await fetchWithRetry('/api/submissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              studentName: sessionInfo.fullName,
+              groupName: sessionInfo.groupName,
+              teacherName: sessionInfo.teacherName,
+              sessionToken: sessionInfo.sessionToken,
+              overallScore: finalData.total_score,
+              overallBand: finalData.cefr_level,
+              fluencyScore: finalData.fluency_score,
+              lexicalScore: finalData.lexical_score,
+              grammarScore: finalData.grammar_score,
+              pronunciationScore: finalData.pronunciation_score,
+              evaluation: finalData,
+              examType: 'speaking'
+            })
+          }, 3, 2000);
+        }
+
+        sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
+        clearExamState(sessionToken, 'speaking');
+        handleExamCompletion(router, '/exam/speaking/results');
+      } else {
+        console.error('Finalize returned non-OK status');
+        setEvalError("Evaluation failed. The AI engine encountered an error while grading your exam.");
+      }
+    } catch (err) {
+      console.error('Finalize API failed:', err);
+      setEvalError("A network error occurred while submitting your exam.");
+    }
+  };
+
 
   // Part info
-  const currentPart = EXAM_PARTS.find((p) => p.part === question.part)!;
+  const currentPart = EXAM_PARTS.find((p) => p.part === question.part) || { label: 'Part', description: 'Speaking Exam', color: 'bg-slate-50 dark:bg-slate-9500', questionRange: '' };
   const partIndex = EXAM_PARTS.findIndex((p) => p.part === question.part);
   const progressPercent = (currentIndex / EXAM_QUESTIONS.length) * 100;
 
@@ -415,26 +492,29 @@ export default function ExamSessionPage() {
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30 scale-110'
                     : partIndex > idx
                       ? 'bg-teal-100 text-teal-600 border-2 border-teal-300'
-                      : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
+                      : 'bg-slate-100 text-slate-400 border-2 border-slate-200 dark:border-slate-700'
                     }`}
                 >
                   {partIndex > idx ? '✓' : idx + 1}
                 </div>
                 {idx < EXAM_PARTS.length - 1 && (
-                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200'}`} />
+                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200 dark:bg-slate-700'}`} />
                 )}
               </div>
             ))}
           </div>
 
           {/* Q counter */}
-          <div className="text-xs text-muted-foreground font-medium bg-slate-100 px-3 py-1.5 rounded-lg">
-            Q {currentIndex + 1} / {EXAM_QUESTIONS.length}
+          <div className="flex items-center gap-4">
+            
+            <div className="text-xs text-muted-foreground font-medium bg-slate-100 px-3 py-1.5 rounded-lg">
+              Q {currentIndex + 1} / {EXAM_QUESTIONS.length}
+            </div>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-slate-100">
+        <div className="h-1 bg-slate-100 dark:bg-slate-800">
           <div
             className="h-full bg-teal-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -447,39 +527,58 @@ export default function ExamSessionPage() {
         {/* Submitting Screen (Full Screen Overlay) */}
         {isSubmitting && (
           <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center fade-in px-4">
-            <div className="relative w-32 h-32 mb-8">
-              {/* Pulsing rings */}
-              <div className="absolute inset-0 border-4 border-teal-100 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }} />
-              <div className="absolute inset-2 border-4 border-emerald-100 rounded-full animate-ping opacity-50" style={{ animationDuration: '2s' }} />
-              
-              {/* Core spinner */}
-              <div className="absolute inset-4 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30">
-                <Bot className="w-10 h-10 text-white animate-pulse" />
+            {evalError ? (
+              <div className="flex flex-col items-center">
+                 <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-red-50">
+                    <AlertTriangle className="w-10 h-10 text-red-600" />
+                 </div>
+                 <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-center">
+                    Evaluation Failed
+                 </h2>
+                 <p className="text-lg text-red-500 mt-3 text-center max-w-md leading-relaxed">
+                   {evalError}
+                 </p>
+                 <Button onClick={retryEvaluation} className="mt-8 bg-slate-900 hover:bg-slate-800 text-white font-bold h-12 px-8 rounded-xl">
+                   Try Again
+                 </Button>
               </div>
-              
-              {/* Orbiting sparkles */}
-              <div className="absolute -top-2 -right-2 animate-bounce" style={{ animationDelay: '0.2s' }}>
-                <Sparkles className="w-6 h-6 text-amber-400" />
-              </div>
-            </div>
-            
-            <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-center">
-              Generating Final Score...
-            </h2>
-            <p className="text-lg text-slate-500 mt-3 text-center max-w-md leading-relaxed">
-              Our AI is evaluating your vocabulary, grammar, fluency, and pronunciation.
-            </p>
-            
-            <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
-              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
-                <CheckCircle2 className="w-6 h-6 text-teal-500 shrink-0" />
-                <span className="font-medium text-slate-700">Audio processing complete</span>
-              </div>
-              <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm opacity-80">
-                <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
-                <span className="font-medium text-slate-700">Analyzing CEFR criteria...</span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="relative w-32 h-32 mb-8">
+                  {/* Pulsing rings */}
+                  <div className="absolute inset-0 border-4 border-teal-100 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }} />
+                  <div className="absolute inset-2 border-4 border-emerald-100 rounded-full animate-ping opacity-50" style={{ animationDuration: '2s' }} />
+                  
+                  {/* Core spinner */}
+                  <div className="absolute inset-4 bg-gradient-to-tr from-teal-500 to-emerald-400 rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30">
+                    <Bot className="w-10 h-10 text-white animate-pulse" />
+                  </div>
+                  
+                  {/* Orbiting sparkles */}
+                  <div className="absolute -top-2 -right-2 animate-bounce" style={{ animationDelay: '0.2s' }}>
+                    <Sparkles className="w-6 h-6 text-amber-400" />
+                  </div>
+                </div>
+                
+                <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-center">
+                  Generating Final Score...
+                </h2>
+                <p className="text-lg text-slate-500 mt-3 text-center max-w-md leading-relaxed">
+                  Our AI is evaluating your vocabulary, grammar, fluency, and pronunciation.
+                </p>
+                
+                <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
+                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
+                    <CheckCircle2 className="w-6 h-6 text-teal-500 shrink-0" />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Audio processing complete</span>
+                  </div>
+                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm opacity-80">
+                    <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">Analyzing CEFR criteria...</span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -619,7 +718,22 @@ export default function ExamSessionPage() {
                   </div>
                 ) : (
                   <>
-                    {question.imageUrl && (
+                    {question.part === 'part1_2' ? (
+                      <div className="flex flex-col md:flex-row gap-4 w-full">
+                        {question.imageUrl && (
+                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={question.imageUrl} alt="Exam prompt 1" className="w-full h-auto object-contain max-h-[350px]" />
+                          </div>
+                        )}
+                        {(question.tableData as any)?.image_url_2 && (
+                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={(question.tableData as any).image_url_2} alt="Exam prompt 2" className="w-full h-auto object-contain max-h-[350px]" />
+                          </div>
+                        )}
+                      </div>
+                    ) : question.imageUrl && (
                       <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -723,7 +837,7 @@ export default function ExamSessionPage() {
                   ? 'bg-slate-800 scale-125'
                   : idx < currentIndex
                     ? 'bg-emerald-500'
-                    : 'bg-slate-200'
+                    : 'bg-slate-200 dark:bg-slate-700'
                   }`}
               />
             ))}

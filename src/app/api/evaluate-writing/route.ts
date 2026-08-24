@@ -29,19 +29,20 @@ export async function POST(req: NextRequest) {
     const model = genAI.getGenerativeModel({ model: config.final_model });
 
     const body = await req.json();
-    const { sessionToken, task1Text, task2Text, task1Prompt, task2Prompt } = body;
+    const { sessionToken, task1Text, task1_2Text, task2Text, task1Prompt, task1_2Prompt, task2Prompt } = body;
 
     const session = await verifyStudentSessionToken(sessionToken);
     if (!session) {
       return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
     }
 
-    if (!task1Text && !task2Text) {
+    if (!task1Text && !task1_2Text && !task2Text) {
       return NextResponse.json({ error: 'Missing writing responses.' }, { status: 400 });
     }
 
     const generativeParts = [
       `--- TASK 1 PROMPT ---\n${task1Prompt}\n\n--- CANDIDATE TASK 1 RESPONSE ---\n${task1Text || '[No response provided]'}`,
+      `\n\n--- TASK 1.2 PROMPT ---\n${task1_2Prompt}\n\n--- CANDIDATE TASK 1.2 RESPONSE ---\n${task1_2Text || '[No response provided]'}`,
       `\n\n--- TASK 2 PROMPT ---\n${task2Prompt}\n\n--- CANDIDATE TASK 2 RESPONSE ---\n${task2Text || '[No response provided]'}`,
       `\n\n${WRITING_EVALUATION_PROMPT}`
     ];

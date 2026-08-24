@@ -53,20 +53,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing PDF file.' }, { status: 400 });
     }
 
-    // Convert Blob to Buffer for pdf-parse
+    // Convert Blob to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
-    // Parse PDF text dynamically to avoid Turbopack DOMMatrix issues
-    const pdf = require('pdf-parse');
-    const pdfData = await pdf(buffer);
-    const textContent = pdfData.text;
+    const { GoogleAIFileManager } = require('@google/generative-ai/server');
+    const fileManager = new GoogleAIFileManager(API_KEY || '');
+    
+    const os = require('os');
+    const path = require('path');
+    const fs = require('fs');
+    
+    const originalPdfName = (file as any).name || 'speaking.pdf';
+    const pdfExt = originalPdfName.split('.').pop() || 'pdf';
+    const pdfFileName = `task_${Date.now()}_${Math.random().toString(36).substring(7)}.${pdfExt}`;
+    
+    const tmpFilePath = path.join(os.tmpdir(), pdfFileName);
+    fs.writeFileSync(tmpFilePath, buffer);
+    
+    const uploadResponse = await fileManager.uploadFile(tmpFilePath, {
+      mimeType: file.type || 'application/pdf',
+      displayName: pdfFileName,
+    });
 
     // Send to Gemini
     const result = await model.generateContent([
       PDF_PARSER_PROMPT,
-      `--- RAW PDF TEXT ---\n${textContent}`
+      {
+        fileData: {
+          mimeType: uploadResponse.file.mimeType,
+          fileUri: uploadResponse.file.uri
+        }
+      }
     ]);
+    
+    fs.unlinkSync(tmpFilePath);
+    try {
+      await fileManager.deleteFile(uploadResponse.file.name);
+    } catch (cleanupError) {
+      console.error('Failed to clean up Gemini file:', cleanupError);
+    }
     
     const response = await result.response;
     const rawText = response.text();

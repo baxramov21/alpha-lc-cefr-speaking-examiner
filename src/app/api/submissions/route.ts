@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
     
     const body = parsed.data;
-    const { studentName, groupName, teacherName, sessionToken, overallScore, overallBand, evaluation, examType } = body;
+    const { studentName, groupName, teacherName, sessionToken, overallScore, fluencyScore, lexicalScore, grammarScore, pronunciationScore, overallBand, evaluation, examType } = body;
 
     // Inject examType directly into the evaluation JSONB before saving to Supabase
     // This allows us to filter submissions by exam type without running a DB migration

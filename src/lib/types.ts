@@ -21,7 +21,7 @@ export interface PasscodeEntry {
 }
 
 // ----- Exam Structure -----
-export type ExamPart = 'part1' | 'part2' | 'part3' | 'task1' | 'task2';
+export type ExamPart = 'part1' | 'part1_2' | 'part2' | 'part3' | 'task1' | 'task1_2' | 'task2';
 export type QuestionPhase = 'prep' | 'speak' | 'complete';
 
 export interface ExamQuestion {
@@ -70,20 +70,13 @@ export interface QuestionResponseEval {
 export interface UzbmbEvaluation {
   total_score: number;
   cefr_level: CefrBand;
-  part_scores: {
-    part_1: number;
-    part_2: number;
-    part_3: number;
-  };
-  criteria_ratings: {
-    grammar_accuracy: CefrBand;
-    lexical_resource: CefrBand;
-    fluency_coherence: CefrBand;
-    pronunciation: CefrBand;
-  };
+  fluency_score: number;
+  lexical_score: number;
+  grammar_score: number;
+  pronunciation_score: number;
   feedback: {
     grammar: string;
-    vocabulary: string;
+    interaction: string;
     fluency: string;
     pronunciation: string;
   };
@@ -100,7 +93,7 @@ export interface ListeningSubQuestion {
   id: string;
   number: number;
   text: string;
-  type: 'multiple_choice' | 'fill_in_blank';
+  type: 'multiple_choice' | 'fill_in' | 'matching';
   options?: string[]; // For multiple choice
   correctAnswer: string;
 }
@@ -108,7 +101,8 @@ export interface ListeningSubQuestion {
 export interface ListeningTask {
   id: string;
   partLabel: string; // e.g. "Part 1"
-  audioUrl: string;
+  audioUrls?: string[];
+  passage_html?: string;
   instructions: string;
   questions: ListeningSubQuestion[];
 }
@@ -144,8 +138,7 @@ export interface ExamResult {
 export interface ReadingTask {
   id: string;
   partLabel: string;
-  pdfUrl: string;
-  passageText: string;
+  passage_html: string;
   instructions: string;
   questions: ListeningSubQuestion[]; // Re-using sub question type
 }
@@ -215,6 +208,7 @@ export interface WritingEvaluation {
   cefr_level: CefrBand;
   task_scores: {
     task_1_score: number;
+    task_1_2_score?: number;
     task_2_score: number;
   };
   criteria_ratings: {
@@ -224,6 +218,7 @@ export interface WritingEvaluation {
     grammar_accuracy: CefrBand;
   };
   task_1_eval: WritingTaskEval;
+  task_1_2_eval?: WritingTaskEval;
   task_2_eval: WritingTaskEval;
   global_feedback: {
     strengths: string[];

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
 
 const patchQuestionSchema = z.object({
-  part: z.enum(['part1', 'part2', 'part3']).optional(),
+  part: z.enum(['part1', 'part1_2', 'part2', 'part3', 'task1', 'task1_2', 'task2']).optional(),
   question_type: z.enum(['standard', 'image', 'debate']).optional(),
   text: z.string().min(1).max(2000).optional(),
   topic: z.string().min(1).max(200).optional(),
@@ -21,6 +21,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const parsed = patchQuestionSchema.safeParse(raw);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid input', details: parsed.error.format() }, { status: 400 });
+    }
+
+    if (parsed.data.text) {
+      const { data: existing, error: checkErr } = await supabase
+        .from('questions')
+        .select('id')
+        .ilike('text', parsed.data.text.trim())
+        .neq('id', id)
+        .limit(1);
+
+      if (checkErr) throw checkErr;
+      if (existing && existing.length > 0) {
+        return NextResponse.json({ error: 'A question with this exact text already exists.' }, { status: 409 });
+      }
+      // Update text with trimmed version
+      parsed.data.text = parsed.data.text.trim();
     }
 
     const { error } = await supabase.from('questions').update(parsed.data).eq('id', id);

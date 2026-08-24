@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Award, CheckCircle, XCircle, ArrowRight, ShieldCheck, Home, BookOpen } from 'lucide-react';
+import { Award, CheckCircle, XCircle, ArrowRight, ShieldCheck, Home, BookOpen, CheckCircle2, ChevronRight, Download, Eye, Loader2 } from 'lucide-react';
+import FullExamNextAction from '@/components/FullExamNextAction';
 import { Button } from '@/components/ui/button';
 import { ReadingEvaluation, ReadingTask } from '@/lib/types';
 
@@ -47,9 +48,12 @@ export default function ReadingResultsPage() {
               <h1 className="text-3xl font-black text-white mb-2">
                 Reading Assessment Complete
               </h1>
-              <p className="text-fuchsia-400 font-medium text-lg">
+              <p className="text-fuchsia-400 font-medium text-lg mb-6">
                 Your results have been automatically graded.
               </p>
+              <div className="flex justify-center mt-2 relative z-20">
+                <FullExamNextAction />
+              </div>
             </div>
           </div>
 
@@ -124,21 +128,12 @@ export default function ReadingResultsPage() {
                 </div>
               )}
             </div>
-
-            <div className="mt-12 flex justify-center">
-              <Button 
-                onClick={() => {
-                  sessionStorage.clear();
-                  router.push('/');
-                }}
-                className="h-14 px-8 text-lg rounded-xl font-bold bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-900/10"
-              >
-                <Home className="w-5 h-5 mr-2" />
-                Return to Home
-              </Button>
-            </div>
           </div>
 
+        </div>
+        {/* Bottom Action Bar */}
+        <div className="flex justify-center pt-8 pb-12 w-full">
+          <FullExamNextAction />
         </div>
       </div>
     </div>

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, Home } from 'lucide-react';
+import { ArrowRight, Download, RefreshCcw, Home, Clock, CheckCircle2 } from 'lucide-react';
+import FullExamNextAction from '@/components/FullExamNextAction';
 import { sanitizeTranscriptHtml } from '@/lib/sanitize';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,7 +45,10 @@ export default function ExamResultsPage() {
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-slate-800">Exam Completed, {studentName}</h1>
-          <p className="text-slate-500">Your AI examiner has finished evaluating your speaking test.</p>
+          <p className="text-slate-500 mb-8">Your AI examiner has finished evaluating your speaking test.</p>
+          <div className="flex justify-center mt-6">
+            <FullExamNextAction />
+          </div>
         </div>
 
         {/* Hero Score Card */}
@@ -76,41 +80,42 @@ export default function ExamResultsPage() {
           </div>
         </div>
 
-        {/* Part Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Criteria Breakdown */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 1</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_1} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+            <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Fluency</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.fluency_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 2</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_2} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+            <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Interaction</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.lexical_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 3</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.part_scores.part_3} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
+            <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Grammar</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.grammar_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
+            <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Pronunciation</h3>
+            <div className="text-3xl font-bold text-slate-800">{evaluation.pronunciation_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
         </div>
-
-        {/* Criteria & Feedback Grid */}
+        {/* Feedback Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-full">
               <h3 className="font-bold text-slate-800 mb-6 flex items-center justify-between">
-                Criteria Ratings
-                <Badge variant="secondary" className="bg-slate-100 text-slate-500 font-normal hover:bg-slate-100 hover:text-slate-500">CEFR Bands</Badge>
+                Examiner Feedback
               </h3>
               <div className="space-y-4">
                 {[
-                  { label: 'Grammatical Range', val: evaluation.criteria_ratings.grammar_accuracy, fb: evaluation.feedback.grammar },
-                  { label: 'Lexical Resource', val: evaluation.criteria_ratings.lexical_resource, fb: evaluation.feedback.vocabulary },
-                  { label: 'Fluency', val: evaluation.criteria_ratings.fluency_coherence, fb: evaluation.feedback.fluency },
-                  { label: 'Pronunciation', val: evaluation.criteria_ratings.pronunciation, fb: evaluation.feedback.pronunciation },
+                  { label: 'Grammar Accuracy', fb: evaluation.feedback.grammar },
+                  { label: 'Interaction & Communication', fb: evaluation.feedback.interaction },
+                  { label: 'Fluency & Coherence', fb: evaluation.feedback.fluency },
+                  { label: 'Pronunciation', fb: evaluation.feedback.pronunciation },
                 ].map((crit) => (
                   <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium text-slate-700">{crit.label}</span>
-                      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
                     </div>
                     <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
                   </div>
@@ -200,14 +205,10 @@ export default function ExamResultsPage() {
             </div>
           </div>
         )}
-
-        {/* Action */}
-        <div className="flex justify-center pt-8 pb-8">
-          <Button size="lg" className="rounded-full px-8 gap-2 bg-slate-800 hover:bg-slate-700" onClick={() => router.push('/dashboard')}>
-            <Home className="w-4 h-4" /> Return to Home
-          </Button>
+        {/* Bottom Action Bar */}
+        <div className="flex justify-center pt-8 pb-12 w-full">
+          <FullExamNextAction />
         </div>
-
       </div>
     </div>
   );

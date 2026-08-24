@@ -84,20 +84,20 @@ export const EXAM_QUESTIONS: ExamQuestion[] = [
     part: 'part3',
     partLabel: 'Part 3',
     questionNumber: 8,
-    text: 'Wealthy individuals should be taxed at higher rates.\n\nPlease discuss both sides and give your opinion.',
+    text: 'Art and music classes should be removed from the school curriculum.\n\nPlease discuss both sides and give your opinion.',
     prepSeconds: 60,
     speakSeconds: 120,
-    topic: 'Wealth Tax (Debate)',
+    topic: 'Art and Music Classes',
     tableData: {
       forPoints: [
-        'Higher taxes on the wealthy can reduce income inequality.',
-        'Additional revenue can fund essential public services.',
-        'The wealthiest individuals benefit disproportionately from societal systems.'
+        'Schools should focus more on science, technology, and math.',
+        'Learning art and music does not help in finding a job.',
+        'It is a waste of time for students who have no talent.'
       ],
       againstPoints: [
-        'High taxes may discourage investment and entrepreneurship.',
-        'Wealthy individuals often find ways to legally avoid taxes.',
-        'Redistribution alone doesn\'t address the root causes of poverty.'
+        'Art and music help children develop creativity and imagination.',
+        'These subjects provide a necessary break from difficult academic lessons.',
+        'Studying art helps students understand and appreciate different cultures.'
       ]
     }
   }
@@ -112,6 +112,15 @@ export const EXAM_PARTS = [
     prepTime: '5-10s',
     speakTime: '30-45s',
     color: 'bg-teal-500',
+  },
+  {
+    part: 'part1_2' as const,
+    label: 'Part 1.2',
+    description: 'Visual Comparison & Follow-up',
+    questionRange: 'Q4–Q6',
+    prepTime: '30s',
+    speakTime: '45s',
+    color: 'bg-teal-600',
   },
   {
     part: 'part2' as const,

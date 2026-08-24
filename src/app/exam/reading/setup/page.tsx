@@ -37,6 +37,7 @@ export default function ReadingSetupPage() {
         const data = await res.json();
         if (data.tasks) {
           sessionStorage.setItem('readingTasks', JSON.stringify(data.tasks));
+          sessionStorage.setItem('readingTimeLimit', data.time_limit.toString());
           setTaskCount(data.tasks.length);
         }
       } catch (e) {

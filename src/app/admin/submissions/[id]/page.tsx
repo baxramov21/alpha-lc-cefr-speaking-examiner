@@ -303,10 +303,10 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             </h3>
             <div className="space-y-4">
               {[
-                { label: 'Grammar', val: ev.criteria_ratings?.grammar_accuracy || '-', fb: ev.feedback?.grammar || '' },
-                { label: 'Vocabulary', val: ev.criteria_ratings?.lexical_resource || '-', fb: ev.feedback?.vocabulary || '' },
-                { label: 'Fluency', val: ev.criteria_ratings?.fluency_coherence || '-', fb: ev.feedback?.fluency || '' },
-                { label: 'Pronunciation', val: ev.criteria_ratings?.pronunciation || '-', fb: ev.feedback?.pronunciation || '' },
+                { label: 'Grammar', val: ev.grammar_score || '-', fb: ev.feedback?.grammar || '' },
+                { label: 'Interaction', val: ev.lexical_score || '-', fb: ev.feedback?.interaction || ev.feedback?.vocabulary || '' },
+                { label: 'Fluency', val: ev.fluency_score || '-', fb: ev.feedback?.fluency || '' },
+                { label: 'Pronunciation', val: ev.pronunciation_score || '-', fb: ev.feedback?.pronunciation || '' },
               ].map((crit) => (
                 <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-center mb-2">

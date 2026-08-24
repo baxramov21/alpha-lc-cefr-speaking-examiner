@@ -7,16 +7,13 @@ import { ExamResult, SubmissionSummary, UzbmbEvaluation } from './types';
 const mockEval: UzbmbEvaluation = {
   total_score: 55,
   cefr_level: 'B2',
-  part_scores: { part_1: 18, part_2: 18, part_3: 19 },
-  criteria_ratings: {
-    grammar_accuracy: 'B2',
-    lexical_resource: 'B2',
-    fluency_coherence: 'B2',
-    pronunciation: 'B2'
-  },
+  fluency_score: 55,
+  lexical_score: 55,
+  grammar_score: 55,
+  pronunciation_score: 55,
   feedback: {
     grammar: 'Good control of grammar.',
-    vocabulary: 'Adequate vocabulary.',
+    interaction: 'Adequate interaction.',
     fluency: 'Speaks clearly.',
     pronunciation: 'Generally clear.'
   },

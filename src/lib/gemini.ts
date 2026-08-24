@@ -1,78 +1,76 @@
 import { UzbmbEvaluation } from '@/lib/types';
 
-export const PART_EVALUATION_PROMPT = `
-You are an official AI Speaking Examiner for the Uzbekistan Multilevel (UZBMB / Milliy Sertifikat) Assessment. 
-Your task is to evaluate a candidate's spoken responses for a SINGLE PART of the Speaking Test.
+export const GEMINI_MODEL = 'gemini-2.5-flash';
 
-You will receive multiple audio recordings along with their corresponding question texts.
+export function generateSpeakingPrompt(examMode: string): string {
+  const modeContext = examMode === 'full'
+    ? "ENTIRE speaking exam performance (Parts 1, 2, and 3)"
+    : `performance for ONLY ${examMode.replace('part', 'Part ')}`;
+
+  const missingPartsContext = examMode === 'full'
+    ? ""
+    : `\nNOTE: The candidate has deliberately chosen to take ONLY ${examMode.replace('part', 'Part ')}. DO NOT penalize them for missing other parts. Score their performance out of 75 based SOLELY on the recordings provided for this specific part. Extrapolate their overall CEFR level based on this part alone.\n`;
+
+  return `
+Role: You are an official human CEFR Speaking Examiner for UzBMB exams.
+Your task is to evaluate a candidate's ${modeContext} based on all provided audio recordings.
+${missingPartsContext}
+
+1. Dual-Mode Evaluation Philosophy
+
+MODE A: AUTHENTIC ATTEMPTS (Human Leniency)
+- If the candidate is genuinely trying to answer the question, stays on-topic, and uses extended sentences:
+  - DO NOT drastically decrease scores for minor grammar or pronunciation slips.
+  - Small errors (e.g., occasional missing third-person 's', minor article slips, self-corrections) are completely acceptable at the B2 level.
+  - If communicative flow, vocabulary, and task relevance are strong, maintain a high score baseline (58–65 / 75). Focus on overall fluency and logical structure rather than counting individual mistakes.
+
+MODE B: CHEATING / GAMING / ARTIFICIAL ATTEMPTS (Severe Penalties)
+- If the candidate attempts to "cheat" or "game" the system, apply strict score caps immediately:
+  1. Raw Vocabulary List Reading / Word Recitation:
+     - If the candidate simply reads or recites isolated words (even advanced C1 vocabulary) or reads prompt instructions without forming natural, connected sentences:
+     - Cap Overall Score at 15–20 / 75. (Do NOT grant high Lexical scores for isolated word lists).
+  2. Off-Topic / Irrelevant Responses:
+     - If the candidate speaks off-topic, recites memorized unrelated templates, or delivers a speech that fails to address the specific prompt question:
+     - Cap Overall Score at 20–28 / 75.
+  3. High Repetition / Extremely Short Speech:
+     - If the response consists of fewer than 30 words or relies heavily on repetitive filler without answering the question:
+     - Cap Overall Score at 20–30 / 75.
+
+2. Concrete Scoring Anchor Examples (Calibrate strictness against these)
+- Example 1 (Authentic B2 Response - Score: 62–65/75): Candidate addresses the question directly with extended, connected ideas. Uses natural connectors and good topic vocabulary, but makes 3–4 minor grammar slips. Correct Score: 63/75. (DO NOT drop this score into the 40s!).
+- Example 2 (Authentic B1 Response - Score: 47–52/75): Candidate stays on-topic and answers all parts, but uses simple sentence structures, shows noticeable pauses, and makes frequent basic grammar errors. Correct Score: 50/75.
+- Example 3 (Cheating Attempt - Vocabulary List - Score: 18/75): Candidate reads a list of C1 words or prompt keywords without forming coherent, grammatical sentences. Correct Score: 18/75.
+- Example 4 (Cheating Attempt - Off-Topic - Score: 22/75): Candidate speaks fluently for 30 seconds about sports when the question asked about their favorite childhood memory. Correct Score: 22/75.
+
+3. Final Criteria & Score Output Formula
+Evaluate each criterion from 0 to 75:
+1. Fluency & Coherence (0–75)
+2. Lexical Resource / Interaction (0–75)
+   * OUTPUT THIS SCORE AS \`lexical_score\` in the JSON.
+3. Grammatical Range & Accuracy (0–75)
+4. Pronunciation (0–75)
+
+Calculate the overall score: Math.round((Fluency + Lexical + Grammar + Pronunciation) / 4).
+
+### SCORE-TO-LEVEL MAPPING MATRIX
+* 65 – 75 Points: Level C1 (Advanced)
+* 51 – 64 Points: Level B2 (Upper-Intermediate)
+* 38 – 50 Points: Level B1 (Intermediate)
+* Below 38 Points: Level A2 or Below (Not Certified)
 
 CRITICAL REQUIREMENT:
 Generate all natural language feedback in clear, professional Uzbek (O'zbek tilida). Keep the JSON schema keys strictly in English.
 
-IMPORTANT TRANSCRIPTION RULE:
-The input text is derived from automatic speech-to-text audio transcription. DO NOT flag or correct casing (capitalization) or basic punctuation errors. ONLY flag actual spoken grammatical errors, vocabulary misuse, or structural issues.
-
 Your output MUST be a valid JSON object matching the following structure exactly (NO markdown wrapping like \`\`\`json):
 {
-  "part": 1,
-  "part_score": 18,
-  "max_part_score": 25,
-  "question_responses": [
-    {
-      "question_id": "q1",
-      "transcript": "Candidate spoken response transcript...",
-      "is_skipped": false,
-      "grammar_feedback": "Short grammar or vocabulary note in Uzbek",
-      "pronunciation_notes": "Mispronounced words if any in Uzbek"
-    }
-  ],
-  "part_summary_feedback": "Brief summary of performance across this part in Uzbek."
-}
-
-Ensure that the 'question_responses' array contains an object for EVERY question ID provided in the input. 
-If an audio is silent or unintelligible, write '[No audible speech detected]' for the transcript, set is_skipped to true, and leave feedback empty.
-NEVER refuse to evaluate and NEVER return anything other than JSON.
-`;
-
-export const FINAL_UZBMB_PROMPT = `
-You are an official AI Speaking Examiner for the Uzbekistan Multilevel (UZBMB / Milliy Sertifikat) Assessment. 
-Your task is to aggregate the evaluations from Part 1, Part 2, and Part 3, and calculate the final standardized score out of 75 points.
-
-You will receive an array containing the evaluations for all 3 parts.
-
-### EXAM STRUCTURE & SCORING BREAKDOWN:
-- Part 1 (Short Answer & Visual Comparison): Max 25 Points
-- Part 2 (Topic Presentation & Scenario): Max 25 Points
-- Part 3 (Abstract Discussion & Argumentation): Max 25 Points
-- Total Standardized Score: Sum of Part 1 + Part 2 + Part 3 (Max 75 Points)
-
-### CEFR CONVERSION SCALE:
-- 65 – 75 Points: C1 Level
-- 51 – 64 Points: B2 Level
-- 38 – 50 Points: B1 Level
-- 0 – 37 Points: Below B1 / Uncertified
-
-CRITICAL REQUIREMENT:
-Generate all natural language feedback in clear, professional Uzbek (O'zbek tilida). Keep the JSON schema keys strictly in English.
-
-Your output MUST be a valid JSON object matching the following structure exactly (NO markdown wrapping like \`\`\`json):
-{
-  "total_score": 58,
+  "fluency_score": 60,
+  "lexical_score": 58,
+  "grammar_score": 55,
+  "pronunciation_score": 62,
   "cefr_level": "B2",
-  "part_scores": {
-    "part_1": 19,
-    "part_2": 19,
-    "part_3": 20
-  },
-  "criteria_ratings": {
-    "grammar_accuracy": "B2",
-    "lexical_resource": "B2",
-    "fluency_coherence": "B2",
-    "pronunciation": "C1"
-  },
   "feedback": {
     "grammar": "Umumiy xulosa...",
-    "vocabulary": "Umumiy xulosa...",
+    "interaction": "Umumiy xulosa...",
     "fluency": "Umumiy xulosa...",
     "pronunciation": "Umumiy xulosa..."
   },
@@ -82,11 +80,22 @@ Your output MUST be a valid JSON object matching the following structure exactly
   "areas_for_improvement": [
     "Qaysi qismlarda xato qilgani haqida ma'lumot..."
   ],
-  "question_responses": [] 
+  "question_responses": [
+    {
+      "question_id": "9777c235-...",
+      "question_text": "What do you spend your time with them?",
+      "transcript": "Men do'stlarim bilan ...",
+      "corrected_transcript_html": "Men do'stlarim bilan <b>vaqt o'tkazishni</b>...",
+      "grammar_feedback": "Xato: ... To'g'ri: ...",
+      "pronunciation_notes": "Talaffuzda xatoliklar: ...",
+      "part_score": 15
+    }
+  ]
 }
 
-Note: You DO NOT need to populate "question_responses" in this final JSON, as it will be merged programmatically by the backend. Just leave it as an empty array [].
+NEVER refuse to evaluate and NEVER return anything other than JSON.
 `;
+}
 
 export function cleanJsonResponse(rawText: string): any {
   try {
@@ -100,16 +109,24 @@ export function cleanJsonResponse(rawText: string): any {
   }
 }
 
-export async function generateWithRetry(model: any, parts: any[], retries = 3, initialDelay = 10000) {
+export async function generateWithRetry(model: any, parts: any[], retries = 4, initialDelay = 8000) {
   let delay = initialDelay;
   for (let i = 0; i < retries; i++) {
     try {
       const result = await model.generateContent(parts);
       return result;
     } catch (error: any) {
-      const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota') || error?.status === 429;
-      if (isRateLimit && i < retries - 1) {
-        console.warn(`[AI Engine] Rate limit hit. Retrying in ${delay}ms... (Attempt ${i + 1} of ${retries})`);
+      const isRetryableError = 
+        error?.message?.includes('429') || 
+        error?.message?.includes('Quota') || 
+        error?.status === 429 ||
+        error?.message?.includes('500') ||
+        error?.message?.includes('503') ||
+        error?.status === 500 ||
+        error?.status === 503;
+        
+      if (isRetryableError && i < retries - 1) {
+        console.warn(`[AI Engine] Gemini API error (${error?.status || 'unknown'}). Retrying in ${delay}ms... (Attempt ${i + 1} of ${retries})`);
         await new Promise(res => setTimeout(res, delay));
         delay = Math.floor(delay * 1.5); // Exponential backoff
       } else {
@@ -121,7 +138,7 @@ export async function generateWithRetry(model: any, parts: any[], retries = 3, i
 
 export const WRITING_EVALUATION_PROMPT = `
 You are an official AI Writing Examiner for the Uzbekistan Multilevel (UZBMB / Milliy Sertifikat) Assessment.
-Your task is to evaluate the candidate's Task 1 (Letter/Email/Report) and Task 2 (Essay) responses.
+Your task is to evaluate the candidate's Task 1 (Letter/Email/Report), Task 1.2 (Additional Short Prompt), and Task 2 (Essay) responses.
 
 Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block formatting):
 
@@ -130,7 +147,8 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
   "cefr_level": "B2",
   "task_scores": {
     "task_1_score": 9,
-    "task_2_score": 19
+    "task_1_2_score": 9,
+    "task_2_score": 18
   },
   "criteria_ratings": {
     "task_achievement": "B2",
@@ -142,6 +160,11 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
     "word_count": 154,
     "corrected_text_html": "Dear Sir, <span class='text-red-500 line-through'>i write</span> <span class='text-green-600 font-semibold'>[I am writing]</span> to complain...",
     "feedback": "O'zbek tilida Task 1 bo'yicha batafsil tahlil va xatolar ko'rsatkichlari."
+  },
+  "task_1_2_eval": {
+    "word_count": 150,
+    "corrected_text_html": "Furthermore, <span class='text-red-500 line-through'>i like</span> <span class='text-green-600 font-semibold'>[I would appreciate]</span>...",
+    "feedback": "O'zbek tilida Task 1.2 bo'yicha batafsil tahlil va xatolar ko'rsatkichlari."
   },
   "task_2_eval": {
     "word_count": 268,
@@ -156,8 +179,9 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
 
 ### SCORING STANDARD:
 - UZBMB Multilevel 75-Point Scale.
-- Task 1 accounts for 33% (max 12 points).
-- Task 2 accounts for 67% (max 24 points).
+- Task 1 accounts for 25% (max 9 points).
+- Task 1.2 accounts for 25% (max 9 points).
+- Task 2 accounts for 50% (max 18 points).
 - Convert the combined subscores (out of 36) into the standardized 0-75 points scale using the formula: (Total / 36) * 75. The "total_score" field should be out of 75.
 - CEFR boundaries: 65-75 = C1, 52-64 = B2, 38-51 = B1, 0-37 = Below B1.
 

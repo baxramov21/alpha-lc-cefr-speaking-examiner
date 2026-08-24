@@ -13,10 +13,10 @@ import { Label } from '@/components/ui/label';
 // Passcode verification is now handled server-side via /api/auth/verify-passcode
 
 const schema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  groupName: z.string().min(1, 'Group name is required'),
-  teacherName: z.string().min(2, 'Teacher name is required'),
-  passcode: z.string().min(4, 'Passcode is required'),
+  fullName: z.string().min(2, 'Ism kamida 2 ta harfdan iborat bo\'lishi kerak'),
+  groupName: z.string().min(1, 'Guruh nomini kiritish majburiy'),
+  teacherName: z.string().min(2, 'O\'qituvchi ismini kiritish majburiy'),
+  passcode: z.string().min(4, 'Maxfiy kod kiritish majburiy'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -30,8 +30,14 @@ export default function StudentLoginPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  const fullName = watch('fullName');
+  const groupName = watch('groupName');
+  const teacherName = watch('teacherName');
+  const passcode = watch('passcode');
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
@@ -50,17 +56,20 @@ export default function StudentLoginPage() {
       const res = await fetch('/api/auth/verify-passcode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transformedData),
+        body: JSON.stringify({ 
+          passcode: data.passcode,
+          fullName: transformedData.fullName 
+        }),
       });
 
       if (res.status === 429) {
-        setAuthError('Too many attempts. Please wait 5 minutes and try again.');
+        setAuthError('Juda ko\'p urinishlar. Iltimos 5 daqiqa kutib turing va qaytadan urinib ko\'ring.');
         setIsLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setAuthError('Invalid or inactive passcode. Please check with your teacher.');
+        setAuthError('Noto\'g\'ri yoki faol bo\'lmagan maxfiy kod. O\'qituvchingiz bilan bog\'laning.');
         setIsLoading(false);
         return;
       }
@@ -82,51 +91,51 @@ export default function StudentLoginPage() {
 
       router.push('/dashboard');
     } catch {
-      setAuthError('An error occurred while verifying the passcode. Please try again.');
+      setAuthError('Maxfiy kodni tekshirishda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex font-sans selection:bg-teal-500/30">
       {/* Left: Brand Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 flex-col items-center justify-center p-12 relative overflow-hidden">
-        {/* Top Gradient Bar */}
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
-        
-        {/* Decorative elements */}
-        <div className="absolute opacity-5 -top-24 -left-24 w-96 h-96 rounded-full bg-teal-400" />
-        <div className="absolute opacity-5 -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-teal-500" />
+      <div className="hidden lg:flex lg:w-1/2 bg-[#06090e] flex-col items-center justify-center p-12 relative overflow-hidden border-r border-slate-200">
+        {/* Universal Ambient Backgrounds */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-500 z-50 shadow-[0_0_20px_rgba(20,184,166,0.5)]" />
+        <div className="absolute -top-[30%] -left-[10%] w-[100vw] h-[100vw] rounded-full bg-teal-900/20 blur-[120px] pointer-events-none" />
+        <div className="absolute -bottom-[30%] -right-[10%] w-[80vw] h-[80vw] rounded-full bg-emerald-900/10 blur-[120px] pointer-events-none" />
 
-        <div className="relative z-10 text-center text-white max-w-sm">
-          <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-8 shadow-2xl">
-            <Mic className="w-10 h-10 text-teal-400" />
+        <div className="relative z-10 text-center max-w-md">
+          <div className="w-24 h-24 rounded-3xl bg-teal-500 border border-teal-400 flex items-center justify-center mx-auto mb-10 shadow-xl shadow-teal-500/30 relative">
+            <Mic className="w-12 h-12 text-white relative z-10" />
           </div>
-          <h1 className="text-4xl font-black mb-3 leading-tight tracking-tight">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300">Alpha LC</span><br />
-            <span className="font-light text-3xl text-slate-300">Speaking Examiner</span>
+          
+          <h1 className="text-5xl font-black mb-4 leading-[1.1] tracking-tight text-white">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-200 drop-shadow-sm">Alpha LC</span><br />
+            <span className="font-light text-slate-300">Exam Platform</span>
           </h1>
-          <p className="text-slate-400 text-base leading-relaxed mb-10">
-            AI-powered CEFR speaking assessment.<br />
-            Instant, accurate, and detailed feedback.
+          
+          <p className="text-slate-400 text-lg leading-relaxed mb-12">
+            Sun'iy intellektga asoslangan CEFR imtihoni.<br />
+            Tezkor, aniq va batafsil natijalar.
           </p>
 
           {/* Feature pills */}
-          <div className="space-y-3">
+          <div className="space-y-4 text-left">
             {[
-              { icon: Mic, text: 'Real-time audio recording', color: 'text-sky-400' },
-              { icon: BrainCircuit, text: 'Professional AI evaluation', color: 'text-violet-400' },
-              { icon: BarChart, text: 'Detailed CEFR band scoring', color: 'text-emerald-400' },
-              { icon: Zap, text: 'Instant results & feedback', color: 'text-amber-400' },
+              { icon: Mic, text: 'Haqiqiy vaqtda audio yozib olish', color: 'text-sky-400', shadow: 'shadow-sky-500/20' },
+              { icon: BrainCircuit, text: 'Sun\'iy intellekt orqali baholash', color: 'text-violet-400', shadow: 'shadow-violet-500/20' },
+              { icon: BarChart, text: 'Batafsil CEFR daraja natijalari', color: 'text-emerald-400', shadow: 'shadow-emerald-500/20' },
+              { icon: Zap, text: 'Tezkor natija va xulosalar', color: 'text-amber-400', shadow: 'shadow-amber-500/20' },
             ].map((f) => (
               <div
                 key={f.text}
-                className="flex items-center gap-3 bg-white/5 border border-white/10 backdrop-blur rounded-xl px-4 py-3 text-sm text-left shadow-sm hover:bg-white/10 transition-colors"
+                className="flex items-center gap-4 bg-white/[0.03] border border-white/5 backdrop-blur-md rounded-2xl px-5 py-4 shadow-lg hover:bg-white/[0.06] hover:border-white/10 transition-all duration-300 group cursor-default"
               >
-                <div className={`w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0`}>
-                  <f.icon className={`w-4 h-4 ${f.color}`} />
+                <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 shadow-lg ${f.shadow} group-hover:scale-110 transition-transform duration-300`}>
+                  <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
-                <span className="text-slate-200 font-medium">{f.text}</span>
+                <span className="text-slate-200 font-medium text-sm md:text-base">{f.text}</span>
               </div>
             ))}
           </div>
@@ -134,39 +143,44 @@ export default function StudentLoginPage() {
       </div>
 
       {/* Right: Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 relative z-10">
+        <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-inner">
-              <Mic className="w-5 h-5 text-teal-400" />
+          <div className="flex items-center gap-4 mb-10 lg:hidden justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg relative">
+              <Mic className="w-6 h-6 text-teal-400 relative z-10" />
             </div>
             <div>
-              <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500 text-xl leading-none tracking-tight">Alpha LC</p>
-              <p className="text-xs text-slate-500 mt-0.5">Speaking Examiner</p>
+              <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500 text-2xl leading-none tracking-tight">Alpha LC</p>
+              <p className="text-sm text-slate-500 mt-1 font-medium">Exam Platform</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-[var(--radius-lg)] border border-slate-100 shadow-xl shadow-slate-100/50 p-8">
-            <div className="mb-7">
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">Student Entry</h2>
-              <p className="text-muted-foreground text-sm mt-1.5">
-                Enter your details provided by your teacher to begin.
+          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
+            <div className="mb-8 relative z-10">
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Tizimga kirish</h2>
+              <p className="text-slate-500 text-sm">
+                Imtihonni boshlash uchun ma'lumotlarni kiriting.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" id="student-login-form">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 relative z-10" id="student-login-form">
               {/* Full Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700">
-                  Full Name
+                  Ism va Familiya
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="fullName"
-                    placeholder="e.g. Azizbek Toshmatov"
-                    className="pl-10 h-11 rounded-xl border-slate-200 focus-visible:ring-teal-500 uppercase"
+                    placeholder="Masalan: Azizbek Toshmatov"
+                    className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
+                    style={{
+                      backgroundColor: fullName ? '#0f172a' : '#f8fafc',
+                      color: fullName ? '#ffffff' : '#0f172a',
+                      borderColor: fullName ? '#1e293b' : '#e2e8f0'
+                    }}
                     {...register('fullName')}
                   />
                 </div>
@@ -178,14 +192,19 @@ export default function StudentLoginPage() {
               {/* Group Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700">
-                  Group Name / ID
+                  Guruh nomi / ID
                 </Label>
                 <div className="relative">
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="groupName"
-                    placeholder="e.g. Group A - Morning"
-                    className="pl-10 h-11 rounded-xl border-slate-200 focus-visible:ring-teal-500 uppercase"
+                    placeholder="Masalan: Morning guruhi"
+                    className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
+                    style={{
+                      backgroundColor: groupName ? '#0f172a' : '#f8fafc',
+                      color: groupName ? '#ffffff' : '#0f172a',
+                      borderColor: groupName ? '#1e293b' : '#e2e8f0'
+                    }}
                     {...register('groupName')}
                   />
                 </div>
@@ -197,14 +216,19 @@ export default function StudentLoginPage() {
               {/* Teacher Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700">
-                  Teacher Name
+                  O'qituvchi ism-sharifi
                 </Label>
                 <div className="relative">
                   <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="teacherName"
-                    placeholder="e.g. Ms. Sarah Johnson"
-                    className="pl-10 h-11 rounded-xl border-slate-200 focus-visible:ring-teal-500 uppercase"
+                    placeholder="Masalan: Ms. Sarah Johnson"
+                    className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
+                    style={{
+                      backgroundColor: teacherName ? '#0f172a' : '#f8fafc',
+                      color: teacherName ? '#ffffff' : '#0f172a',
+                      borderColor: teacherName ? '#1e293b' : '#e2e8f0'
+                    }}
                     {...register('teacherName')}
                   />
                 </div>
@@ -216,15 +240,20 @@ export default function StudentLoginPage() {
               {/* Passcode */}
               <div className="space-y-1.5">
                 <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700">
-                  Passcode
+                  Maxfiy kod
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="passcode"
                     type={showPasscode ? 'text' : 'password'}
-                    placeholder="Enter your passcode"
-                    className="pl-10 pr-10 h-11 rounded-xl border-slate-200 focus-visible:ring-teal-500 font-mono tracking-widest uppercase"
+                    placeholder="Maxfiy kodni kiriting"
+                    className="pl-10 pr-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
+                    style={{
+                      backgroundColor: passcode ? '#0f172a' : '#f8fafc',
+                      color: passcode ? '#ffffff' : '#0f172a',
+                      borderColor: passcode ? '#1e293b' : '#e2e8f0'
+                    }}
                     {...register('passcode')}
                   />
                   <button
@@ -242,43 +271,45 @@ export default function StudentLoginPage() {
 
               {/* Auth error */}
               {authError && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700 flex items-start gap-2">
-                  <span className="mt-0.5">⚠️</span>
-                  <span>{authError}</span>
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600 flex items-start gap-3">
+                  <span className="mt-0.5 text-lg">⚠️</span>
+                  <span className="leading-snug">{authError}</span>
                 </div>
               )}
 
               {/* Submit */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold shadow-lg shadow-teal-600/20 text-base"
-                id="login-btn"
-              >  {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Verifying...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Begin Exam
-                    <ChevronRight className="w-4 h-4" />
-                  </span>
-                )}
-              </Button>
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg shadow-teal-500/30 transition-all duration-300"
+                  id="login-btn"
+                >  {isLoading ? (
+                    <span className="flex items-center gap-3">
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Tekshirilmoqda...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      Imtihonni boshlash
+                      <ChevronRight className="w-5 h-5" />
+                    </span>
+                  )}
+                </Button>
+              </div>
             </form>
           </div>
 
           {/* Admin link & Footer */}
-          <div className="mt-6 text-center space-y-4">
-            <p className="text-xs text-muted-foreground">
-              Are you a teacher?{' '}
-              <a href="/admin" className="text-teal-600 hover:text-teal-700 font-semibold underline-offset-2 hover:underline">
-                Admin Dashboard →
+          <div className="mt-8 text-center space-y-4">
+            <p className="text-sm text-slate-500">
+              Siz o'qituvchimisiz?{' '}
+              <a href="/admin" className="text-teal-600 hover:text-teal-500 font-semibold underline-offset-4 hover:underline transition-colors">
+                Admin Panel →
               </a>
             </p>
-            <div className="text-xs text-slate-400 font-medium">
-              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">@baxramovv.21</a>
+            <div className="text-xs text-slate-400 font-medium tracking-wide">
+              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-800 transition-colors">@baxramovv.21</a>
             </div>
           </div>
         </div>

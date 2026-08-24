@@ -30,6 +30,10 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     passcode_used TEXT NOT NULL,
     overall_score NUMERIC NOT NULL,
     overall_band TEXT NOT NULL,
+    fluency_score NUMERIC DEFAULT 0,
+    lexical_score NUMERIC DEFAULT 0,
+    grammar_score NUMERIC DEFAULT 0,
+    pronunciation_score NUMERIC DEFAULT 0,
     evaluation_data JSONB NOT NULL DEFAULT '{}'::jsonb,
     admin_notes TEXT,
     is_saved BOOLEAN DEFAULT false,
@@ -37,6 +41,10 @@ CREATE TABLE IF NOT EXISTS public.submissions (
 );
 
 -- Migration command for existing databases:
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS fluency_score NUMERIC DEFAULT 0;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS lexical_score NUMERIC DEFAULT 0;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS grammar_score NUMERIC DEFAULT 0;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS pronunciation_score NUMERIC DEFAULT 0;
 -- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS evaluation_data JSONB NOT NULL DEFAULT '{}'::jsonb;
 -- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS admin_notes TEXT;
 -- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS is_saved BOOLEAN DEFAULT false;

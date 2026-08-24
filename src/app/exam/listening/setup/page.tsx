@@ -32,10 +32,12 @@ export default function ListeningSetupPage() {
 
     const fetchTasks = async () => {
       try {
-        const res = await fetch('/api/admin/listening-tasks');
+        const res = await fetch('/api/student/listening');
         const data = await res.json();
         if (data.tasks) {
           sessionStorage.setItem('listeningTasks', JSON.stringify(data.tasks));
+          if (data.time_limit !== undefined) sessionStorage.setItem('listeningTimeLimit', data.time_limit.toString());
+          if (data.prep_time !== undefined) sessionStorage.setItem('listeningPrepTime', data.prep_time.toString());
           setTaskCount(data.tasks.length);
         }
       } catch (e) {
