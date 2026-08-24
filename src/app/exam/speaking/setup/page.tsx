@@ -167,10 +167,10 @@ export default function ExamSetupPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md mb-6 ring-1 ring-white/20 relative z-10">
             <Mic className="w-8 h-8 text-teal-300" />
           </div>
-          <h1 className="text-3xl font-bold mb-2 tracking-tight relative z-10">Speaking Imtihoni</h1>
+          <h1 className="text-3xl font-bold mb-2 tracking-tight relative z-10">Speaking Exam</h1>
           <p className="text-slate-300 text-lg max-w-lg mx-auto leading-relaxed relative z-10">
-            Xush kelibsiz, <span className="text-white font-semibold">{studentName}</span>. 
-            {step === 'overview' ? ' Iltimos, yo\'riqnoma bilan tanishib chiqing.' : step === 'mictest' ? ' Keling, mikrofoningizni tekshiramiz.' : ' Siz boshlashga tayyorsiz.'}
+            Welcome, <span className="text-white font-semibold">{studentName}</span>. 
+            {step === 'overview' ? ' Please familiarize yourself with the instructions.' : step === 'mictest' ? ' Let\'s test your microphone.' : ' You are ready to begin.'}
           </p>
           
           {/* Step indicators */}
@@ -198,14 +198,14 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900  mb-1">1-qism: Qisqa javob va Rasmlarni solishtirish</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">Part 1: Short Answer and Picture Comparison</h3>
                 </div>
                 <p className="text-slate-600  leading-relaxed mb-3">
-                  1-6 savollar. Har bir savolga tayyorgarlik ko'rish uchun 5-10 soniya va javob berish uchun 30-45 soniya vaqtingiz bo'ladi.
+                  Questions 1-6. You will have 5-10 seconds to prepare and 30-45 seconds to answer each question.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">5-10s tayyorgarlik</div>
-                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">30-45s javob</div>
+                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">5-10s prep</div>
+                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">30-45s answer</div>
                 </div>
               </div>
             </div>
@@ -216,14 +216,14 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900  mb-1">2-qism: Mavzu yuzasidan taqdimot</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">Part 2: Topic Presentation</h3>
                 </div>
                 <p className="text-slate-600  leading-relaxed mb-3">
-                  7-savol. Maxsus ssenariy haqida gapirish uchun sizda 60 soniya tayyorgarlik va 120 soniya javob vaqti bo'ladi.
+                  Question 7. You will have 60 seconds to prepare and 120 seconds to talk about a specific scenario.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s tayyorgarlik</div>
-                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s javob</div>
+                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
+                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s answer</div>
                 </div>
               </div>
             </div>
@@ -234,14 +234,14 @@ export default function ExamSetupPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900  mb-1">3-qism: Mavhum mavzuda muhokama</h3>
+                  <h3 className="text-lg font-bold text-slate-900  mb-1">Part 3: Abstract Discussion</h3>
                 </div>
                 <p className="text-slate-600  leading-relaxed mb-3">
-                  8-savol. Mavhum tushunchalarni muhokama qilish va bahslashish uchun sizda 60 soniya tayyorgarlik va 120 soniya javob vaqti bo'ladi.
+                  Question 8. You will have 60 seconds to prepare and 120 seconds to discuss abstract concepts.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s tayyorgarlik</div>
-                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s javob</div>
+                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
+                  <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s answer</div>
                 </div>
               </div>
             </div>
@@ -249,31 +249,31 @@ export default function ExamSetupPage() {
             {!isFullExam && (
               <div className="flex items-start gap-4 mt-8 pt-8 border-t border-slate-100">
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-slate-900 mb-3">Imtihon rejimini tanlang</h3>
+                  <h3 className="text-lg font-bold text-slate-900 mb-3">Select Exam Mode</h3>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <button 
                       onClick={() => setExamMode('full')}
                       className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'full' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
-                      To'liq imtihon
+                      Full Exam
                     </button>
                     <button 
                       onClick={() => setExamMode('part1')}
                       className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part1' ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
-                      Faqat 1-qism
+                      Part 1 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part2')}
                       className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part2' ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
-                      Faqat 2-qism
+                      Part 2 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part3')}
                       className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part3' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
-                      Faqat 3-qism
+                      Part 3 Only
                     </button>
                   </div>
                 </div>
@@ -285,9 +285,9 @@ export default function ExamSetupPage() {
                 <Shield className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900  mb-1">Imtihon shartlari</h3>
+                <h3 className="text-lg font-bold text-slate-900  mb-1">Exam Conditions</h3>
                 <p className="text-slate-600  leading-relaxed">
-                  Kam shovqinli tinch xonani toping. Aniq va tabiiy tezlikda gapiring. Fikrlaringizni tartibga solish uchun tayyorgarlik vaqtidan foydalaning. Vaqtingiz tugaganda imtihon avtomatik ravishda keyingi bosqichga o'tadi.
+                  Find a quiet room with minimal background noise. Speak clearly and at a natural pace. Use the preparation time to organize your thoughts. The exam will automatically proceed to the next stage when your time is up.
                 </p>
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function ExamSetupPage() {
               className="text-slate-500 hover:text-slate-900"
               onClick={() => router.push('/dashboard')}
             >
-              Bekor qilish va Qaytish
+              Cancel and Return
             </Button>
             
             <Button 
@@ -309,7 +309,7 @@ export default function ExamSetupPage() {
               id="test-microphone-btn"
             >
               <Mic className="w-5 h-5" />
-              Mikrofonni tekshirish
+              Test Microphone
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
@@ -323,18 +323,18 @@ export default function ExamSetupPage() {
                   onClick={() => setStep('overview')}
                   className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-slate-700 mb-6 transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Orqaga
+                  <ArrowLeft className="w-4 h-4" /> Go Back
                 </button>
 
-                <h2 className="text-xl font-black text-slate-800  mb-1.5">Mikrofonni tekshirish</h2>
+                <h2 className="text-xl font-black text-slate-800  mb-1.5">Test Microphone</h2>
                 <p className="text-muted-foreground  text-sm mb-6">
-                  Imtihonni ochish uchun qisqa ovoz namunasini yozib oling.
+                  Record a short audio sample to unlock the exam.
                 </p>
 
                 {/* Sample phrase */}
                 <div className="bg-teal-50 border border-teal-200 rounded-2xl p-4 mb-8 text-center">
                   <p className="text-teal-800 font-medium italic text-base">
-                    &ldquo;Salom, bu mikrofon tekshiruvi — bir, ikki, uch.&rdquo;
+                    &ldquo;Hello, this is a microphone test — one, two, three.&rdquo;
                   </p>
                 </div>
 
@@ -350,18 +350,18 @@ export default function ExamSetupPage() {
                 <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5">
                   <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-800  mb-2">Barchasi tayyor!</h2>
+                <h2 className="text-2xl font-black text-slate-800  mb-2">All set!</h2>
                 <p className="text-muted-foreground  mb-8">
-                  Mikrofon ishlayapti. Boshlash tugmasini bosganingizda imtihon boshlanadi.
+                  Your microphone is working. The exam will start when you press the button below.
                 </p>
 
                 <div className="bg-slate-50  rounded-2xl p-5 mb-8 text-left space-y-2">
-                  <p className="text-sm text-muted-foreground  font-medium mb-3">Imtihon xulosasi:</p>
+                  <p className="text-sm text-muted-foreground  font-medium mb-3">Exam Summary:</p>
                   {[
-                    { label: 'Jami savollar', value: `${EXAM_QUESTIONS.length} ta savol` },
-                    { label: 'Qismlar', value: '3 qism' },
-                    { label: 'Taxminiy davomiyligi', value: '~12 daqiqa' },
-                    { label: 'Avtomatik o\'tish', value: 'Ha (taymer orqali boshqariladi)' },
+                    { label: 'Total Questions', value: `${EXAM_QUESTIONS.length} questions` },
+                    { label: 'Parts', value: '3 parts' },
+                    { label: 'Estimated Duration', value: '~12 minutes' },
+                    { label: 'Auto-advance', value: 'Yes (timer-controlled)' },
                   ].map((item) => (
                     <div key={item.label} className="flex justify-between text-sm">
                       <span className="text-muted-foreground ">{item.label}</span>
@@ -375,7 +375,7 @@ export default function ExamSetupPage() {
                   className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-bold text-base gap-2 shadow-lg shadow-teal-500/25"
                   id="start-exam-btn"
                 >
-                  Imtihonni boshlash
+                  Start Exam
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>

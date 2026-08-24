@@ -199,7 +199,7 @@ export default function ReadingSessionPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <h1 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-fuchsia-600" /> Reading imtihoni
+              <BookOpen className="w-5 h-5 text-fuchsia-600" /> Reading Exam
             </h1>
             <div className="flex bg-slate-100 p-1 rounded-lg">
               {tasks.map((task, idx) => (
@@ -230,7 +230,7 @@ export default function ReadingSessionPage() {
               className="bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
             >
               {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-              {isSubmitting ? 'Yakunlanmoqda...' : 'Imtihonni yakunlash'}
+              {isSubmitting ? 'Finishing...' : 'Finish Exam'}
             </Button>
           </div>
         </div>
@@ -244,7 +244,7 @@ export default function ReadingSessionPage() {
           <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
               <h2 className="text-white font-bold text-lg flex items-center gap-2">
-                <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Matn
+                <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Text
               </h2>
             </div>
             
@@ -258,7 +258,7 @@ export default function ReadingSessionPage() {
                       .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
                   }} />
                 ) : (
-                  <div className="p-8 text-center text-slate-500  ">Matn mavjud emas.</div>
+                  <div className="p-8 text-center text-slate-500  ">No text available.</div>
                 )}
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function ReadingSessionPage() {
             <div id="reading-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
               <div className="max-w-2xl mx-auto">
                 <div className="mb-8 pb-6 border-b border-slate-200 ">
-              <h2 className="text-2xl font-black text-slate-800 mb-2">Savollar</h2>
+              <h2 className="text-2xl font-black text-slate-800 mb-2">Questions</h2>
               <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
             </div>
 
@@ -317,7 +317,7 @@ export default function ReadingSessionPage() {
                           <input 
                             type="text" 
                             className="w-full max-w-sm h-12 rounded-xl border border-slate-200 px-4 font-medium text-slate-800 bg-slate-50 focus:bg-white focus:border-fuchsia-500 focus:ring-4 focus:ring-fuchsia-500/10 transition-all outline-none"
-                            placeholder="Javobingizni bu yerga yozing..."
+                            placeholder="Type your answer here..."
                             value={answers[q.id] || ''}
                             onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                           />
@@ -336,7 +336,7 @@ export default function ReadingSessionPage() {
                 disabled={currentTaskIndex === 0}
                 className="font-semibold text-slate-600 "
               >
-                Oldingi qism
+                Previous Part
               </Button>
               <Button 
                 onClick={() => {
@@ -348,7 +348,7 @@ export default function ReadingSessionPage() {
                 }}
                 className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-semibold shadow-sm"
               >
-                {currentTaskIndex < tasks.length - 1 ? 'Keyingi qism' : 'Imtihonni yakunlash'}
+                {currentTaskIndex < tasks.length - 1 ? 'Next Part' : 'Finish Exam'}
               </Button>
             </div>
             
@@ -365,16 +365,16 @@ export default function ReadingSessionPage() {
             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Diqqat!</h2>
+            <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Warning!</h2>
             <p className="text-center text-slate-600 mb-8 font-medium">
-              Siz orqaga qaytmoqchisiz. Agar hozir chiqsangiz, imtihoningiz bekor qilinadi va baholanmaydi. Haqiqatan ham chiqmoqchimisiz?
+              You are trying to go back. If you exit now, your exam will be cancelled and will not be scored. Are you sure you want to exit?
             </p>
             <div className="flex flex-col gap-3">
               <Button 
                 onClick={() => setShowExitWarning(false)}
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 rounded-xl font-bold"
               >
-                Davom etish
+                Continue Exam
               </Button>
               <Button 
                 variant="outline"
@@ -384,7 +384,7 @@ export default function ReadingSessionPage() {
                 }}
                 className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
               >
-                Imtihonni to'xtatish
+                Exit Exam
               </Button>
             </div>
           </div>

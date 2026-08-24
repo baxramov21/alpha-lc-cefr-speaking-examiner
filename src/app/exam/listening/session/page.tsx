@@ -294,7 +294,7 @@ export default function ListeningSessionPage() {
       <header className="bg-white border-b border-slate-200 shadow-sm shrink-0">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="font-bold text-slate-800 text-lg">Listening imtihoni</h1>
+            <h1 className="font-bold text-slate-800 text-lg">Listening Exam</h1>
             <div className="flex bg-slate-100 p-1 rounded-lg">
               {tasks.map((task, idx) => (
                 <button
@@ -314,7 +314,7 @@ export default function ListeningSessionPage() {
             
             <div className="flex items-center gap-2 font-mono text-lg font-bold text-slate-700 bg-slate-100 px-4 py-1.5 rounded-lg">
               <Shield className="w-5 h-5 text-teal-500" />
-              Nazorat ostida
+              Proctored
             </div>
           </div>
         </div>
@@ -339,10 +339,10 @@ export default function ListeningSessionPage() {
                   <div>
                     <h2 className="text-white font-bold text-lg">{tasks[audioTaskIndex]?.partLabel || 'Audio'}</h2>
                     <p className="text-slate-400 text-sm">
-                      {phase === 'prep' && "Tayyorgarlik vaqti. Savollarni o'qib chiqing."}
-                      {phase === 'initial_play' && `${audioIndex + 1}-qism eshittirilmoqda (${maxPlays} tadan ${currentPlayCount}-marta)...`}
-                      {phase === 'second_play' && `${audioIndex + 1}-qism eshittirilmoqda (${maxPlays} tadan ${currentPlayCount}-marta)...`}
-                      {phase === 'finalizing' && 'Audio yakunlandi.'}
+                      {phase === 'prep' && "Preparation time. Please read the questions."}
+                      {phase === 'initial_play' && `Playing audio (${currentPlayCount} of ${maxPlays})...`}
+                      {phase === 'second_play' && `Playing audio (${currentPlayCount} of ${maxPlays})...`}
+                      {phase === 'finalizing' && 'Audio finished.'}
                     </p>
                   </div>
                 </div>
@@ -350,12 +350,12 @@ export default function ListeningSessionPage() {
                 <div className="text-right flex items-center gap-4">
                   {audioBlocked && (
                     <div className="flex flex-col items-center justify-center p-6 bg-red-50 border border-red-200 rounded-2xl mb-8 break-all text-center">
-                      <p className="text-red-700 font-medium mb-4">Brauzeringiz audioni avtomatik ishga tushishini taqiqladi.</p>
+                      <p className="text-red-700 font-medium mb-4">Your browser blocked audio autoplay.</p>
                       <p className="text-xs text-red-400 mb-4">
                         DEBUG URL: {tasks[audioTaskIndex]?.audioUrls?.[audioIndex]}
                       </p>
                       <Button onClick={forcePlayAudio} className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-2">
-                        Audioni boshlash
+                        Start Audio
                       </Button>
                     </div>
                   )}
@@ -385,7 +385,7 @@ export default function ListeningSessionPage() {
             {/* Passage Content (Scrollable) */}
             <div id="listening-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
               <div className="mb-6 pb-6 border-b border-slate-100 ">
-                <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Kontekst</h2>
+                <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
                 <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
               </div>
               {currentTask.passage_html ? (
@@ -395,7 +395,7 @@ export default function ListeningSessionPage() {
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center h-40 text-slate-400 ">
-                  <p>Ushbu qism uchun matn taqdim etilmagan.</p>
+                  <p>No text provided for this part.</p>
                 </div>
               )}
             </div>
@@ -404,8 +404,8 @@ export default function ListeningSessionPage() {
           {/* Right Column: Questions */}
           <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 ">
-              <h2 className="text-xl font-bold text-slate-800 ">Savollar</h2>
-              <p className="text-sm text-slate-500  ">Barcha savollarga audio asosida javob bering.</p>
+              <h2 className="text-xl font-bold text-slate-800 ">Questions</h2>
+              <p className="text-sm text-slate-500  ">Answer all questions based on the audio.</p>
             </div>
             
             <div id="listening-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
@@ -453,7 +453,7 @@ export default function ListeningSessionPage() {
                             type="text"
                             value={answers[q.id] || ''}
                             onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                            placeholder="Javobingizni bu yerga yozing..."
+                            placeholder="Type your answer here..."
                             className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium text-slate-800 "
                           />
                         )}
@@ -464,7 +464,7 @@ export default function ListeningSessionPage() {
                 
                 {currentTask.questions.length === 0 && (
                   <div className="text-center text-slate-500 py-12">
-                    Ushbu qism uchun savollar topilmadi.
+                    No questions found for this part.
                   </div>
                 )}
               </div>
@@ -478,13 +478,13 @@ export default function ListeningSessionPage() {
                 disabled={currentTaskIndex === 0}
                 className="font-semibold text-slate-600 h-11 px-6 rounded-xl"
               >
-                Oldingi qism
+                Previous Part
               </Button>
               
               <div className="flex items-center">
                 {(!allowSkip && phase === 'initial_play') && (
                   <p className="text-slate-500 text-sm font-medium mr-4 hidden md:block">
-                    Davom etishdan oldin audio yakunlanishi kerak.
+                    Audio must finish before continuing.
                   </p>
                 )}
                 
@@ -493,7 +493,7 @@ export default function ListeningSessionPage() {
                     onClick={() => setCurrentTaskIndex(i => i + 1)}
                     className="bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-sm h-11 px-6 rounded-xl transition-all"
                   >
-                    Keyingi qism
+                    Next Part
                   </Button>
                 ) : (
                   <Button
@@ -504,11 +504,11 @@ export default function ListeningSessionPage() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Yakunlanmoqda...
+                        Finishing...
                       </>
                     ) : (
                       <>
-                        Imtihonni yakunlash
+                        Finish Exam
                         <CheckCircle className="w-5 h-5 ml-2" />
                       </>
                     )}
@@ -527,16 +527,16 @@ export default function ListeningSessionPage() {
             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
               <Shield className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Diqqat!</h2>
+            <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Warning!</h2>
             <p className="text-center text-slate-600 mb-8 font-medium">
-              Siz orqaga qaytmoqchisiz. Agar hozir chiqsangiz, imtihoningiz bekor qilinadi va baholanmaydi. Haqiqatan ham chiqmoqchimisiz?
+              You are trying to go back. If you exit now, your exam will be cancelled and will not be scored. Are you sure you want to exit?
             </p>
             <div className="flex flex-col gap-3">
               <Button 
                 onClick={() => setShowExitWarning(false)}
                 className="w-full bg-teal-600 hover:bg-teal-700 text-white h-12 rounded-xl font-bold"
               >
-                Davom etish
+                Continue Exam
               </Button>
               <Button 
                 variant="outline"
@@ -546,7 +546,7 @@ export default function ListeningSessionPage() {
                 }}
                 className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
               >
-                Imtihonni to'xtatish
+                Exit Exam
               </Button>
             </div>
           </div>

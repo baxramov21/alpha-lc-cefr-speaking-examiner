@@ -13,10 +13,10 @@ import { Label } from '@/components/ui/label';
 // Passcode verification is now handled server-side via /api/auth/verify-passcode
 
 const schema = z.object({
-  fullName: z.string().min(2, 'Ism kamida 2 ta harfdan iborat bo\'lishi kerak'),
-  groupName: z.string().min(1, 'Guruh nomini kiritish majburiy'),
-  teacherName: z.string().min(2, 'O\'qituvchi ismini kiritish majburiy'),
-  passcode: z.string().min(4, 'Maxfiy kod kiritish majburiy'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  groupName: z.string().min(1, 'Group name is required'),
+  teacherName: z.string().min(2, 'Teacher name is required'),
+  passcode: z.string().min(4, 'Passcode is required'),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -63,13 +63,13 @@ export default function StudentLoginPage() {
       });
 
       if (res.status === 429) {
-        setAuthError('Juda ko\'p urinishlar. Iltimos 5 daqiqa kutib turing va qaytadan urinib ko\'ring.');
+        setAuthError('Too many attempts. Please wait 5 minutes and try again.');
         setIsLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setAuthError('Noto\'g\'ri yoki faol bo\'lmagan maxfiy kod. O\'qituvchingiz bilan bog\'laning.');
+        setAuthError('Invalid or inactive passcode. Please contact your teacher.');
         setIsLoading(false);
         return;
       }
@@ -91,7 +91,7 @@ export default function StudentLoginPage() {
 
       router.push('/dashboard');
     } catch {
-      setAuthError('Maxfiy kodni tekshirishda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+      setAuthError('An error occurred while verifying the passcode. Please try again.');
       setIsLoading(false);
     }
   };
@@ -116,17 +116,17 @@ export default function StudentLoginPage() {
           </h1>
           
           <p className="text-slate-400 text-lg leading-relaxed mb-12">
-            Sun'iy intellektga asoslangan CEFR imtihoni.<br />
-            Tezkor, aniq va batafsil natijalar.
+            AI-powered CEFR examination.<br />
+            Fast, accurate, and detailed results.
           </p>
 
           {/* Feature pills */}
           <div className="space-y-4 text-left">
             {[
-              { icon: Mic, text: 'Haqiqiy vaqtda audio yozib olish', color: 'text-sky-400', shadow: 'shadow-sky-500/20' },
-              { icon: BrainCircuit, text: 'Sun\'iy intellekt orqali baholash', color: 'text-violet-400', shadow: 'shadow-violet-500/20' },
-              { icon: BarChart, text: 'Batafsil CEFR daraja natijalari', color: 'text-emerald-400', shadow: 'shadow-emerald-500/20' },
-              { icon: Zap, text: 'Tezkor natija va xulosalar', color: 'text-amber-400', shadow: 'shadow-amber-500/20' },
+              { icon: Mic, text: 'Real-time audio recording', color: 'text-sky-400', shadow: 'shadow-sky-500/20' },
+              { icon: BrainCircuit, text: 'AI-powered evaluation', color: 'text-violet-400', shadow: 'shadow-violet-500/20' },
+              { icon: BarChart, text: 'Detailed CEFR level results', color: 'text-emerald-400', shadow: 'shadow-emerald-500/20' },
+              { icon: Zap, text: 'Instant results and insights', color: 'text-amber-400', shadow: 'shadow-amber-500/20' },
             ].map((f) => (
               <div
                 key={f.text}
@@ -158,9 +158,9 @@ export default function StudentLoginPage() {
 
           <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
             <div className="mb-8 relative z-10">
-              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Tizimga kirish</h2>
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Login</h2>
               <p className="text-slate-500 text-sm">
-                Imtihonni boshlash uchun ma'lumotlarni kiriting.
+                Enter your details to start the exam.
               </p>
             </div>
 
@@ -168,13 +168,13 @@ export default function StudentLoginPage() {
               {/* Full Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700">
-                  Ism va Familiya
+                  Full Name
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="fullName"
-                    placeholder="Masalan: Azizbek Toshmatov"
+                    placeholder="E.g., John Doe"
                     className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
                     style={{
                       backgroundColor: fullName ? '#0f172a' : '#f8fafc',
@@ -192,13 +192,13 @@ export default function StudentLoginPage() {
               {/* Group Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700">
-                  Guruh nomi / ID
+                  Group Name / ID
                 </Label>
                 <div className="relative">
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="groupName"
-                    placeholder="Masalan: Morning guruhi"
+                    placeholder="E.g., Morning Group"
                     className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
                     style={{
                       backgroundColor: groupName ? '#0f172a' : '#f8fafc',
@@ -216,13 +216,13 @@ export default function StudentLoginPage() {
               {/* Teacher Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700">
-                  O'qituvchi ism-sharifi
+                  Teacher Name
                 </Label>
                 <div className="relative">
                   <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="teacherName"
-                    placeholder="Masalan: Ms. Sarah Johnson"
+                    placeholder="E.g., Ms. Sarah Johnson"
                     className="pl-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
                     style={{
                       backgroundColor: teacherName ? '#0f172a' : '#f8fafc',
@@ -240,14 +240,14 @@ export default function StudentLoginPage() {
               {/* Passcode */}
               <div className="space-y-1.5">
                 <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700">
-                  Maxfiy kod
+                  Passcode
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="passcode"
                     type={showPasscode ? 'text' : 'password'}
-                    placeholder="Maxfiy kodni kiriting"
+                    placeholder="Enter passcode"
                     className="pl-10 pr-10 h-11 rounded-xl focus-visible:ring-teal-500 uppercase transition-colors"
                     style={{
                       backgroundColor: passcode ? '#0f172a' : '#f8fafc',
@@ -287,11 +287,11 @@ export default function StudentLoginPage() {
                 >  {isLoading ? (
                     <span className="flex items-center gap-3">
                       <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Tekshirilmoqda...
+                      Verifying...
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      Imtihonni boshlash
+                      Start Exam
                       <ChevronRight className="w-5 h-5" />
                     </span>
                   )}
@@ -303,7 +303,7 @@ export default function StudentLoginPage() {
           {/* Admin link & Footer */}
           <div className="mt-8 text-center space-y-4">
             <p className="text-sm text-slate-500">
-              Siz o'qituvchimisiz?{' '}
+              Are you a teacher?{' '}
               <a href="/admin" className="text-teal-600 hover:text-teal-500 font-semibold underline-offset-4 hover:underline transition-colors">
                 Admin Panel →
               </a>

@@ -128,26 +128,26 @@ export default function FullExamResultsPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-100 rounded-full mb-4 shadow-sm border border-teal-200">
             <Award className="w-10 h-10 text-teal-600" />
           </div>
-          <h1 className="text-4xl font-black text-slate-800 tracking-tight">To'liq imtihon natijalari</h1>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">Full Exam Results</h1>
           <p className="text-lg text-slate-500 max-w-xl mx-auto">
-            Tabriklaymiz, <span className="font-bold text-slate-700">{session.fullName}</span>! Siz barcha bo'limlarni muvaffaqiyatli yakunladingiz. Quyida sizning umumiy natijalaringiz keltirilgan.
+            Congratulations, <span className="font-bold text-slate-700">{session.fullName}</span>! You have successfully completed all sections. Below are your overall results.
           </p>
         </div>
 
         {/* Overall Score Card */}
         <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-200 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
-          <h2 className="text-xl font-bold text-slate-700 mb-6">Umumiy baholash</h2>
+          <h2 className="text-xl font-bold text-slate-700 mb-6">Overall Evaluation</h2>
           <div className="flex flex-col md:flex-row items-center justify-center gap-12">
             <div>
-              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">CEFR Darajasi</p>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">CEFR Level</p>
               <div className="text-7xl font-black text-teal-600 tracking-tighter">
                 {averageBand}
               </div>
             </div>
             <div className="w-px h-24 bg-slate-200 hidden md:block"></div>
             <div>
-              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">O'rtacha ball</p>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Average Score</p>
               <div className="text-6xl font-black text-slate-800 tracking-tighter">
                 {averageScore}%
               </div>
@@ -166,8 +166,8 @@ export default function FullExamResultsPage() {
               <div key={type} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                 {!sub && (
                   <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center border border-dashed border-slate-300 rounded-2xl">
-                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Tugallanmagan</p>
-                    <p className="text-xs text-slate-400">{type} uchun natija topilmadi</p>
+                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Incomplete</p>
+                    <p className="text-xs text-slate-400">No result found for {type}</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-6">
@@ -184,18 +184,18 @@ export default function FullExamResultsPage() {
                       onClick={() => router.push(`/exam/${type}/results`)}
                       className="text-slate-500 hover:text-slate-800"
                     >
-                      Batafsil <ChevronRight className="w-4 h-4 ml-1" />
+                      Details <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   )}
                 </div>
                 
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Daraja</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Level</p>
                     <p className="text-3xl font-black text-slate-700">{sub?.overall_band || '-'}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Ball</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Score</p>
                     <p className="text-2xl font-bold text-slate-600">{sub?.overall_score || 0}%</p>
                   </div>
                 </div>

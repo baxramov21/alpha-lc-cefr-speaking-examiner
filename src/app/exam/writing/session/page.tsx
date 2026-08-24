@@ -107,22 +107,22 @@ export default function WritingSessionPage() {
           },
           task_1_eval: {
             word_count: 0,
-            corrected_text_html: "<span class='text-red-500'>[Bo'sh javob yuborildi]</span>",
-            feedback: "Nomzod Task 1 uchun hech qanday matn kiritmagan."
+            corrected_text_html: "<span class='text-red-500'>[Empty response submitted]</span>",
+            feedback: "The candidate did not enter any text for Task 1."
           },
           task_1_2_eval: {
             word_count: 0,
-            corrected_text_html: "<span class='text-red-500'>[Bo'sh javob yuborildi]</span>",
-            feedback: "Nomzod Task 1.2 uchun hech qanday matn kiritmagan."
+            corrected_text_html: "<span class='text-red-500'>[Empty response submitted]</span>",
+            feedback: "The candidate did not enter any text for Task 1.2."
           },
           task_2_eval: {
             word_count: 0,
-            corrected_text_html: "<span class='text-red-500'>[Bo'sh javob yuborildi]</span>",
-            feedback: "Nomzod Task 2 uchun hech qanday matn kiritmagan."
+            corrected_text_html: "<span class='text-red-500'>[Empty response submitted]</span>",
+            feedback: "The candidate did not enter any text for Task 2."
           },
           global_feedback: {
-            strengths: ["Javob yo'q"],
-            areas_for_improvement: ["Baholash uchun matn kiritish majburiy."]
+            strengths: ["No response"],
+            areas_for_improvement: ["Entering text for evaluation is required."]
           }
         };
 

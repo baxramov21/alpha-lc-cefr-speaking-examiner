@@ -10,5 +10,6 @@
     "listening",
     "reading",
     "writing"
-  ]
+  ],
+  "tts_voice": "uk_female"
 }

@@ -34,6 +34,7 @@ export default function AdminSettingsPage() {
   const [listeningReps, setListeningReps] = useState(2);
   const [fullExamModeEnabled, setFullExamModeEnabled] = useState(false);
   const [fullExamSequence, setFullExamSequence] = useState<string[]>(['speaking', 'listening', 'reading', 'writing']);
+  const [ttsVoice, setTtsVoice] = useState('uk_male');
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [modelStatus, setModelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -91,6 +92,7 @@ export default function AdminSettingsPage() {
         setListeningReps(data.listening_repetitions || 2);
         setFullExamModeEnabled(data.full_exam_mode_enabled ?? false);
         setFullExamSequence(data.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing']);
+        setTtsVoice(data.tts_voice || 'uk_male');
       }
     } catch (err) {
       console.error('Failed to fetch model config', err);
@@ -110,7 +112,8 @@ export default function AdminSettingsPage() {
           reading_time_minutes: readingTime,
           listening_repetitions: listeningReps,
           full_exam_mode_enabled: fullExamModeEnabled,
-          full_exam_sequence: fullExamSequence
+          full_exam_sequence: fullExamSequence,
+          tts_voice: ttsVoice
         })
       });
       if (res.ok) {
@@ -283,6 +286,22 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setReadingTime(Number(e.target.value))}
                 className="rounded-xl border-slate-200 h-12 text-slate-700 font-medium bg-slate-50 focus:bg-white transition-colors"
               />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-bold">Speaking Exam Voice</Label>
+            <div className="relative">
+              <select
+                value={ttsVoice}
+                onChange={(e) => setTtsVoice(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 h-12 px-4 text-slate-700 font-medium bg-slate-50 focus:bg-white transition-colors appearance-none"
+              >
+                <option value="uk_male">UK English - Male</option>
+                <option value="uk_female">UK English - Female</option>
+                <option value="us_male">US English - Male</option>
+                <option value="us_female">US English - Female</option>
+              </select>
             </div>
           </div>
         </div>

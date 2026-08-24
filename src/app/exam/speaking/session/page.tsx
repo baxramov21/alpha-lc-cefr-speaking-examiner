@@ -63,6 +63,7 @@ export default function ExamSessionPage() {
   const [recordings, setRecordings] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evalError, setEvalError] = useState<string | null>(null);
+  const [ttsVoice, setTtsVoice] = useState('uk_male');
   const [isRecording, setIsRecording] = useState(false);
   const [waveform, setWaveform] = useState<number[]>(Array(24).fill(4));
   const [timerKey, setTimerKey] = useState(0); // used to reset timer on skip
@@ -91,24 +92,58 @@ export default function ExamSessionPage() {
       const setVoiceAndSpeak = () => {
         const voices = window.speechSynthesis.getVoices();
         
-        // Common male English voices across Windows, macOS, and Chrome
-        const preferredVoices = [
-          'Google UK English Male',
-          'Microsoft David',
-          'Microsoft Mark',
-          'Daniel', // macOS UK Male
-          'Arthur'  // macOS UK Male
-        ];
+        let preferredNames: string[] = [];
+        let backupNames: string[] = [];
+        let backupLang = '';
+        
+        switch (ttsVoice) {
+          case 'uk_female':
+            preferredNames = ['Google UK English Female', 'Serena', 'Martha'];
+            backupNames = ['female', 'woman'];
+            backupLang = 'en-GB';
+            break;
+          case 'us_male':
+            preferredNames = ['Google US English Male', 'Alex', 'Fred'];
+            backupNames = ['male', 'man'];
+            backupLang = 'en-US';
+            break;
+          case 'us_female':
+            preferredNames = ['Google US English Female', 'Samantha', 'Victoria', 'Zira'];
+            backupNames = ['female', 'woman'];
+            backupLang = 'en-US';
+            break;
+          case 'uk_male':
+          default:
+            preferredNames = ['Google UK English Male', 'Microsoft David', 'Microsoft Mark', 'Daniel', 'Arthur'];
+            backupNames = ['male', 'man'];
+            backupLang = 'en-GB';
+            break;
+        }
         
         let selectedVoice = null;
-        for (const name of preferredVoices) {
+        // 1. Try exact matches from preferred list
+        for (const name of preferredNames) {
           selectedVoice = voices.find(v => v.name.includes(name));
           if (selectedVoice) break;
         }
         
-        // Fallback to any voice with "male" in the name
+        // 2. Fallback to matching gender and language
         if (!selectedVoice) {
-          selectedVoice = voices.find(v => v.name.toLowerCase().includes('male') && v.lang.startsWith('en'));
+          selectedVoice = voices.find(v => {
+            const nameLower = v.name.toLowerCase();
+            const matchesGender = backupNames.some(b => nameLower.includes(b));
+            return matchesGender && v.lang.startsWith(backupLang);
+          });
+        }
+        
+        // 3. Fallback to just language
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.lang.startsWith(backupLang));
+        }
+
+        // 4. Ultimate fallback to ANY English voice
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.lang.startsWith('en'));
         }
 
         if (selectedVoice) {
@@ -130,7 +165,7 @@ export default function ExamSessionPage() {
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [question.id, question.text, phase]);
+  }, [question.id, question.text, phase, ttsVoice]);
   // Verify session and load questions
   useEffect(() => {
     if (hasCheckedSession.current) return;
@@ -145,6 +180,16 @@ export default function ExamSessionPage() {
       
       const session = JSON.parse(sessionStr);
       setAllowSkip(session.allowSkip ?? true);
+
+      try {
+        const configRes = await fetch('/api/config');
+        if (configRes.ok) {
+          const configData = await configRes.json();
+          setTtsVoice(configData.tts_voice || 'uk_male');
+        }
+      } catch (err) {
+        console.warn('Failed to fetch config for TTS', err);
+      }
       
       const storedQs = sessionStorage.getItem('randomQuestions');
       let loadedQs = EXAM_QUESTIONS;

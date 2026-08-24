@@ -23,7 +23,7 @@ export default function FullExamNextAction() {
         className="rounded-full px-8 gap-2 bg-slate-800 hover:bg-slate-700 text-white" 
         onClick={() => router.push('/dashboard')}
       >
-        <Home className="w-4 h-4" /> Bosh sahifaga qaytish
+        <Home className="w-4 h-4" /> Return to Dashboard
       </Button>
     );
   }
@@ -38,7 +38,7 @@ export default function FullExamNextAction() {
         className="rounded-full px-8 gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/30 font-bold" 
         onClick={() => router.push('/exam/full-results')}
       >
-        To'liq imtihon natijasini ko'rish <CheckCircle className="w-5 h-5" />
+        View Full Exam Results <CheckCircle className="w-5 h-5" />
       </Button>
     );
   }
@@ -62,7 +62,7 @@ export default function FullExamNextAction() {
       className="rounded-full px-8 gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-600/30 font-bold" 
       onClick={handleNext}
     >
-      Keyingi imtihon: {formattedNextExam} <ArrowRight className="w-5 h-5" />
+      Next Exam: {formattedNextExam} <ArrowRight className="w-5 h-5" />
     </Button>
   );
 }

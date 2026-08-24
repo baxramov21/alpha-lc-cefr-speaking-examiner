@@ -148,14 +148,14 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 leading-tight tracking-tight text-lg">Alpha LC</h1>
-              <p className="text-[10px] text-teal-300 font-medium uppercase tracking-wider mt-0.5">Multi-level AI Tahlil</p>
+              <p className="text-[10px] text-teal-300 font-medium uppercase tracking-wider mt-0.5">Multi-level AI Evaluation</p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             
             <span className="text-xs font-medium text-slate-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
-              UZ
+              EN
             </span>
             <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                 {session.fullName.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-teal-300 text-xs font-bold tracking-wider mb-1">FOYDALANUVCHI PROFILI</p>
+                <p className="text-teal-300 text-xs font-bold tracking-wider mb-1">USER PROFILE</p>
                 <h2 className="text-3xl font-black mb-1 tracking-tight">{session.fullName}</h2>
                 <p className="text-slate-400 text-sm">{session.groupName} • {session.teacherName}</p>
               </div>
@@ -187,8 +187,8 @@ export default function DashboardPage() {
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3">
               <Award className="w-8 h-8 text-amber-400" />
               <div>
-                <p className="text-xs font-bold text-slate-400">FAOL STATUS</p>
-                <p className="font-bold text-white">Multi-level AI Tahlil</p>
+                <p className="text-xs font-bold text-slate-400">ACTIVE STATUS</p>
+                <p className="font-bold text-white">Multi-level AI Evaluation</p>
               </div>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 <BookOpen className="w-5 h-5 text-blue-100" />
               </div>
               <div>
-                <p className="text-[10px] text-blue-200 font-bold tracking-wider">JAMI IMTIHON</p>
+                <p className="text-[10px] text-blue-200 font-bold tracking-wider">TOTAL EXAMS</p>
                 <p className="text-2xl font-black">{speakingAttempts}</p>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 <Mic className="w-5 h-5 text-blue-100" />
               </div>
               <div>
-                <p className="text-[10px] text-blue-200 font-bold tracking-wider">SPEAKING ENG YUQORI</p>
+                <p className="text-[10px] text-blue-200 font-bold tracking-wider">SPEAKING BEST</p>
                 <p className="text-xl font-bold">{bestSpeakingScore !== null ? `${bestSpeakingScore} / ${bestSpeakingBand}` : '--'}</p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                 <PenTool className="w-5 h-5 text-blue-100" />
               </div>
               <div>
-                <p className="text-[10px] text-blue-200 font-bold tracking-wider">WRITING ENG YUQORI</p>
+                <p className="text-[10px] text-blue-200 font-bold tracking-wider">WRITING BEST</p>
                 <p className="text-xl font-bold">{bestWritingScore !== null ? `${bestWritingScore} / ${bestWritingBand}` : '--'}</p>
               </div>
             </div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                 <Headphones className="w-5 h-5 text-blue-100" />
               </div>
               <div>
-                <p className="text-[10px] text-blue-200 font-bold tracking-wider">LISTENING ENG YUQORI</p>
+                <p className="text-[10px] text-blue-200 font-bold tracking-wider">LISTENING BEST</p>
                 <p className="text-xl font-bold">{bestListeningScore !== null ? `${bestListeningScore} / ${bestListeningBand}` : '--'}</p>
               </div>
             </div>
@@ -243,14 +243,14 @@ export default function DashboardPage() {
               <div>
                 <h2 className="text-2xl font-black mb-2 tracking-tight">Full Test CEFR</h2>
                 <p className="text-teal-100 text-sm max-w-xl">
-                  Barcha bo'limlarni ({fullExamSequence.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}) bitta ketma-ketlikda, tanaffuslarsiz topshiring.
+                  Take all sections ({fullExamSequence.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}) in a continuous sequence, without breaks.
                 </p>
               </div>
               <Button 
                 onClick={handleStartFullExam}
                 className="bg-white text-teal-700 hover:bg-slate-50 font-bold h-14 px-8 rounded-xl shadow-md text-lg whitespace-nowrap"
               >
-                Imtihonni Boshlash
+                Start Exam
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -262,7 +262,7 @@ export default function DashboardPage() {
         <section>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-            <h3 className="text-xl font-bold text-slate-800">Ko'nikmalar bo'yicha imtihonlar</h3>
+            <h3 className="text-xl font-bold text-slate-800">Skill Tests</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -274,26 +274,26 @@ export default function DashboardPage() {
                   <Mic className="w-6 h-6" />
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">REYTINQ</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
                   <p className="text-sm font-semibold text-slate-700">{bestSpeakingBand}</p>
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Speaking</h4>
-              <p className="text-sm text-slate-500 mb-6">Og'zaki nutq</p>
+              <p className="text-sm text-slate-500 mb-6">Oral communication</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500">ENG YAXSHI BALL</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800">{bestSpeakingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{speakingAttempts} ta urinish</span>
+                <span className="text-xs text-slate-400 font-medium">{speakingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/speaking/setup')}
                   variant="ghost" 
                   className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
                 >
-                  Kirish <ChevronRight className="w-4 h-4 ml-1" />
+                  Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -307,21 +307,21 @@ export default function DashboardPage() {
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Writing</h4>
-              <p className="text-sm text-slate-500 mb-6">Yozma nutq</p>
+              <p className="text-sm text-slate-500 mb-6">Written expression</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500">ENG YAXSHI BALL</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800">{bestWritingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{writingAttempts} ta urinish</span>
+                <span className="text-xs text-slate-400 font-medium">{writingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/writing/setup')}
                   variant="ghost" 
                   className="text-purple-600 font-bold hover:bg-purple-50 hover:text-purple-700 p-0 h-auto"
                 >
-                  Kirish <ChevronRight className="w-4 h-4 ml-1" />
+                  Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -334,26 +334,26 @@ export default function DashboardPage() {
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">REYTINQ</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
                   <p className="text-sm font-semibold text-slate-700">{bestReadingBand}</p>
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Reading</h4>
-              <p className="text-sm text-slate-500 mb-6">O'qish</p>
+              <p className="text-sm text-slate-500 mb-6">Comprehension</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500">ENG YAXSHI BALL</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800">{bestReadingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{readingAttempts} ta urinish</span>
+                <span className="text-xs text-slate-400 font-medium">{readingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/reading/setup')}
                   variant="ghost" 
                   className="text-emerald-600 font-bold hover:bg-emerald-50 hover:text-emerald-700 p-0 h-auto"
                 >
-                  Kirish <ChevronRight className="w-4 h-4 ml-1" />
+                  Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -367,21 +367,21 @@ export default function DashboardPage() {
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Listening</h4>
-              <p className="text-sm text-slate-500 mb-6">Tinglash</p>
+              <p className="text-sm text-slate-500 mb-6">Audio comprehension</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500">ENG YAXSHI BALL</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800">{bestListeningScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{listeningAttempts} ta urinish</span>
+                <span className="text-xs text-slate-400 font-medium">{listeningAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/listening/setup')}
                   variant="ghost" 
                   className="text-amber-600 font-bold hover:bg-amber-50 hover:text-amber-700 p-0 h-auto"
                 >
-                  Kirish <ChevronRight className="w-4 h-4 ml-1" />
+                  Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             </div>
@@ -393,10 +393,10 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-              <h3 className="text-xl font-bold text-slate-800">Mening imtihonlarim</h3>
+              <h3 className="text-xl font-bold text-slate-800">My Exams</h3>
             </div>
             <span className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
-              JAMI: {submissions.length} TA
+              TOTAL: {submissions.length}
             </span>
           </div>
 
@@ -433,18 +433,18 @@ export default function DashboardPage() {
                     {activeTab === 'listening' && <Headphones className="w-8 h-8 text-slate-300" />}
                     {activeTab === 'reading' && <BookOpen className="w-8 h-8 text-slate-300" />}
                   </div>
-                  <h4 className="text-slate-800 font-bold mb-1">Hech qanday imtihon yo'q</h4>
-                  <p className="text-slate-500 text-sm">Hali {activeTab} imtihonini topshirmadingiz</p>
+                  <h4 className="text-slate-800 font-bold mb-1">No exams yet</h4>
+                  <p className="text-slate-500 text-sm">You haven't taken any {activeTab} exams yet.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-100">
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">Sana va Vaqt</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Til</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Holat</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-4">Natija</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">Date & Time</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Language</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-4">Result</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
                           <td className="py-4 text-sm font-medium text-slate-700">EN</td>
                           <td className="py-4">
                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                              Yakunlangan
+                              Completed
                             </span>
                           </td>
                           <td className="py-4 pr-4 text-right">
