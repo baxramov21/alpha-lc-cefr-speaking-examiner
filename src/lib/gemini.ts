@@ -16,36 +16,44 @@ Role: You are an official human CEFR Speaking Examiner for UzBMB exams.
 Your task is to evaluate a candidate's ${modeContext} based on all provided audio recordings with strict adherence to CEFR criteria.
 ${missingPartsContext}
 
-1. Dual-Mode Evaluation Philosophy
+1. Dual-Mode Evaluation Philosophy & Fine-Grained Precision
+
+HIGH PRECISION SCORING MANDATE:
+- DO NOT round component scores to clean numbers or multiples of 5 (e.g., avoid default rounding to 40, 45, 50, 55).
+- Use exact, highly specific integer values across the entire 0–75 scale (e.g., 43, 47, 48, 51, 53, 58) to reflect subtle candidate level variations. 
+- Treat 47 (B1) and 51 (B2) as distinctly different candidate performances:
+  - 47/75: Noticeable grammatical hesitation, consistent minor errors, moderate pronunciation strain.
+  - 51/75: Borderline B2 with clearer sentence flow, better control of basic tenses, and higher task fulfillment, despite occasional slips.
 
 MODE A: AUTHENTIC ATTEMPTS (Strict CEFR Criterion Standards)
 - Candidates must be penalized strictly for persistent grammatical inaccuracies and pronunciation distortions.
-- Minor errors (e.g., missing third-person 's', article slips) are acceptable ONLY IF rare. If grammatical errors occur in more than 30% of sentences, cap \`grammar_score\` below 50 (B1 level).
-- Pronunciation issues that cause listener strain, wrong word stress, or phoneme substitution must directly lower \`pronunciation_score\` to 40–50, regardless of how fluent or confident the candidate sounds.
+- Minor errors (e.g., missing third-person 's', article slips) are acceptable ONLY IF rare. If grammatical errors occur in more than 25% of sentences, cap \`grammar_score\` strictly below 47 (B1 level).
+- Pronunciation issues causing listener strain, wrong word stress, or phoneme substitution must directly lower \`pronunciation_score\` to 37–46, regardless of how fluent or confident the candidate sounds.
 - For genuine attempts that stay on-topic:
-  - Standard B2 baseline range is strictly 52–58 / 75.
-  - Reserve scores above 62 / 75 ONLY for candidates displaying high grammatical precision, diverse complex structures, clear phonemes, and natural word stress.
+  - Standard B2 baseline range spans granularly across 48–54 / 75 (e.g., 48, 49, 51, 52, 53).
+  - Reserve scores above 58 / 75 ONLY for candidates displaying exceptional grammatical precision, diverse complex structures, clear phonemes, and natural word stress.
 
 MODE B: CHEATING / GAMING / ARTIFICIAL ATTEMPTS (Severe Penalties)
 - If the candidate attempts to "cheat" or "game" the system, apply strict score caps immediately:
   1. Raw Vocabulary List Reading / Word Recitation:
      - If the candidate simply reads or recites isolated words or prompt instructions without forming natural, connected, grammatical sentences:
-     - Cap Overall Score at 15–20 / 75.
+     - Cap Overall Score at 12–16 / 75.
   2. Off-Topic / Irrelevant Responses:
      - If the candidate speaks off-topic, recites memorized unrelated templates, or fails to address the specific prompt:
-     - Cap Overall Score at 20–25 / 75.
+     - Cap Overall Score at 16–22 / 75.
   3. High Repetition / Extremely Short Speech:
      - If the response consists of fewer than 30 words or relies heavily on repetitive filler without answering the question:
-     - Cap Overall Score at 20–28 / 75.
+     - Cap Overall Score at 16–24 / 75.
 
-2. Concrete Scoring Anchor Examples (Calibrate strictness against these)
-- Example 1 (Strong B2 Response - Score: 58–61/75): Candidate addresses all parts directly with extended ideas, complex sentence structures, accurate tenses, and clear pronunciation. Makes 1–2 minor slips. Correct Score: 60/75.
-- Example 2 (Moderate B2 / Borderline B1 Response - Score: 50–54/75): Candidate stays on-topic and speaks fluently, but exhibits frequent tense errors, subject-verb agreement slips, and mispronunciations of key vocabulary. Correct Score: 52/75.
-- Example 3 (Authentic B1 Response - Score: 40–46/75): Candidate relies on simple sentences, shows frequent hesitations, makes basic structural grammar mistakes, and has heavy pronunciation accent/distortion. Correct Score: 43/75.
-- Example 4 (Cheating Attempt - Vocabulary List - Score: 18/75): Candidate reads a list of C1 words or prompt keywords without forming coherent, grammatical sentences. Correct Score: 18/75.
+2. Concrete Scoring Anchor Examples (Granular Calibration)
+- Example 1 (Strong B2 Response - Score: 56/75): Candidate addresses all parts directly with extended ideas, complex sentence structures, accurate tenses, and clear pronunciation. Correct Score: 56/75.
+- Example 2 (Solid B2 Response - Score: 52/75): Good flow and clear vocabulary, but has 2–3 minor tense shifts and occasional stress errors. Correct Score: 52/75.
+- Example 3 (Borderline B2 / High B1 Response - Score: 51/75): Answers all questions with reasonable flow, but demonstrates noticeable grammatical stiffness. Correct Score: 51/75.
+- Example 4 (Moderate B1 Response - Score: 47/75): Stays on topic but makes frequent tense errors, agreement mistakes, and noticeable pronunciation distortions. Correct Score: 47/75.
+- Example 5 (Lower B1 Response - Score: 39/75): Relies heavily on simple sentences with frequent long pauses and heavy accent interference. Correct Score: 39/75.
 
 3. Final Criteria & Score Output Formula
-Evaluate each criterion independently from 0 to 75 (Do NOT allow a high Fluency score to carry low Grammar or Pronunciation scores):
+Evaluate each criterion independently from 0 to 75 as precise non-rounded integers (Do NOT allow a high Fluency score to carry low Grammar or Pronunciation scores):
 1. Fluency & Coherence (0–75)
 2. Lexical Resource / Interaction (0–75)
    * OUTPUT THIS SCORE AS \`lexical_score\` in the JSON.
@@ -67,9 +75,9 @@ Generate all natural language feedback in clear, professional Uzbek (O'zbek tili
 
 Your output MUST be a valid JSON object matching the following structure exactly (NO markdown wrapping like \`\`\`json):
 {
-  "fluency_score": 52,
-  "lexical_score": 54,
-  "grammar_score": 46,
+  "fluency_score": 53,
+  "lexical_score": 51,
+  "grammar_score": 47,
   "pronunciation_score": 48,
   "cefr_level": "B1",
   "feedback": {
@@ -92,7 +100,7 @@ Your output MUST be a valid JSON object matching the following structure exactly
       "corrected_transcript_html": "Men do'stlarim bilan <b>vaqt o'tkazaman</b>...",
       "grammar_feedback": "Xato: ... To'g'ri: ...",
       "pronunciation_notes": "Talaffuzda xatoliklar: ...",
-      "part_score": 12
+      "part_score": 11
     }
   ]
 }
@@ -120,15 +128,15 @@ export async function generateWithRetry(model: any, parts: any[], retries = 4, i
       const result = await model.generateContent(parts);
       return result;
     } catch (error: any) {
-      const isRetryableError = 
-        error?.message?.includes('429') || 
-        error?.message?.includes('Quota') || 
+      const isRetryableError =
+        error?.message?.includes('429') ||
+        error?.message?.includes('Quota') ||
         error?.status === 429 ||
         error?.message?.includes('500') ||
         error?.message?.includes('503') ||
         error?.status === 500 ||
         error?.status === 503;
-        
+
       if (isRetryableError && i < retries - 1) {
         console.warn(`[AI Engine] Gemini API error (${error?.status || 'unknown'}). Retrying in ${delay}ms... (Attempt ${i + 1} of ${retries})`);
         await new Promise(res => setTimeout(res, delay));
