@@ -1,5 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export interface ModelConfig {
   part_model: string;
@@ -12,30 +11,51 @@ export interface ModelConfig {
   tts_voice?: string;
 }
 
-const CONFIG_PATH = path.join(process.cwd(), 'src', 'config', 'models.json');
-
 export async function getModelConfig(): Promise<ModelConfig> {
   try {
-    const fileContents = await fs.readFile(CONFIG_PATH, 'utf-8');
-    const config = JSON.parse(fileContents) as ModelConfig;
-    return applyFallbackLogic(config);
+    const { data, error } = await supabaseAdmin
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'model_config')
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching model config from Supabase:', error);
+    }
+
+    if (data?.value) {
+      return applyFallbackLogic(data.value as ModelConfig);
+    }
   } catch (error) {
-    // Return defaults if file is missing or unreadable
-    return applyFallbackLogic({
-      part_model: 'gemini-3.5-flash-lite',
-      final_model: 'gemini-3.5-flash',
-      writing_time_minutes: 60,
-      reading_time_minutes: 60,
-      listening_repetitions: 2,
-      full_exam_mode_enabled: false,
-      full_exam_sequence: ['speaking', 'listening', 'reading', 'writing'],
-      tts_voice: 'uk_male'
-    });
+    console.error('Failed to get model config from Supabase:', error);
   }
+
+  // Return defaults if database record is missing or error occurs
+  return applyFallbackLogic({
+    part_model: 'gemini-2.5-flash',
+    final_model: 'gemini-2.5-flash',
+    writing_time_minutes: 60,
+    reading_time_minutes: 60,
+    listening_repetitions: 2,
+    full_exam_mode_enabled: false,
+    full_exam_sequence: ['speaking', 'listening', 'reading', 'writing'],
+    tts_voice: 'uk_male'
+  });
 }
 
 export async function updateModelConfig(config: ModelConfig): Promise<void> {
-  await fs.writeFile(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+  const { error } = await supabaseAdmin
+    .from('app_settings')
+    .upsert({
+      key: 'model_config',
+      value: config,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'key' });
+
+  if (error) {
+    console.error('Error saving model config to Supabase:', error);
+    throw new Error('Failed to save to database');
+  }
 }
 
 function applyFallbackLogic(config: ModelConfig): ModelConfig {
