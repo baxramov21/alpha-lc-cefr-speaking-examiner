@@ -57,3 +57,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to load reading tasks' }, { status: 500 });
   }
 }
+export const dynamic = 'force-dynamic';

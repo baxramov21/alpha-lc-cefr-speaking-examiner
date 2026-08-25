@@ -61,3 +61,4 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const dynamic = 'force-dynamic';
