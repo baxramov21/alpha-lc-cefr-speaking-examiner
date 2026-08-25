@@ -127,14 +127,14 @@ export async function POST(req: NextRequest) {
     );
     evaluationJSON.total_score = totalScore;
 
-    // Background dispatch to Telegram
+    // Dispatch to Telegram (await to ensure it finishes before Vercel freezes the function)
     const studentName = formData.get('studentName') as string || 'Unknown Student';
-    sendFinalSpeakingEvaluationToTelegram(
+    await sendFinalSpeakingEvaluationToTelegram(
       studentName,
       evaluationJSON,
       questionsData,
       audioFilesForTelegram
-    ).catch(err => console.error('Background telegram dispatch error:', err));
+    ).catch(err => console.error('Telegram dispatch error:', err));
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {
