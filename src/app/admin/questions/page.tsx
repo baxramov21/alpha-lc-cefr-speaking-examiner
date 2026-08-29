@@ -68,6 +68,10 @@ export default function AdminQuestionsPage() {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
 
+  // Deferred Edits (Draft State)
+  const [pendingEdits, setPendingEdits] = useState<Record<string, Partial<Question>>>({});
+  const [isSavingAll, setIsSavingAll] = useState(false);
+
   // Stock Image Search
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [stockQuery, setStockQuery] = useState('');
@@ -80,6 +84,17 @@ export default function AdminQuestionsPage() {
     fetchQuestions();
     fetchPartTimings();
   }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (Object.keys(pendingEdits).length > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [pendingEdits]);
 
   const fetchPartTimings = async () => {
     try {
@@ -282,6 +297,13 @@ export default function AdminQuestionsPage() {
       if (activeTab === 'task2') return q.part === 'task2';
       return false;
     }
+  });
+
+  const displayQuestions = filteredQuestions.map(q => {
+    if (pendingEdits[q.id]) {
+      return { ...q, ...pendingEdits[q.id] };
+    }
+    return q;
   });
 
   const toggleQuestionSelection = (id: string) => {
@@ -630,35 +652,52 @@ export default function AdminQuestionsPage() {
     }
   };
 
-  const saveEdit = async () => {
+  const saveEdit = () => {
     if (!editingId) return;
+    
+    setPendingEdits(prev => ({
+      ...prev,
+      [editingId]: {
+        ...prev[editingId],
+        part: editForm.part,
+        question_type: editForm.question_type,
+        text: editForm.text,
+        prep_seconds: editForm.prep_seconds,
+        speak_seconds: editForm.speak_seconds,
+        is_active: editForm.is_active,
+        image_url: editForm.image_url,
+        table_data: editForm.table_data
+      }
+    }));
+    
+    setEditingId(null);
+    setIsModalEdit(false);
+  };
+
+  const handleSaveAllChanges = async () => {
+    const keys = Object.keys(pendingEdits);
+    if (keys.length === 0) return;
+
+    setIsSavingAll(true);
+    const updates = keys.map(id => ({ id, ...pendingEdits[id] }));
+
     try {
-      const res = await fetch(`/api/admin/questions/${editingId}`, {
-        method: 'PATCH',
+      const res = await fetch('/api/admin/questions/bulk-edit', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          part: editForm.part,
-          question_type: editForm.question_type,
-          text: editForm.text,
-          prep_seconds: editForm.prep_seconds,
-          speak_seconds: editForm.speak_seconds,
-          is_active: editForm.is_active,
-          image_url: editForm.image_url,
-          table_data: editForm.table_data
-        })
+        body: JSON.stringify({ updates })
       });
-      
       if (res.ok) {
-        setEditingId(null);
-        setIsModalEdit(false);
+        setPendingEdits({});
         fetchQuestions();
       } else {
-        alert('Error updating question');
+        alert('Failed to save some changes.');
       }
     } catch (err) {
       console.error(err);
-      alert('Error updating question');
+      alert('Error saving changes.');
     }
+    setIsSavingAll(false);
   };
 
   const deleteQuestion = async (id: string) => {
@@ -1307,6 +1346,26 @@ export default function AdminQuestionsPage() {
             ))}
           </div>
           
+          {Object.keys(pendingEdits).length > 0 && (
+            <div className="sticky top-4 z-40 bg-orange-50 border-2 border-orange-400 rounded-2xl p-4 mb-6 shadow-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="text-orange-500 w-6 h-6" />
+                <div>
+                  <h4 className="font-bold text-orange-900">You have {Object.keys(pendingEdits).length} unsaved changes</h4>
+                  <p className="text-sm text-orange-700">Please save your changes before leaving.</p>
+                </div>
+              </div>
+              <Button 
+                onClick={handleSaveAllChanges} 
+                disabled={isSavingAll}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 shadow-sm"
+              >
+                {isSavingAll ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Check className="w-5 h-5 mr-2" />}
+                {isSavingAll ? 'Saving...' : 'Save All Changes'}
+              </Button>
+            </div>
+          )}
+          
           <div className="space-y-4">
             
             {/* Bulk Actions Bar */}
@@ -1362,12 +1421,12 @@ export default function AdminQuestionsPage() {
               </div>
             )}
 
-            {filteredQuestions.length === 0 ? (
+            {displayQuestions.length === 0 ? (
               <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
                 No questions found in this category.
               </div>
             ) : (
-              filteredQuestions.map((q) => (
+              displayQuestions.map((q) => (
                 <div 
                   key={q.id} 
                   className={`p-6 rounded-3xl border transition-all duration-200 flex flex-col gap-4 ${
