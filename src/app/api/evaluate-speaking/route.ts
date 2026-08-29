@@ -134,7 +134,11 @@ export async function POST(req: NextRequest) {
       evaluationJSON,
       questionsData,
       audioFilesForTelegram
-    ).catch(err => console.error('Telegram dispatch error:', err));
+    ).catch(err => {
+      console.error('Telegram dispatch error:', err);
+      evaluationJSON.telegram_failed = true;
+      evaluationJSON.telegram_error_message = err.message || 'Unknown Telegram error';
+    });
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {

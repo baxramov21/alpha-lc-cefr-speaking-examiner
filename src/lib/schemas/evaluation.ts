@@ -20,7 +20,7 @@ export const evaluationSchema = z.object({
   lexicalScore: z.number().min(0).max(75).optional(),
   grammarScore: z.number().min(0).max(75).optional(),
   pronunciationScore: z.number().min(0).max(75).optional(),
-  overallBand: z.enum(['Below B1', 'B1', 'B2', 'C1']),
+  overallBand: z.string(),
   examType: z.enum(['speaking', 'writing']).optional().default('speaking'),
   evaluation: z.record(z.string(), z.any()), // Accommodate both speaking and writing schemas
 });

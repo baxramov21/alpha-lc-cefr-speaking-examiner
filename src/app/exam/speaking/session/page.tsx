@@ -12,6 +12,7 @@ import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Bot, Loader2, Sparkles, CheckCircle2, AlertTriangle, Mic, Square, Play, ArrowRight, GraduationCap } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/ui/use-toast';
 
 const playBeep = (freq: number, type: OscillatorType, duration: number, vol: number = 0.1) => {
   try {
@@ -57,6 +58,7 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
 
 export default function ExamSessionPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [examQuestions, setExamQuestions] = useState<ExamQuestion[]>(EXAM_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<QuestionPhase>('prep');
@@ -417,30 +419,59 @@ export default function ExamSessionPage() {
             
             // Save submission to database
             const sessionInfoStr = sessionStorage.getItem('examSession');
+            let dbSuccess = true;
             if (sessionInfoStr) {
               const sessionInfo = JSON.parse(sessionInfoStr);
-              await fetchWithRetry('/api/submissions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  studentName: sessionInfo.fullName,
-                  groupName: sessionInfo.groupName,
-                  teacherName: sessionInfo.teacherName,
-                  sessionToken: sessionInfo.sessionToken,
-                  overallScore: finalData.total_score,
-                  overallBand: finalData.cefr_level,
-                  fluencyScore: finalData.fluency_score,
-                  lexicalScore: finalData.lexical_score,
-                  grammarScore: finalData.grammar_score,
-                  pronunciationScore: finalData.pronunciation_score,
-                  evaluation: finalData,
-                  examType: 'speaking'
-                })
-              }, 3, 2000);
+              try {
+                const subRes = await fetchWithRetry('/api/submissions', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    studentName: sessionInfo.fullName,
+                    groupName: sessionInfo.groupName,
+                    teacherName: sessionInfo.teacherName,
+                    sessionToken: sessionInfo.sessionToken,
+                    overallScore: finalData.total_score,
+                    overallBand: finalData.cefr_level,
+                    fluencyScore: finalData.fluency_score,
+                    lexicalScore: finalData.lexical_score,
+                    grammarScore: finalData.grammar_score,
+                    pronunciationScore: finalData.pronunciation_score,
+                    evaluation: finalData,
+                    examType: 'speaking'
+                  })
+                }, 3, 2000);
+                
+                if (!subRes.ok) {
+                  dbSuccess = false;
+                  console.error('Failed to submit to database', await subRes.text());
+                }
+              } catch (e) {
+                dbSuccess = false;
+                console.error('Database submission exception', e);
+              }
+            }
+
+            if (!dbSuccess) {
+              toast({
+                title: "Warning: Database Save Failed",
+                description: "Your exam was graded, but we couldn't save it to the database. Please take a screenshot of your results.",
+                variant: "destructive",
+                duration: 10000,
+              });
+            }
+
+            if (finalData.telegram_failed) {
+              toast({
+                title: "Telegram Delivery Failed",
+                description: "Your results were saved, but we couldn't send them to the Telegram group.",
+                variant: "destructive",
+                duration: 8000,
+              });
             }
 
             sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
-            clearExamState(sessionToken, 'speaking');
+            clearExamState(sessionInfoStr ? JSON.parse(sessionInfoStr).sessionToken : '', 'speaking');
             handleExamCompletion(router, '/exam/speaking/results');
           } else {
             console.error('Finalize returned non-OK status');
@@ -504,26 +535,55 @@ export default function ExamSessionPage() {
 
         // Save submission to database
         const sessionInfoStr = sessionStorage.getItem('examSession');
+        let dbSuccess = true;
         if (sessionInfoStr) {
           const sessionInfo = JSON.parse(sessionInfoStr);
-          await fetchWithRetry('/api/submissions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              studentName: sessionInfo.fullName,
-              groupName: sessionInfo.groupName,
-              teacherName: sessionInfo.teacherName,
-              sessionToken: sessionInfo.sessionToken,
-              overallScore: finalData.total_score,
-              overallBand: finalData.cefr_level,
-              fluencyScore: finalData.fluency_score,
-              lexicalScore: finalData.lexical_score,
-              grammarScore: finalData.grammar_score,
-              pronunciationScore: finalData.pronunciation_score,
-              evaluation: finalData,
-              examType: 'speaking'
-            })
-          }, 3, 2000);
+          try {
+            const subRes = await fetchWithRetry('/api/submissions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                studentName: sessionInfo.fullName,
+                groupName: sessionInfo.groupName,
+                teacherName: sessionInfo.teacherName,
+                sessionToken: sessionInfo.sessionToken,
+                overallScore: finalData.total_score,
+                overallBand: finalData.cefr_level,
+                fluencyScore: finalData.fluency_score,
+                lexicalScore: finalData.lexical_score,
+                grammarScore: finalData.grammar_score,
+                pronunciationScore: finalData.pronunciation_score,
+                evaluation: finalData,
+                examType: 'speaking'
+              })
+            }, 3, 2000);
+            
+            if (!subRes.ok) {
+              dbSuccess = false;
+              console.error('Failed to submit to database', await subRes.text());
+            }
+          } catch (e) {
+            dbSuccess = false;
+            console.error('Database submission exception', e);
+          }
+        }
+
+        if (!dbSuccess) {
+          toast({
+            title: "Warning: Database Save Failed",
+            description: "Your exam was graded, but we couldn't save it to the database. Please take a screenshot of your results.",
+            variant: "destructive",
+            duration: 10000,
+          });
+        }
+
+        if (finalData.telegram_failed) {
+          toast({
+            title: "Telegram Delivery Failed",
+            description: "Your results were saved, but we couldn't send them to the Telegram group.",
+            variant: "destructive",
+            duration: 8000,
+          });
         }
 
         sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
