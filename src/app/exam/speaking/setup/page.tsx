@@ -67,9 +67,9 @@ export default function ExamSetupPage() {
           
           // If the DB text contains multiple questions (e.g. "Question 1? Question 2?"), split them
           const subQuestions = fullText.split('?')
-            .map(q => q.trim())
-            .filter(q => q.length > 5)
-            .map(q => q + '?');
+            .map((q: string) => q.trim())
+            .filter((q: string) => q.length > 5)
+            .map((q: string) => q + '?');
             
           // Randomly pick ONE question for q2
           const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
