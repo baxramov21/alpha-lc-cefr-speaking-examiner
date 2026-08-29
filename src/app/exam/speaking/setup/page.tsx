@@ -88,7 +88,7 @@ export default function ExamSetupPage() {
             {
               ...p1ImageSource,
               id: p1ImageSource.id + '_q3',
-              text: `How do you think ${p1ImageSource.topic?.toLowerCase() || 'this topic'} will change in the future?`
+              text: `How do you think this situation will change in the future?`
             }
           ];
         })() : [];
