@@ -21,6 +21,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Payload must be an array of questions' }, { status: 400 });
     }
 
+    // Fetch global part timings to use as defaults
+    const { data: partTimingsData } = await supabase.from('part_timings').select('*');
+    const timingsMap: Record<string, { prep_seconds: number, speak_seconds: number }> = {};
+    if (partTimingsData) {
+      partTimingsData.forEach(pt => {
+        timingsMap[pt.part] = { prep_seconds: pt.prep_seconds, speak_seconds: pt.speak_seconds };
+      });
+    }
+
     const validQuestions = [];
     const errors = [];
     for (let item of raw) {
@@ -33,11 +42,14 @@ export async function POST(req: NextRequest) {
 
       const parsed = createQuestionSchema.safeParse(item);
       if (parsed.success) {
+        const part = parsed.data.part;
+        const defaultTimings = timingsMap[part] || { prep_seconds: 30, speak_seconds: 120 };
+
         validQuestions.push({
           ...parsed.data,
           text: parsed.data.text.trim(),
-          prep_seconds: parsed.data.prep_seconds ?? 30,
-          speak_seconds: parsed.data.speak_seconds ?? 120,
+          prep_seconds: parsed.data.prep_seconds ?? defaultTimings.prep_seconds,
+          speak_seconds: parsed.data.speak_seconds ?? defaultTimings.speak_seconds,
         });
       } else {
         errors.push(parsed.error.issues);
