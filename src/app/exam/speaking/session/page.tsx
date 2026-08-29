@@ -71,6 +71,7 @@ export default function ExamSessionPage() {
   const [timerKey, setTimerKey] = useState(0); // used to reset timer on skip
   const [allowSkip, setAllowSkip] = useState(true);
   const [isRestoring, setIsRestoring] = useState(true);
+  const [isReadingQuestion, setIsReadingQuestion] = useState(false);
   const waveAnimRef = useRef<NodeJS.Timeout | null>(null);
   const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -88,8 +89,14 @@ export default function ExamSessionPage() {
 
     // Only speak during the 'prep' phase to avoid talking over the candidate
     if (phase === 'prep') {
+      setIsReadingQuestion(true);
       const utterance = new SpeechSynthesisUtterance(question.text);
       utterance.rate = 0.9; // Slightly slower for clarity
+      
+      utterance.onend = () => {
+        setTimeout(() => setIsReadingQuestion(false), 1000); // +1 second delay
+      };
+      utterance.onerror = () => setIsReadingQuestion(false);
       
       const setVoiceAndSpeak = () => {
         const voices = window.speechSynthesis.getVoices();
@@ -165,6 +172,7 @@ export default function ExamSessionPage() {
 
     // Cleanup on unmount
     return () => {
+      setIsReadingQuestion(false);
       window.speechSynthesis.cancel();
     };
   }, [question.id, question.text, phase, ttsVoice]);
@@ -719,7 +727,7 @@ export default function ExamSessionPage() {
                     key={`${currentIndex}-${phase}-${timerKey}`}
                     totalSeconds={phase === 'prep' ? question.prepSeconds : question.speakSeconds}
                     phase={phase as 'prep' | 'speak'}
-                    isPaused={isSubmitting}
+                    isPaused={isSubmitting || (phase === 'prep' && isReadingQuestion)}
                     onComplete={phase === 'prep' ? skipPrep : advanceQuestion}
                     onTenSecondsLeft={() => {
                       playBeep(880, 'sine', 0.1, 0.1);
@@ -872,7 +880,7 @@ export default function ExamSessionPage() {
                     key={`${currentIndex}-${phase}-${timerKey}`}
                     totalSeconds={phase === 'prep' ? question.prepSeconds : question.speakSeconds}
                     phase={phase as 'prep' | 'speak'}
-                    isPaused={isSubmitting}
+                    isPaused={isSubmitting || (phase === 'prep' && isReadingQuestion)}
                     onComplete={phase === 'prep' ? skipPrep : advanceQuestion}
                     onTenSecondsLeft={() => {
                       playBeep(880, 'sine', 0.1, 0.1);
