@@ -46,8 +46,15 @@ export default function ExamSetupPage() {
 
         if (error) throw error;
 
-        // Shuffle utility
-        const shuffle = (arr: any[]) => [...arr].sort(() => 0.5 - Math.random());
+        // Fisher-Yates Shuffle utility for unbiased randomization
+        const shuffle = (arr: any[]) => {
+          const result = [...arr];
+          for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+          }
+          return result;
+        };
 
         // Part 1: 3 standard
         const p1Standard = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'standard')).slice(0, 3);

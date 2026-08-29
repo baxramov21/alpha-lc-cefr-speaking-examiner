@@ -42,7 +42,15 @@ export default function WritingSetupPage() {
 
         if (error) throw error;
 
-        const shuffle = (arr: any[]) => [...arr].sort(() => 0.5 - Math.random());
+        // Fisher-Yates Shuffle utility for unbiased randomization
+        const shuffle = (arr: any[]) => {
+          const result = [...arr];
+          for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+          }
+          return result;
+        };
         
         const task1Questions = shuffle(data.filter(q => q.part === 'task1')).slice(0, 1);
         const task1_2Questions = shuffle(data.filter(q => q.part === 'task1_2')).slice(0, 1);
