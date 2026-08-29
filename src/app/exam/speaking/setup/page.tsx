@@ -61,23 +61,37 @@ export default function ExamSetupPage() {
         
         // Part 1.2: 3 image questions (derived from 1 single image pair)
         const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
-        const p1ImageQuestions = p1ImageSource ? [
-          {
-            ...p1ImageSource,
-            id: p1ImageSource.id + '_q1',
-            text: 'Please describe the pictures shown on the screen and compare them.'
-          },
-          {
-            ...p1ImageSource,
-            id: p1ImageSource.id + '_q2',
-            text: p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim()
-          },
-          {
-            ...p1ImageSource,
-            id: p1ImageSource.id + '_q3',
-            text: `How do you think ${p1ImageSource.topic?.toLowerCase() || 'this topic'} will change in the future?`
-          }
-        ] : [];
+        const p1ImageQuestions = p1ImageSource ? (() => {
+          // Clean the source text
+          const fullText = p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim();
+          
+          // If the DB text contains multiple questions (e.g. "Question 1? Question 2?"), split them
+          const subQuestions = fullText.split('?')
+            .map(q => q.trim())
+            .filter(q => q.length > 5)
+            .map(q => q + '?');
+            
+          // Randomly pick ONE question for q2
+          const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
+
+          return [
+            {
+              ...p1ImageSource,
+              id: p1ImageSource.id + '_q1',
+              text: 'Please describe the pictures shown on the screen and compare them.'
+            },
+            {
+              ...p1ImageSource,
+              id: p1ImageSource.id + '_q2',
+              text: finalQ2Text
+            },
+            {
+              ...p1ImageSource,
+              id: p1ImageSource.id + '_q3',
+              text: `How do you think ${p1ImageSource.topic?.toLowerCase() || 'this topic'} will change in the future?`
+            }
+          ];
+        })() : [];
         
         // Part 2: 1 question
         const p2Image = shuffle(data.filter(q => q.part === 'part2')).slice(0, 1);
