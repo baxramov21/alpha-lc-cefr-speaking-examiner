@@ -82,6 +82,14 @@ export async function POST(req: NextRequest) {
         buffer = Buffer.from(await audioField.arrayBuffer());
         mimeType = audioField.type || 'audio/webm';
       }
+
+      // Sanitize mimeType for Gemini to prevent "invalid argument" 400 errors
+      if (mimeType.includes(';')) {
+        mimeType = mimeType.split(';')[0].trim();
+      }
+      if (!mimeType.startsWith('audio/') && !mimeType.startsWith('video/')) {
+        mimeType = 'audio/webm';
+      }
       
       generativeParts.push(`\n--- ${groupId.toUpperCase()} ---\n`);
       for (const q of qs) {
