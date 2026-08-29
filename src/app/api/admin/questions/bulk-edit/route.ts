@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const errors = results.filter(r => r.error).map(r => r.error);
     if (errors.length > 0) {
       console.error('Errors in bulk update:', errors);
-      return NextResponse.json({ error: 'Some updates failed', details: errors }, { status: 500 });
+      return NextResponse.json({ error: 'Bulk update failed: ' + JSON.stringify(errors[0]) }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, count: updates.length }, { status: 200 });
