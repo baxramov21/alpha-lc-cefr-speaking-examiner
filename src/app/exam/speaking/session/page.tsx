@@ -94,7 +94,7 @@ export default function ExamSessionPage() {
       utterance.rate = 0.9; // Slightly slower for clarity
       
       utterance.onend = () => {
-        setTimeout(() => setIsReadingQuestion(false), 1000); // +1 second delay
+        setTimeout(() => setIsReadingQuestion(false), 500); // 0.5 second delay
       };
       utterance.onerror = () => setIsReadingQuestion(false);
       
