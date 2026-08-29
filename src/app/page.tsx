@@ -13,10 +13,10 @@ import { Label } from '@/components/ui/label';
 // Passcode verification is now handled server-side via /api/auth/verify-passcode
 
 const schema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  groupName: z.string().min(1, 'Group name is required'),
-  teacherName: z.string().min(2, 'Teacher name is required'),
-  passcode: z.string().min(4, 'Passcode is required'),
+  fullName: z.string().trim().min(2, 'Full name must be at least 2 characters'),
+  groupName: z.string().trim().min(1, 'Group name is required'),
+  teacherName: z.string().trim().min(2, 'Teacher name is required'),
+  passcode: z.string().trim().min(4, 'Passcode is required'),
 });
 
 type FormData = z.infer<typeof schema>;
