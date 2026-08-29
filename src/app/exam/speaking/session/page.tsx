@@ -12,7 +12,7 @@ import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Bot, Loader2, Sparkles, CheckCircle2, AlertTriangle, Mic, Square, Play, ArrowRight, GraduationCap } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+
 
 const playBeep = (freq: number, type: OscillatorType, duration: number, vol: number = 0.1) => {
   try {
@@ -58,7 +58,7 @@ const fetchWithRetry = async (url: string, options: RequestInit, retries = 3, ba
 
 export default function ExamSessionPage() {
   const router = useRouter();
-  const { toast } = useToast();
+
   const [examQuestions, setExamQuestions] = useState<ExamQuestion[]>(EXAM_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState<QuestionPhase>('prep');
@@ -453,21 +453,11 @@ export default function ExamSessionPage() {
             }
 
             if (!dbSuccess) {
-              toast({
-                title: "Warning: Database Save Failed",
-                description: "Your exam was graded, but we couldn't save it to the database. Please take a screenshot of your results.",
-                variant: "destructive",
-                duration: 10000,
-              });
+              alert("Your exam result was generated, but there was an error saving it to the database. Please take a screenshot of your result and show it to your teacher.");
             }
 
             if (finalData.telegram_failed) {
-              toast({
-                title: "Telegram Delivery Failed",
-                description: "Your results were saved, but we couldn't send them to the Telegram group.",
-                variant: "destructive",
-                duration: 8000,
-              });
+              alert("Your exam result was evaluated and saved successfully, but there was an error submitting it to the Telegram group. Please notify your teacher.");
             }
 
             sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
@@ -569,21 +559,11 @@ export default function ExamSessionPage() {
         }
 
         if (!dbSuccess) {
-          toast({
-            title: "Warning: Database Save Failed",
-            description: "Your exam was graded, but we couldn't save it to the database. Please take a screenshot of your results.",
-            variant: "destructive",
-            duration: 10000,
-          });
+          alert("Your exam result was generated, but there was an error saving it to the database. Please take a screenshot of your result and show it to your teacher.");
         }
 
         if (finalData.telegram_failed) {
-          toast({
-            title: "Telegram Delivery Failed",
-            description: "Your results were saved, but we couldn't send them to the Telegram group.",
-            variant: "destructive",
-            duration: 8000,
-          });
+          alert("Your exam result was evaluated and saved successfully, but there was an error submitting it to the Telegram group. Please notify your teacher.");
         }
 
         sessionStorage.setItem('examResults', JSON.stringify({ ...finalData, examType: 'speaking' }));
