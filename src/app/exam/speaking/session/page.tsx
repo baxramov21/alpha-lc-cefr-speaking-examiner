@@ -84,8 +84,11 @@ export default function ExamSessionPage() {
 
   // --- TTS ---
   useEffect(() => {
+    if (isRestoring) return;
+
     // Cancel any ongoing speech when question or phase changes
     window.speechSynthesis.cancel();
+    let isCancelled = false;
 
     // Only speak during the 'prep' phase to avoid talking over the candidate
     if (phase === 'prep') {
@@ -94,9 +97,11 @@ export default function ExamSessionPage() {
       utterance.rate = 0.9; // Slightly slower for clarity
       
       utterance.onend = () => {
-        setTimeout(() => setIsReadingQuestion(false), 500); // 0.5 second delay
+        if (!isCancelled) setIsReadingQuestion(false);
       };
-      utterance.onerror = () => setIsReadingQuestion(false);
+      utterance.onerror = () => {
+        if (!isCancelled) setIsReadingQuestion(false);
+      };
       
       const setVoiceAndSpeak = () => {
         const voices = window.speechSynthesis.getVoices();
@@ -172,10 +177,11 @@ export default function ExamSessionPage() {
 
     // Cleanup on unmount
     return () => {
+      isCancelled = true;
       setIsReadingQuestion(false);
       window.speechSynthesis.cancel();
     };
-  }, [question.id, question.text, phase, ttsVoice]);
+  }, [question.id, question.text, phase, ttsVoice, isRestoring]);
   // Verify session and load questions
   useEffect(() => {
     if (hasCheckedSession.current) return;
