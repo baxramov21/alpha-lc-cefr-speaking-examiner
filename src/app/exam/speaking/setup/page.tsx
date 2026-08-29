@@ -62,16 +62,21 @@ export default function ExamSetupPage() {
         // Part 1.2: 3 image questions (derived from 1 single image pair)
         const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
         const p1ImageQuestions = p1ImageSource ? (() => {
-          // Clean the source text
+          const subQs = (p1ImageSource.table_data as any)?.sub_questions;
+          if (subQs && Array.isArray(subQs) && subQs.length === 3) {
+            return [
+              { ...p1ImageSource, id: p1ImageSource.id + '_q1', text: subQs[0] },
+              { ...p1ImageSource, id: p1ImageSource.id + '_q2', text: subQs[1] },
+              { ...p1ImageSource, id: p1ImageSource.id + '_q3', text: subQs[2] }
+            ];
+          }
+
+          // Fallback for older, unmigrated data
           const fullText = p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim();
-          
-          // If the DB text contains multiple questions (e.g. "Question 1? Question 2?"), split them
           const subQuestions = fullText.split('?')
             .map((q: string) => q.trim())
             .filter((q: string) => q.length > 5)
             .map((q: string) => q + '?');
-            
-          // Randomly pick ONE question for q2
           const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
 
           return [

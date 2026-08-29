@@ -20,6 +20,7 @@ type Question = {
   table_data?: {
     forPoints: string[];
     againstPoints: string[];
+    sub_questions?: string[];
   };
 };
 
@@ -759,14 +760,55 @@ export default function AdminQuestionsPage() {
         </div>
       </div>
       
-      <div className="space-y-2">
-        <Label>Prompt Text</Label>
-        <textarea
-          className="w-full min-h-[100px] rounded-xl border border-slate-200 p-3"
-          value={data.text}
-          onChange={(e) => setter({ ...data, text: e.target.value })}
-        />
-      </div>
+      {data.part === 'part1_2' ? (
+        <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="space-y-2">
+            <Label className="text-slate-700 font-semibold">Question 1 (Description)</Label>
+            <textarea
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              value={data.table_data?.sub_questions?.[0] ?? 'Please describe the pictures shown on the screen and compare them.'}
+              onChange={(e) => {
+                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                sub[0] = e.target.value;
+                setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
+              }}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-slate-700 font-semibold">Question 2 (Specific)</Label>
+            <textarea
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              value={data.table_data?.sub_questions?.[1] ?? data.text ?? ''}
+              onChange={(e) => {
+                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                sub[1] = e.target.value;
+                setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
+              }}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-slate-700 font-semibold">Question 3 (General)</Label>
+            <textarea
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              value={data.table_data?.sub_questions?.[2] ?? 'How do you think this situation will change in the future?'}
+              onChange={(e) => {
+                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                sub[2] = e.target.value;
+                setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
+              }}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label>Prompt Text</Label>
+          <textarea
+            className="w-full min-h-[100px] rounded-xl border border-slate-200 p-3"
+            value={data.text}
+            onChange={(e) => setter({ ...data, text: e.target.value })}
+          />
+        </div>
+      )}
 
       {(data.question_type === 'image' || data.part === 'part1_2') && (
         <div className="space-y-4 p-4 border border-indigo-100 bg-indigo-50/50 rounded-xl">
@@ -1473,7 +1515,15 @@ export default function AdminQuestionsPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-800 font-medium group-hover:text-teal-700 transition-colors">{q.text}</p>
+                      {q.part === 'part1_2' ? (
+                        <ul className="list-disc pl-5 space-y-1 text-slate-800 font-medium group-hover:text-teal-700 transition-colors">
+                          {((q.table_data as any)?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', q.text || '', 'How do you think this situation will change in the future?']).map((sq: string, idx: number) => (
+                            <li key={idx}>{sq}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-slate-800 font-medium group-hover:text-teal-700 transition-colors">{q.text}</p>
+                      )}
                       {q.question_type === 'image' && q.image_url && (
                         <div className="mt-4 flex gap-4 h-24">
                           <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-200 shrink-0">
