@@ -98,11 +98,6 @@ export async function POST(req: NextRequest) {
     .setExpirationTime('2h')
     .sign(encodedSecret);
 
-  const { data: settingsData } = await supabase
-    .from('app_settings')
-    .select('value')
-    .eq('key', 'auth_settings')
-    .single();
 
   return NextResponse.json({ 
     token,
