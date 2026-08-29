@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { z } from 'zod';
+
+const patchQuestionSchema = z.object({
+  part: z.enum(['part1', 'part1_2', 'part2', 'part3', 'task1', 'task1_2', 'task2']).optional(),
+  question_type: z.enum(['standard', 'image', 'debate']).optional(),
+  text: z.string().min(1).max(2000).optional(),
+  topic: z.string().min(1).max(200).optional(),
+  is_active: z.boolean().optional(),
+  prep_seconds: z.number().int().min(0).max(300).optional(),
+  speak_seconds: z.number().int().min(0).max(600).optional(),
+  image_url: z.string().max(500).optional().nullable(),
+  table_data: z.record(z.string(), z.unknown()).optional().nullable(),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +29,12 @@ export async function POST(req: NextRequest) {
 
     const promises = updates.map((update: any) => {
       const { id, ...fields } = update;
-      return supabase.from('questions').update(fields).eq('id', id);
+      // Filter fields through zod to remove anything unwanted/invalid
+      const parsed = patchQuestionSchema.safeParse(fields);
+      if (!parsed.success) {
+        throw new Error(`Invalid fields for ID ${id}: ${JSON.stringify(parsed.error.format())}`);
+      }
+      return supabase.from('questions').update(parsed.data).eq('id', id);
     });
 
     const results = await Promise.all(promises);
