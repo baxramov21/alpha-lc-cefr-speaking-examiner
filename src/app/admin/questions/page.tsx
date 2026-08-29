@@ -378,7 +378,7 @@ export default function AdminQuestionsPage() {
   };
 
   const handlePartChange = (part: string, isEdit: boolean) => {
-    const qType = part === 'part3' ? 'debate' : 'standard';
+    const qType = part === 'part3' ? 'debate' : part === 'part1_2' ? 'image' : 'standard';
     
     // Get defaults from partTimings if available
     const defaults = partTimings[part] || { prep_seconds: 30, speak_seconds: 120 };
@@ -499,10 +499,11 @@ export default function AdminQuestionsPage() {
   const handleCreate = async () => {
     if (!newQ.text) return;
     try {
+      const finalQuestionType = newQ.part === 'part1_2' ? 'image' : newQ.part === 'part3' ? 'debate' : newQ.question_type;
       const res = await fetch('/api/admin/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newQ, is_active: true })
+        body: JSON.stringify({ ...newQ, question_type: finalQuestionType, is_active: true })
       });
       if (res.ok) {
         setIsCreating(false);
@@ -660,7 +661,7 @@ export default function AdminQuestionsPage() {
       [editingId]: {
         ...prev[editingId],
         part: editForm.part,
-        question_type: editForm.question_type,
+        question_type: editForm.part === 'part1_2' ? 'image' : editForm.part === 'part3' ? 'debate' : editForm.question_type,
         text: editForm.text,
         prep_seconds: editForm.prep_seconds,
         speak_seconds: editForm.speak_seconds,
