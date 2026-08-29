@@ -30,14 +30,33 @@ export async function POST(req: NextRequest) {
     }
 
     // Re-verify the extracted passcode server-side — never trust client-submitted data alone
-    const { data: passcodeRecord, error: passcodeError } = await supabase
-      .from('passcodes')
-      .select('code')
-      .eq('code', session.passcode)
-      .eq('is_active', true)
+    // 1. Check legacy global passcode from app_settings
+    const { data: settingsData } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'auth_settings')
       .single();
 
-    if (passcodeError || !passcodeRecord) {
+    const globalPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
+    let isValidPasscode = false;
+
+    if (session.passcode === globalPasscode.toUpperCase()) {
+      isValidPasscode = true;
+    } else {
+      // 2. Check new passcodes table
+      const { data: passcodeRecord } = await supabase
+        .from('passcodes')
+        .select('code')
+        .eq('code', session.passcode)
+        .eq('is_active', true)
+        .single();
+        
+      if (passcodeRecord) {
+        isValidPasscode = true;
+      }
+    }
+
+    if (!isValidPasscode) {
       return NextResponse.json({ error: 'Invalid or inactive passcode' }, { status: 403 });
     }
 

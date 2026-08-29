@@ -53,22 +53,35 @@ export async function POST(req: NextRequest) {
 
   const { passcode, fullName } = parsed.data;
 
-  // Server-side passcode verification
-  const { data: settingsData, error } = await supabase
+  // 1. Check legacy global passcode from app_settings
+  const { data: settingsData } = await supabase
     .from('app_settings')
     .select('value')
     .eq('key', 'auth_settings')
     .single();
 
-  const validPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
+  const globalPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
+  let validPasscode = null;
 
-  if (error && error.code !== 'PGRST116') {
-    return NextResponse.json({ error: 'Database error while verifying passcode.' }, { status: 500 });
+  if (passcode.toUpperCase() === globalPasscode.toUpperCase()) {
+    validPasscode = globalPasscode.toUpperCase();
+  } else {
+    // 2. Check new passcodes table
+    const { data: passcodeRecord } = await supabase
+      .from('passcodes')
+      .select('code, group_name, teacher_name')
+      .eq('code', passcode.toUpperCase())
+      .eq('is_active', true)
+      .single();
+      
+    if (passcodeRecord) {
+      validPasscode = passcodeRecord.code;
+    }
   }
 
-  if (passcode.toUpperCase() !== validPasscode.toUpperCase()) {
+  if (!validPasscode) {
     return NextResponse.json(
-      { error: 'Invalid passcode. Please check with your teacher.' },
+      { error: 'Invalid or inactive passcode. Please check with your teacher.' },
       { status: 403 }
     );
   }
@@ -84,6 +97,12 @@ export async function POST(req: NextRequest) {
     .setIssuedAt()
     .setExpirationTime('2h')
     .sign(encodedSecret);
+
+  const { data: settingsData } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', 'auth_settings')
+    .single();
 
   return NextResponse.json({ 
     token,
