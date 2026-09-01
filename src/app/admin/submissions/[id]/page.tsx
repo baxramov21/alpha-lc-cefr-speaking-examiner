@@ -236,7 +236,6 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           </div>
         </div>
       ) : null}
-      ) : null}
 
       {/* Criteria & Feedback */}
       {ev.examType === 'writing' ? (
