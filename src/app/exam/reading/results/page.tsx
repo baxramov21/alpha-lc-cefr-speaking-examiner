@@ -93,6 +93,16 @@ export default function ReadingResultsPage() {
                       const res = result.question_results.find((qr: any) => qr.question_id === q.id);
                       if (!res) return null;
 
+                      const formatAnswer = (answer: string) => {
+                        if (!answer) return null;
+                        if (!q.options || q.options.length === 0) return answer;
+                        const idx = q.options.indexOf(answer);
+                        if (idx !== -1) {
+                          return `${String.fromCharCode(65 + idx)}) ${answer}`;
+                        }
+                        return answer;
+                      };
+
                       return (
                         <div key={q.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 transition-colors">
                           <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
@@ -106,12 +116,14 @@ export default function ReadingResultsPage() {
                               <div className="bg-slate-100 rounded-lg p-3">
                                 <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
                                 <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
-                                  {res.user_answer || <span className="italic text-slate-400">Blank</span>}
+                                  {formatAnswer(res.user_answer) || <span className="italic text-slate-400">Blank</span>}
                                 </div>
                               </div>
                               <div className="bg-fuchsia-50 rounded-lg p-3">
                                 <div className="text-xs font-bold text-fuchsia-600 uppercase mb-1">Correct Answer</div>
-                                <div className="font-medium text-fuchsia-800">{res.correct_answer}</div>
+                                <div className="font-medium text-fuchsia-800">
+                                  {formatAnswer(res.correct_answer) || <span className="italic text-fuchsia-600/50">Blank (Not provided in DB)</span>}
+                                </div>
                               </div>
                             </div>
                           </div>
