@@ -21,7 +21,7 @@ export default function CanonicalUploadPage() {
   const claudePrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
 
 CRITICAL INSTRUCTIONS:
-1. Output ONLY pure JSON. No markdown backticks, no explanations.
+1. Do NOT output the JSON as raw text in the chat. You MUST use your advanced data analysis or code execution tool to save the JSON to a file named 'exam.json' and provide a direct download link for me. No explanations.
 2. The JSON must exactly match the schema below.
 3. For Reading exams, set "exam_type" to "CEFR_READING". For Listening exams, set it to "CEFR_LISTENING".
 4. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
