@@ -102,7 +102,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
         body: JSON.stringify(updates),
       });
       if (!res.ok) throw new Error('Failed to update');
-      
+
       if (updates.isSaved !== undefined) setIsSaved(updates.isSaved);
     } catch (err) {
       console.error(err);
@@ -150,17 +150,17 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           <Button variant="outline" onClick={exportPDF}>
             <Download className="w-4 h-4 mr-2" /> Export Text
           </Button>
-          <Button 
+          <Button
             variant={isSaved ? "default" : "outline"}
             className={isSaved ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}
             onClick={() => handleUpdate({ isSaved: !isSaved })}
           >
-            <Star className={`w-4 h-4 mr-2 ${isSaved ? "fill-white" : ""}`} /> 
+            <Star className={`w-4 h-4 mr-2 ${isSaved ? "fill-white" : ""}`} />
             {isSaved ? "Saved to Analytics" : "Save Student"}
           </Button>
         </div>
       </div>
-      
+
       {/* Admin Notes */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3">
         <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Examiner / Admin Notes</h3>
@@ -171,8 +171,8 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           className="w-full min-h-[100px] rounded-xl border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none"
         />
         <div className="flex justify-end">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             onClick={() => handleUpdate({ adminNotes })}
             disabled={isSavingNote || adminNotes === submission.adminNotes}
             className="bg-teal-600 hover:bg-teal-700"
@@ -187,7 +187,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-6">Official UZBMB Score</h2>
         <div className="flex flex-col md:flex-row items-center justify-center gap-12">
-          
+
           <div className="flex flex-col items-center">
             <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-8 border-teal-100 bg-teal-50 shadow-inner">
               <div className="text-5xl font-black text-teal-600">
@@ -235,6 +235,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             <div className="text-3xl font-bold text-rose-600">{ev.incorrect_answers || 0}</div>
           </div>
         </div>
+      ) : null}
       ) : null}
 
       {/* Criteria & Feedback */}
@@ -290,37 +291,37 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               ].map((crit) => (
                 <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-slate-700">{crit.label}</span>
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
+                    <span className="font-medium text-slate-700">{crit.label}</span>
+                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
                 </div>
-                <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-4">Strengths</h3>
+            <ul className="space-y-3 mb-8">
+              {(ev.strengths || []).map((s: string, i: number) => (
+                <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                  <CheckCircle2 className="w-5 h-5 text-teal-500 shrink-0" />
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="font-bold text-slate-800 mb-4">Areas for Improvement</h3>
+            <ul className="space-y-3">
+              {(ev.areas_for_improvement || []).map((s: string, i: number) => (
+                <li key={i} className="flex gap-3 text-slate-600 text-sm">
+                  <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">!</div>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="font-bold text-slate-800 mb-4">Strengths</h3>
-          <ul className="space-y-3 mb-8">
-            {(ev.strengths || []).map((s: string, i: number) => (
-              <li key={i} className="flex gap-3 text-slate-600 text-sm">
-                <CheckCircle2 className="w-5 h-5 text-teal-500 shrink-0" />
-                <span>{s}</span>
-              </li>
-            ))}
-          </ul>
-
-          <h3 className="font-bold text-slate-800 mb-4">Areas for Improvement</h3>
-          <ul className="space-y-3">
-            {(ev.areas_for_improvement || []).map((s: string, i: number) => (
-              <li key={i} className="flex gap-3 text-slate-600 text-sm">
-                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">!</div>
-                <span>{s}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
       )}
 
       {/* Detailed Analysis / Transcripts / Essays */}
@@ -344,7 +345,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                   <div className="text-xs font-medium text-slate-400">Words</div>
                 </div>
               </div>
-              
+
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700">
                 <div dangerouslySetInnerHTML={{ __html: sanitizeTranscriptHtml(task.eval?.corrected_text_html || '[No text provided]') }} />
               </div>
