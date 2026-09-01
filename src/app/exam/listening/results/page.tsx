@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Award, CheckCircle, XCircle, ArrowRight, ShieldCheck, Home } from 'lucide-react';
+import { Award, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
 import FullExamNextAction from '@/components/FullExamNextAction';
-import { Button } from '@/components/ui/button';
-import { ListeningEvaluation } from '@/lib/types';
-import { MOCK_LISTENING_TASKS } from '@/lib/mockListeningTasks';
+import { ListeningEvaluation, ListeningTask } from '@/lib/types';
 
 export default function ListeningResultsPage() {
   const router = useRouter();
   const [result, setResult] = useState<ListeningEvaluation | null>(null);
+  const [tasks, setTasks] = useState<ListeningTask[]>([]);
 
   useEffect(() => {
     const resStr = sessionStorage.getItem('listeningResult');
@@ -22,6 +21,16 @@ export default function ListeningResultsPage() {
       setResult(JSON.parse(resStr));
     } catch {
       router.push('/');
+    }
+
+    // Load the actual tasks the student took
+    const tasksStr = sessionStorage.getItem('listeningTasks');
+    if (tasksStr) {
+      try {
+        setTasks(JSON.parse(tasksStr));
+      } catch {
+        // fallback: tasks will be empty, breakdown won't render
+      }
     }
   }, [router]);
 
@@ -79,44 +88,121 @@ export default function ListeningResultsPage() {
             {/* Answer Breakdown */}
             <h2 className="text-xl font-bold text-slate-800 mb-6">Detailed Breakdown</h2>
             <div className="space-y-8">
-              {MOCK_LISTENING_TASKS.map((task) => (
-                <div key={task.id} className="border border-slate-200 rounded-2xl overflow-hidden">
+              {tasks.length > 0 ? (
+                tasks.map((task) => (
+                  <div key={task.id} className="border border-slate-200 rounded-2xl overflow-hidden">
+                    <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-slate-800">
+                      {task.partLabel}
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {task.questions.map((q) => {
+                        const res = result.question_results.find(qr => qr.question_id === q.id);
+                        if (!res) return null;
+
+                        return (
+                          <div key={q.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+                            <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                              res.is_correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              {res.is_correct ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-slate-800 font-medium mb-3">{q.text}</p>
+
+                              {/* Show options for multiple choice so students can see what they picked */}
+                              {q.type === 'multiple_choice' && q.options && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                                  {q.options.map((opt, oi) => {
+                                    const isUserAnswer = res.user_answer === opt;
+                                    const isCorrectAnswer = res.correct_answer === opt;
+                                    let optStyle = 'bg-slate-50 border-slate-200 text-slate-600';
+                                    if (isCorrectAnswer) {
+                                      optStyle = 'bg-green-50 border-green-300 text-green-800 font-semibold';
+                                    } else if (isUserAnswer && !res.is_correct) {
+                                      optStyle = 'bg-red-50 border-red-300 text-red-700 line-through';
+                                    }
+                                    return (
+                                      <div key={oi} className={`border rounded-lg px-3 py-2 text-sm flex items-center gap-2 ${optStyle}`}>
+                                        {isCorrectAnswer && <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />}
+                                        {isUserAnswer && !res.is_correct && <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />}
+                                        <span>{opt}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
+                              {/* For fill-in questions, show the user's answer vs correct answer */}
+                              {q.type === 'fill_in' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className={`rounded-lg p-3 ${res.is_correct ? 'bg-green-50' : 'bg-red-50'}`}>
+                                    <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
+                                    <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
+                                      {res.user_answer || <span className="italic text-slate-400">Blank</span>}
+                                    </div>
+                                  </div>
+                                  <div className="bg-teal-50 rounded-lg p-3">
+                                    <div className="text-xs font-bold text-teal-600 uppercase mb-1">Correct Answer</div>
+                                    <div className="font-medium text-teal-800">{res.correct_answer}</div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Fallback for matching or unknown types */}
+                              {q.type !== 'multiple_choice' && q.type !== 'fill_in' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="bg-slate-100 rounded-lg p-3">
+                                    <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
+                                    <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
+                                      {res.user_answer || <span className="italic text-slate-400">Blank</span>}
+                                    </div>
+                                  </div>
+                                  <div className="bg-teal-50 rounded-lg p-3">
+                                    <div className="text-xs font-bold text-teal-600 uppercase mb-1">Correct Answer</div>
+                                    <div className="font-medium text-teal-800">{res.correct_answer}</div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                /* Fallback: if tasks are not in sessionStorage, render a flat list from question_results */
+                <div className="border border-slate-200 rounded-2xl overflow-hidden">
                   <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-slate-800">
-                    {task.partLabel}
+                    All Questions
                   </div>
                   <div className="divide-y divide-slate-100">
-                    {task.questions.map((q) => {
-                      const res = result.question_results.find(qr => qr.question_id === q.id);
-                      if (!res) return null;
-
-                      return (
-                        <div key={q.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 transition-colors">
-                          <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                            res.is_correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                            {q.number}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-slate-800 font-medium mb-3">{q.text}</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="bg-slate-100 rounded-lg p-3">
-                                <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
-                                <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
-                                  {res.user_answer || <span className="italic text-slate-400">Blank</span>}
-                                </div>
+                    {result.question_results.map((res, idx) => (
+                      <div key={res.question_id} className="p-6 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+                        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          res.is_correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className={`rounded-lg p-3 ${res.is_correct ? 'bg-green-50' : 'bg-red-50'}`}>
+                              <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
+                              <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
+                                {res.user_answer || <span className="italic text-slate-400">Blank</span>}
                               </div>
-                              <div className="bg-teal-50 rounded-lg p-3">
-                                <div className="text-xs font-bold text-teal-600 uppercase mb-1">Correct Answer</div>
-                                <div className="font-medium text-teal-800">{res.correct_answer}</div>
-                              </div>
+                            </div>
+                            <div className="bg-teal-50 rounded-lg p-3">
+                              <div className="text-xs font-bold text-teal-600 uppercase mb-1">Correct Answer</div>
+                              <div className="font-medium text-teal-800">{res.correct_answer}</div>
                             </div>
                           </div>
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
