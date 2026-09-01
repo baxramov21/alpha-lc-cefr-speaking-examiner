@@ -273,10 +273,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Passage Content (HTML)</label>
-                    <textarea value={part.passage_html} onChange={e => updatePart(pIdx, 'passage_html', e.target.value)} className="w-full h-64 p-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none font-mono text-sm leading-relaxed" />
-                  </div>
+                  {/* HTML Editor removed to prevent accidental breakage by inexperienced users */}
 
                   <div>
                     <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
