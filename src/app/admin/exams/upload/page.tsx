@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2 } from 'lucide-react';
+import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
 import DOMPurify from 'dompurify';
 
@@ -15,7 +15,45 @@ export default function CanonicalUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
+  const [showPrompt, setShowPrompt] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
+
+  const claudePrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
+
+CRITICAL INSTRUCTIONS:
+1. Output ONLY pure JSON. No markdown backticks, no explanations.
+2. The JSON must exactly match the schema below.
+3. For Reading exams, set "exam_type" to "CEFR_READING". For Listening exams, set it to "CEFR_LISTENING".
+4. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
+5. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
+
+SCHEMA:
+{
+  "title": "String - The title of the exam",
+  "exam_type": "CEFR_READING or CEFR_LISTENING",
+  "parts": [
+    {
+      "part_number": 1,
+      "title": "String - Title of the part",
+      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty for listening if no text.",
+      "questions": [
+        {
+          "question_number": 1,
+          "type": "MULTIPLE_CHOICE or MATCHING or FILL_IN",
+          "context_text": "String (Optional) - If this question belongs to an extract or specific paragraph, put the extract text here. Only put this on the FIRST question of the extract.",
+          "question_text": "String - The actual question",
+          "options": ["Array of Strings - Optional, for multiple choice"],
+          "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT"
+        }
+      ]
+    }
+  ]
+}`;
+
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(claudePrompt);
+    alert('Prompt copied to clipboard! Paste this into Claude along with your PDF.');
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -155,12 +193,50 @@ export default function CanonicalUploadPage() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Canonical Exam</h1>
-        <p className="text-slate-500 mt-2">
-          Ingest pre-formatted Reading and Listening JSON exams into the database.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Canonical Exam</h1>
+          <p className="text-slate-500 mt-2">
+            Ingest pre-formatted Reading and Listening JSON exams into the database.
+          </p>
+        </div>
+        <button
+          onClick={() => setShowPrompt(!showPrompt)}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
+        >
+          <Bot className="w-5 h-5" />
+          {showPrompt ? 'Hide AI Prompt Guide' : 'How to get JSON from Claude?'}
+          {showPrompt ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
       </div>
+
+      {showPrompt && (
+        <div className="mb-8 bg-indigo-900 rounded-2xl p-6 shadow-lg border border-indigo-800 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Bot className="w-32 h-32" />
+          </div>
+          <div className="relative z-10">
+            <h2 className="text-xl font-bold mb-2 flex items-center gap-2 text-indigo-100">
+              AI Prompt Guide for Claude
+            </h2>
+            <p className="text-indigo-200 text-sm mb-4 max-w-3xl">
+              Don't know how to write the JSON manually? No problem! Just upload your exam PDF to Claude (or ChatGPT) and paste the exact prompt below. It automatically handles extracts, correct answers, and formatting.
+            </p>
+            
+            <div className="bg-slate-900 rounded-xl p-4 border border-indigo-800/50 mb-4 relative group">
+              <pre className="text-xs text-indigo-200 font-mono whitespace-pre-wrap overflow-y-auto max-h-64 custom-scrollbar">
+                {claudePrompt}
+              </pre>
+              <button 
+                onClick={handleCopyPrompt}
+                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
+              >
+                <Copy className="w-4 h-4" /> Copy Prompt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-4 mb-8">
         <button
