@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Plus, Trash2, Loader2, Music, CheckCircle2, ChevronRight, ChevronDown } from 'lucide-react';
+import { Save, ArrowLeft, Plus, Trash2, Loader2, Music, CheckCircle2, ChevronRight, ChevronDown, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EditCanonicalExamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,19 +22,34 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
     parts: []
   });
 
-  useEffect(() => {
-    const fetchExam = async () => {
-      try {
-        const res = await fetch(`/api/admin/exams/canonical/${id}`);
-        if (!res.ok) throw new Error('Failed to fetch exam');
-        const data = await res.json();
-        setExam(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchExam = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let res: Response | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          res = await fetch(`/api/admin/exams/canonical/${id}`, { cache: 'no-store' });
+          if (res.ok) break;
+        } catch (fetchErr) {
+          if (attempt === 2) throw fetchErr;
+          await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+        }
       }
-    };
+      if (!res || !res.ok) {
+        const errData = await res?.json().catch(() => ({}));
+        throw new Error(errData?.error || `Server returned ${res?.status}`);
+      }
+      const data = await res.json();
+      setExam(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch exam');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchExam();
   }, [id]);
 
@@ -135,7 +150,25 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
     updateField('parts', newParts);
   };
 
-  if (loading) return <div className="p-12 text-center text-slate-500">Loading exam editor...</div>;
+  if (loading) return (
+    <div className="p-12 text-center">
+      <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500 mb-3" />
+      <p className="text-slate-500 font-medium">Loading exam editor...</p>
+    </div>
+  );
+
+  if (error && !exam.title) return (
+    <div className="p-12 text-center">
+      <div className="max-w-md mx-auto p-6 bg-red-50 border border-red-200 rounded-2xl">
+        <p className="font-bold text-red-800 mb-2">Failed to Load Exam</p>
+        <p className="text-red-600 text-sm mb-4">{error}</p>
+        <Button onClick={fetchExam} className="bg-red-600 hover:bg-red-700 text-white">
+          <RefreshCw className="w-4 h-4 mr-2" /> Retry
+        </Button>
+      </div>
+    </div>
+  );
+
 
   return (
     <div className="p-8 max-w-5xl mx-auto pb-32">
