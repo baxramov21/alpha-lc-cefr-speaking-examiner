@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
-import DOMPurify from 'isomorphic-dompurify';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -101,10 +100,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // 3. Insert new parts and questions
     if (parts && parts.length > 0) {
       for (const part of parts) {
-        const sanitizedHtml = DOMPurify.sanitize(part.passage_html, {
-          ALLOWED_TAGS: ['p', 'b', 'i', 'strong', 'em', 'table', 'tr', 'td', 'th', 'ul', 'ol', 'li', 'span'],
-        });
-
         const { data: insertedPassage, error: insertPassageError } = await supabase
           .from('passages')
           .insert({
@@ -112,7 +107,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
             part_number: part.part_number,
             title: part.title,
             exam_type: exam_type, // carry over for legacy logic if any
-            passage_html: sanitizedHtml,
+            passage_html: part.passage_html,
             audio_urls: part.audio_urls ? JSON.stringify(part.audio_urls) : null,
           })
           .select()

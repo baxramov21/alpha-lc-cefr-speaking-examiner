@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
 import { ExamCanonicalSchema } from '@/lib/schemas/examSchema';
-import DOMPurify from 'isomorphic-dompurify';
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,10 +37,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Loop through parts and persist
     for (const part of data.parts) {
-      const sanitizedHtml = DOMPurify.sanitize(part.passage_html, {
-        ALLOWED_TAGS: ['p', 'b', 'i', 'strong', 'em', 'table', 'tr', 'td', 'th', 'ul', 'ol', 'li', 'span'],
-      });
-
       const { data: passageData, error: passageError } = await supabase
         .from('passages')
         .insert({
@@ -49,7 +44,7 @@ export async function POST(req: NextRequest) {
           part_number: part.part_number,
           title: part.title,
           exam_type: data.exam_type,
-          passage_html: sanitizedHtml,
+          passage_html: part.passage_html,
           audio_urls: part.audio_urls ? JSON.stringify(part.audio_urls) : null,
         })
         .select()
