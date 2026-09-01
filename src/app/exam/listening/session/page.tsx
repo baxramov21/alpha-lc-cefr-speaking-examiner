@@ -265,7 +265,8 @@ export default function ListeningSessionPage() {
           studentName: studentInfo?.fullName,
           groupName: studentInfo?.groupName,
           teacherName: studentInfo?.teacherName,
-          answers
+          answers,
+          tasks
         })
       });
 

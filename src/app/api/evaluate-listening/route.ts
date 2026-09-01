@@ -10,7 +10,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 export const dynamic = 'force-dynamic';
 
 function determineCefrBand(score: number, maxScore: number): CefrBand {
-  const percentage = score / maxScore;
+  const percentage = maxScore > 0 ? score / maxScore : 0;
   if (percentage >= 0.85) return 'C1';
   if (percentage >= 0.65) return 'B2';
   if (percentage >= 0.45) return 'B1';
@@ -24,28 +24,20 @@ function normalizeText(text: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { sessionToken, studentName, groupName, teacherName, answers } = await req.json();
+    const { sessionToken, studentName, groupName, teacherName, answers, tasks } = await req.json();
     
     const session = await verifyStudentSessionToken(sessionToken);
     if (!session) {
       return NextResponse.json({ error: 'Forbidden. Valid exam session required.' }, { status: 403 });
     }
 
-    // Save to Supabase Submissions Table
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false }
-    });
-
-    const { data: dbTasks, error: taskError } = await supabaseAdmin.from('listening_tasks').select('*');
-    if (taskError) throw new Error('Could not load listening tasks for evaluation');
-
-    // Calculate Score
+    // Calculate Score based on the provided tasks and answers
     let correctAnswers = 0;
     let incorrectAnswers = 0;
     const questionResults = [];
     let maxScore = 0;
 
-    for (const task of dbTasks) {
+    for (const task of (tasks || [])) {
       const taskQuestions = task.questions || [];
       for (const q of taskQuestions) {
         maxScore++;
@@ -79,6 +71,11 @@ export async function POST(req: NextRequest) {
       incorrect_answers: incorrectAnswers,
       question_results: questionResults
     };
+
+    // Save to Supabase Submissions Table
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false }
+    });
 
     const submissionData = {
       student_name: studentName || 'Unknown',
