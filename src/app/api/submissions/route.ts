@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         submission_id: submissionId,
         question_id: qr.question_id,
         transcript: qr.transcript || '[No transcript]',
-        overall_score: qr.part_score,
+        overall_score: 0,
         cefr_band: '-',
         ai_feedback: qr.grammar_feedback || 'See overall evaluation', 
         rubric_scores: [],

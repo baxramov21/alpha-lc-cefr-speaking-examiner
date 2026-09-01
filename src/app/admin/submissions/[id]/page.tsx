@@ -68,11 +68,6 @@ Date: ${formatDate(submission.submittedAt)}
 CEFR Level: ${ev.cefr_level}
 Total Score: ${ev.total_score} / 75
 
-Part Scores:
-- Part 1: ${ev.part_scores.part_1} / 25
-- Part 2: ${ev.part_scores.part_2} / 25
-- Part 3: ${ev.part_scores.part_3} / 25
-
 Criteria Ratings:
 - Grammar: ${ev.criteria_ratings.grammar_accuracy}
 - Vocabulary: ${ev.criteria_ratings.lexical_resource}
@@ -86,7 +81,7 @@ Areas for Improvement:
 ${(ev.areas_for_improvement || []).map((s: string) => '- ' + s).join('\n')}
 
 Detailed Question Analysis / Transcripts:
-${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${qr.question_id}]\n${qr.question_text}\nScore: ${qr.part_score}\nTranscript: "${qr.transcript}"\nGrammar: ${qr.grammar_feedback}\nPronunciation: ${qr.pronunciation_notes}\n`).join('\n') : EXAM_QUESTIONS.map(q => `[${q.partLabel} - ${q.id}]\n${q.text}\nTranscript: "${ev.transcripts?.[q.id] || '[No transcript]'}"\n`).join('\n')}
+${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${qr.question_id}]\n${qr.question_text}\nTranscript: "${qr.transcript}"\nGrammar: ${qr.grammar_feedback}\nPronunciation: ${qr.pronunciation_notes}\n`).join('\n') : EXAM_QUESTIONS.map(q => `[${q.partLabel} - ${q.id}]\n${q.text}\nTranscript: "${ev.transcripts?.[q.id] || '[No transcript]'}"\n`).join('\n')}
     `.trim();
 
     const blob = new Blob([content], { type: 'text/plain' });
@@ -240,22 +235,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             <div className="text-3xl font-bold text-rose-600">{ev.incorrect_answers || 0}</div>
           </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 1</h3>
-            <div className="text-3xl font-bold text-slate-800">{ev.part_scores?.part_1 || 0} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 2</h3>
-            <div className="text-3xl font-bold text-slate-800">{ev.part_scores?.part_2 || 0} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
-            <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Part 3</h3>
-            <div className="text-3xl font-bold text-slate-800">{ev.part_scores?.part_3 || 0} <span className="text-base text-slate-400 font-medium">/ 25</span></div>
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {/* Criteria & Feedback */}
       {ev.examType === 'writing' ? (
@@ -420,10 +400,6 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                     Question {qr.question_id.replace('q', '')}
                   </Badge>
                   <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-xl font-bold text-teal-600">{qr.part_score}</div>
-                  <div className="text-xs font-medium text-slate-400">Score</div>
                 </div>
               </div>
 

@@ -7,7 +7,6 @@ const questionResponseSchema = z.object({
   corrected_transcript_html: z.string().optional(),
   grammar_feedback: z.string().optional(),
   pronunciation_notes: z.string().optional(),
-  part_score: z.number().min(0).max(25),
 });
 
 export const evaluationSchema = z.object({

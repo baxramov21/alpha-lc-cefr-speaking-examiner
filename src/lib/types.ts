@@ -64,7 +64,6 @@ export interface QuestionResponseEval {
   corrected_transcript_html: string;
   grammar_feedback: string;
   pronunciation_notes: string;
-  part_score: number;
 }
 
 export interface UzbmbEvaluation {

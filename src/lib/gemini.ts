@@ -91,8 +91,7 @@ Your output MUST be a valid JSON object matching the following structure exactly
       "transcript": "Men do'stlarim bilan ...",
       "corrected_transcript_html": "Men do'stlarim bilan <b>vaqt o'tkazaman</b>...",
       "grammar_feedback": "Xato: ... To'g'ri: ...",
-      "pronunciation_notes": "Talaffuzda xatoliklar: ...",
-      "part_score": 14
+      "pronunciation_notes": "Talaffuzda xatoliklar: ..."
     }
   ]
 }

@@ -162,10 +162,6 @@ export default function ExamResultsPage() {
                     </Badge>
                     <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <div className="text-xl font-bold text-teal-600">{qr.part_score}</div>
-                    <div className="text-xs font-medium text-slate-400">Score</div>
-                  </div>
                 </div>
 
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 italic">
