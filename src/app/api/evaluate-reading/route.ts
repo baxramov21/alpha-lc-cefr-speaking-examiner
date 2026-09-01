@@ -45,7 +45,11 @@ export async function POST(req: NextRequest) {
         const correctAnswerRaw = q.correctAnswer;
         
         let isCorrect = false;
-        if (q.type === 'multiple_choice') {
+        
+        // If the database has no correct answer, it's impossible to be correct
+        if (!correctAnswerRaw || correctAnswerRaw.trim() === '') {
+          isCorrect = false;
+        } else if (q.type === 'multiple_choice' || q.type === 'matching') {
           isCorrect = userAnswerRaw === correctAnswerRaw;
         } else {
           isCorrect = normalizeText(userAnswerRaw) === normalizeText(correctAnswerRaw);
