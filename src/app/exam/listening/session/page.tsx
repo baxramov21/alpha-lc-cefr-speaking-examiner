@@ -418,7 +418,7 @@ export default function ListeningSessionPage() {
                         {q.number}
                       </div>
                       <div className="flex-1">
-                        <p className="text-lg text-slate-800 font-medium mb-4">{q.text}</p>
+                        <div className="text-lg text-slate-800 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
                         
                         {(q.type === 'multiple_choice' || q.type === 'matching') && q.options && (
                           <div className="space-y-3">

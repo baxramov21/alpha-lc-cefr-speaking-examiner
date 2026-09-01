@@ -113,26 +113,26 @@ export function cleanJsonResponse(rawText: string): any {
   }
 }
 
-export async function generateWithRetry(model: any, parts: any[], retries = 4, initialDelay = 8000) {
+export async function generateWithRetry(model: any, parts: any[], retries = 1, initialDelay = 2000) {
   let delay = initialDelay;
-  for (let i = 0; i < retries; i++) {
+  for (let i = 0; i <= retries; i++) {
     try {
       const result = await model.generateContent(parts);
       return result;
     } catch (error: any) {
-      const isRetryableError =
+      const isQuotaError =
         error?.message?.includes('429') ||
         error?.message?.includes('Quota') ||
-        error?.status === 429 ||
-        error?.message?.includes('500') ||
-        error?.message?.includes('503') ||
-        error?.status === 500 ||
-        error?.status === 503;
+        error?.status === 429;
 
-      if (isRetryableError && i < retries - 1) {
-        console.warn(`[AI Engine] Gemini API error (${error?.status || 'unknown'}). Retrying in ${delay}ms... (Attempt ${i + 1} of ${retries})`);
+      // Fail fast on quota/rate limit errors to avoid token drains
+      if (isQuotaError) {
+        console.error("[AI Engine] Quota/Rate Limit hit. Failing fast.");
+        throw new Error("AI service quota reached. Please try again in a few moments.");
+      }
+
+      if (i < retries) {
         await new Promise(res => setTimeout(res, delay));
-        delay = Math.floor(delay * 1.5); // Exponential backoff
       } else {
         throw error;
       }

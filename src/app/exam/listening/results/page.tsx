@@ -110,7 +110,7 @@ export default function ListeningResultsPage() {
                             {q.number}
                           </div>
                           <div className="flex-1">
-                            <p className="text-slate-800 font-medium mb-3">{q.text}</p>
+                            <div className="text-slate-800 font-medium mb-3" dangerouslySetInnerHTML={{ __html: q.text }} />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="bg-slate-100 rounded-lg p-3">
                                 <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>

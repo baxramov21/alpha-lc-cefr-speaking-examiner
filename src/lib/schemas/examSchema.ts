@@ -4,6 +4,7 @@ export const QuestionSchema = z.object({
   question_number: z.number(),
   type: z.enum(['MULTIPLE_CHOICE', 'MATCHING', 'FILL_IN']),
   question_text: z.string().min(1, 'Question text cannot be empty'),
+  context_text: z.string().nullable().optional(), // Extract or subheading text
   options: z.array(z.string()).nullable().optional(),
   correct_answer: z.string().nullable().optional(),
 });
