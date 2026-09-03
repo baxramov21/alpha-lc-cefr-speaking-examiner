@@ -836,12 +836,25 @@ export default function ExamSessionPage() {
                     )}
                     <div className="flex-1 bg-[#F0F7F6] border-l-4 border-teal-600 rounded-r-2xl p-6 flex flex-col justify-center">
                       <ul className="space-y-4">
-                        {(question.text.includes('\n\n') ? question.text.split('\n\n') : question.text.split(/(?<=[.?!])\s+/)).filter(Boolean).map((bullet, idx) => (
-                          <li key={idx} className="flex items-start gap-3">
-                            <span className="mt-2.5 w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
-                            <span className="text-slate-800 text-[17px] leading-relaxed">{bullet.trim()}</span>
-                          </li>
-                        ))}
+                        {(() => {
+                          const text = question.text;
+                          let bullets: string[] = [];
+                          if (text.includes('*') || text.includes('- ')) {
+                            bullets = text.split(/(?:\n+)|(?=\*)|(?=- )/)
+                              .map(s => s.trim().replace(/^[\*-]\s*/, ''))
+                              .filter(Boolean);
+                          } else if (text.includes('\n')) {
+                            bullets = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+                          } else {
+                            bullets = text.split(/(?<=[.?!])\s+/).map(s => s.trim()).filter(Boolean);
+                          }
+                          return bullets.map((bullet, idx) => (
+                            <li key={idx} className="flex items-start gap-3">
+                              <span className="mt-2.5 w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
+                              <span className="text-slate-800 text-[17px] leading-relaxed">{bullet}</span>
+                            </li>
+                          ));
+                        })()}
                       </ul>
                     </div>
                   </div>
