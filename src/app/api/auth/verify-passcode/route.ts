@@ -14,7 +14,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
-import { loginRateLimiter } from '@/lib/rateLimit';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -27,21 +26,6 @@ const schema = z.object({
 export async function POST(req: NextRequest) {
   if (!JWT_SECRET) {
     return NextResponse.json({ error: 'Server misconfiguration: missing JWT_SECRET.' }, { status: 500 });
-  }
-
-  // Rate-limit passcode verification to prevent enumeration attacks.
-  // Uses the same limiter as admin login (5 attempts / 15 min per IP).
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-    req.headers.get('x-real-ip') ||
-    'anonymous';
-
-  const { success } = await loginRateLimiter.limit(`passcode:${ip}`);
-  if (!success) {
-    return NextResponse.json(
-      { error: 'Too many attempts. Please try again later.' },
-      { status: 429 }
-    );
   }
 
   // Validate input

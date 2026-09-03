@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 import bcrypt from 'bcryptjs';
-import { loginRateLimiter } from '@/lib/rateLimit';
 import { supabaseAdmin } from '@/lib/supabase';
 
 // Fallback environment variables for initial setup / lazy migration
@@ -17,23 +16,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Rate limit: 5 attempts per 5 minutes per IP
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'anonymous';
-    let success = true;
-    try {
-      const result = await loginRateLimiter.limit(ip);
-      success = result.success;
-    } catch (rlError) {
-      console.warn('Rate limiter failed, bypassing:', rlError);
-    }
-    
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many login attempts. Please try again in 5 minutes.' },
-        { status: 429 }
-      );
-    }
-
     const { password } = await req.json();
 
     let isValidUser = false;
