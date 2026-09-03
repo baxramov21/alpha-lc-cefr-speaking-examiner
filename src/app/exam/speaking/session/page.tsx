@@ -89,6 +89,7 @@ export default function ExamSessionPage() {
     // Cancel any ongoing speech when question or phase changes
     window.speechSynthesis.cancel();
     let isCancelled = false;
+    let hasSpoken = false;
 
     // Only speak during the 'prep' phase to avoid talking over the candidate
     if (phase === 'prep') {
@@ -104,6 +105,9 @@ export default function ExamSessionPage() {
       };
       
       const setVoiceAndSpeak = () => {
+        if (isCancelled || hasSpoken) return;
+        hasSpoken = true;
+
         const voices = window.speechSynthesis.getVoices();
         
         let preferredNames: string[] = [];
@@ -169,7 +173,9 @@ export default function ExamSessionPage() {
 
       // Voices load asynchronously in some browsers
       if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+        window.speechSynthesis.onvoiceschanged = () => {
+          if (!isCancelled && !hasSpoken) setVoiceAndSpeak();
+        };
       } else {
         setVoiceAndSpeak();
       }
@@ -178,6 +184,7 @@ export default function ExamSessionPage() {
     // Cleanup on unmount
     return () => {
       isCancelled = true;
+      hasSpoken = true;
       setIsReadingQuestion(false);
       window.speechSynthesis.cancel();
     };
