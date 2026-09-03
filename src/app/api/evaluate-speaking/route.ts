@@ -5,6 +5,7 @@ import { apiRateLimiter } from '@/lib/rateLimit';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
 import { getModelConfig } from '@/lib/modelHelper';
 import { sendFinalSpeakingEvaluationToTelegram } from '@/lib/telegram';
+import { waitUntil } from '@vercel/functions';
 
 // Force dynamic evaluation and set maxDuration to 60s
 export const dynamic = 'force-dynamic';
@@ -135,18 +136,18 @@ export async function POST(req: NextRequest) {
     );
     evaluationJSON.total_score = totalScore;
 
-    // Dispatch to Telegram (await to ensure it finishes before Vercel freezes the function)
+    // Dispatch to Telegram (run in background using waitUntil to prevent 504 timeouts)
     const studentName = formData.get('studentName') as string || 'Unknown Student';
-    await sendFinalSpeakingEvaluationToTelegram(
-      studentName,
-      evaluationJSON,
-      questionsData,
-      audioFilesForTelegram
-    ).catch(err => {
-      console.error('Telegram dispatch error:', err);
-      evaluationJSON.telegram_failed = true;
-      evaluationJSON.telegram_error_message = err.message || 'Unknown Telegram error';
-    });
+    waitUntil(
+      sendFinalSpeakingEvaluationToTelegram(
+        studentName,
+        evaluationJSON,
+        questionsData,
+        audioFilesForTelegram
+      ).catch(err => {
+        console.error('Telegram dispatch error:', err);
+      })
+    );
 
     return NextResponse.json(evaluationJSON, { status: 200 });
   } catch (error: any) {
