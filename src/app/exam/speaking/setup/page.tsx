@@ -56,18 +56,25 @@ export default function ExamSetupPage() {
           return result;
         };
 
+        const timingsRes = await fetch('/api/admin/questions/timings');
+        const timingsJson = await timingsRes.json();
+        const timingsMap = Object.fromEntries((timingsJson.data || []).map((t: any) => [t.part, t]));
+
         // Part 1: 3 standard
         const p1Standard = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'standard')).slice(0, 3);
         
         // Part 1.2: 3 image questions (derived from 1 single image pair)
         const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
         const p1ImageQuestions = p1ImageSource ? (() => {
+          const tFirst = timingsMap['part1_2_first'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+          const tRest = timingsMap['part1_2_rest'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+
           const subQs = (p1ImageSource.table_data as any)?.sub_questions;
           if (subQs && Array.isArray(subQs) && subQs.length === 3) {
             return [
-              { ...p1ImageSource, id: p1ImageSource.id + '_q1', text: subQs[0] },
-              { ...p1ImageSource, id: p1ImageSource.id + '_q2', text: subQs[1] },
-              { ...p1ImageSource, id: p1ImageSource.id + '_q3', text: subQs[2] }
+              { ...p1ImageSource, id: p1ImageSource.id + '_q1', text: subQs[0], prep_seconds: tFirst.prep_seconds, speak_seconds: tFirst.speak_seconds },
+              { ...p1ImageSource, id: p1ImageSource.id + '_q2', text: subQs[1], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds },
+              { ...p1ImageSource, id: p1ImageSource.id + '_q3', text: subQs[2], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds }
             ];
           }
 
@@ -83,17 +90,23 @@ export default function ExamSetupPage() {
             {
               ...p1ImageSource,
               id: p1ImageSource.id + '_q1',
-              text: 'Please describe the pictures shown on the screen and compare them.'
+              text: 'Please describe the pictures shown on the screen and compare them.',
+              prep_seconds: tFirst.prep_seconds,
+              speak_seconds: tFirst.speak_seconds
             },
             {
               ...p1ImageSource,
               id: p1ImageSource.id + '_q2',
-              text: finalQ2Text
+              text: finalQ2Text,
+              prep_seconds: tRest.prep_seconds,
+              speak_seconds: tRest.speak_seconds
             },
             {
               ...p1ImageSource,
               id: p1ImageSource.id + '_q3',
-              text: `How do you think this situation will change in the future?`
+              text: `How do you think this situation will change in the future?`,
+              prep_seconds: tRest.prep_seconds,
+              speak_seconds: tRest.speak_seconds
             }
           ];
         })() : [];

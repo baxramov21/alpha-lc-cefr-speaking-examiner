@@ -138,7 +138,7 @@ export default function AdminQuestionsPage() {
   const handleSaveAllTimings = async () => {
     setIsSavingTimings(true);
     try {
-      const parts = ['part1', 'part1_2', 'part2', 'part3'];
+      const parts = ['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3'];
       await Promise.all(parts.map(part => {
         const timing = partTimings[part] || { prep_seconds: 0, speak_seconds: 0 };
         return fetch('/api/admin/questions/timings', {
@@ -1301,8 +1301,8 @@ export default function AdminQuestionsPage() {
                 Update the prep and speaking times for entire parts. This instantly applies to all existing and future questions.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {['part1', 'part1_2', 'part2', 'part3'].map(p => {
-                  const label = p === 'part1' ? 'Part 1' : p === 'part1_2' ? 'Part 1.2' : p === 'part2' ? 'Part 2' : 'Part 3';
+                {['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3'].map(p => {
+                  const label = p === 'part1' ? 'Part 1' : p === 'part1_2_first' ? 'Part 1.2 (Q1)' : p === 'part1_2_rest' ? 'Part 1.2 (Q2 & Q3)' : p === 'part2' ? 'Part 2' : 'Part 3';
                   const timing = partTimings[p] || { prep_seconds: 0, speak_seconds: 0 };
                   return (
                     <div key={p} className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-3">
