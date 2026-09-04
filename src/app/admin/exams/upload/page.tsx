@@ -51,7 +51,9 @@ SCHEMA:
       ]
     }
   ]
-}`;
+}
+
+Please give in file.`;
 
   const handleCopyPrompt = () => {
     navigator.clipboard.writeText(claudePrompt);
