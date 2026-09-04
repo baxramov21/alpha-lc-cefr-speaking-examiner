@@ -26,6 +26,7 @@ CRITICAL INSTRUCTIONS:
 3. For Reading exams, set "exam_type" to "CEFR_READING". For Listening exams, set it to "CEFR_LISTENING".
 4. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
 5. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
+6. If the exam requires images (e.g., map questions, diagrams), use the "image_url" field. You should set its value to a placeholder like "[UPLOAD_MAP_IMAGE_HERE]" and the administrator will replace it with the real URL later.
 
 SCHEMA:
 {
@@ -36,11 +37,13 @@ SCHEMA:
       "part_number": 1,
       "title": "String - Title of the part",
       "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty for listening if no text.",
+      "image_url": "String (Optional) - If the entire part has a map/diagram, put placeholder here",
       "questions": [
         {
           "question_number": 1,
           "type": "MULTIPLE_CHOICE or MATCHING or FILL_IN",
           "context_text": "String (Optional) - If this question belongs to an extract or specific paragraph, put the extract text here. Only put this on the FIRST question of the extract.",
+          "image_url": "String (Optional) - If this specific question or extract has a map/diagram, put placeholder here",
           "question_text": "String - The actual question",
           "options": ["Array of Strings - Optional, for multiple choice"],
           "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT"

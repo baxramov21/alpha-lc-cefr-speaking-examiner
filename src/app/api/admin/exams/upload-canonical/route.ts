@@ -39,9 +39,17 @@ export async function POST(req: NextRequest) {
     for (const part of data.parts) {
       // Move context_text from questions to passage_html so it appears on the static left side
       let finalPassageHtml = part.passage_html || '';
+      
+      if (part.image_url) {
+        finalPassageHtml = `<img src="${part.image_url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200" alt="Part Diagram" />\n` + finalPassageHtml;
+      }
+      
       let currentContextText: string | null = null;
       
       for (const q of part.questions) {
+        if (q.image_url) {
+          finalPassageHtml += `\n<img src="${q.image_url}" class="w-full max-w-lg mx-auto rounded-xl shadow-sm my-4 border border-slate-200" alt="Question Diagram" />`;
+        }
         if (q.context_text) {
           currentContextText = q.context_text;
           finalPassageHtml += `\n<div class="bg-slate-50 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
