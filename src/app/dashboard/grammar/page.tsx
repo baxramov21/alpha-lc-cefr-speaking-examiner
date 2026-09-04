@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, BookOpen, Clock, ChevronRight, CheckCircle2, Award, Loader2, Target } from 'lucide-react';
+import { BookOpen, LogOut, CheckCircle2, Award, Clock, Target, Loader2, Headphones, BookText, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface GrammarSubmission {
@@ -83,6 +83,10 @@ export default function GrammarDashboardPage() {
 
   const handleStartExam = (examId: string) => {
     router.push(`/exam/grammar/session?examId=${examId}`);
+  };
+
+  const handleStartSkill = (path: string) => {
+    router.push(path);
   };
 
   if (!session || isLoading) {
@@ -184,14 +188,68 @@ export default function GrammarDashboardPage() {
                 <p className="text-xl font-bold">{averageScore !== null ? `${averageScore}%` : '--'}</p>
               </div>
             </div>
+            </div>
+        </section>
+
+        {/* Skill Tests (Listening & Reading) */}
+        <section>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
+            <h3 className="text-xl font-bold text-slate-800">Skill Tests</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Listening Card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Headphones className="w-6 h-6" />
+                </div>
+              </div>
+              <h4 className="text-lg font-bold text-slate-800 mb-1">Listening</h4>
+              <p className="text-sm text-slate-500 mb-6">Audio comprehension</p>
+              
+              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+                <Button 
+                  onClick={() => handleStartSkill('/exam/listening/setup')}
+                  variant="ghost" 
+                  className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
+                >
+                  Enter Test <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Reading Card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <BookText className="w-6 h-6" />
+                </div>
+              </div>
+              <h4 className="text-lg font-bold text-slate-800 mb-1">Reading</h4>
+              <p className="text-sm text-slate-500 mb-6">Reading comprehension</p>
+              
+              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+                <Button 
+                  onClick={() => handleStartSkill('/exam/reading/setup')}
+                  variant="ghost" 
+                  className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
+                >
+                  Enter Test <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Available Exams */}
+        {/* Available Grammar Exams */}
         <section>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-            <h3 className="text-xl font-bold text-slate-800">Available Tests</h3>
+            <h3 className="text-xl font-bold text-slate-800">Grammar Tests</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

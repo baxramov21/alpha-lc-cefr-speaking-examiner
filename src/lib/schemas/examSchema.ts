@@ -14,6 +14,7 @@ export const ExamCanonicalSchema = z.object({
   title: z.string().min(1, 'Title cannot be empty'),
   exam_type: z.enum(['CEFR_READING', 'CEFR_LISTENING']),
   programme: z.enum(['CEFR', 'IELTS', 'GRAMMAR']).optional(),
+  grammar_level: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
   time_limit: z.number().int().positive().optional(),
   prep_time: z.number().int().nonnegative().optional(),
   parts: z.array(

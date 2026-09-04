@@ -17,6 +17,7 @@ const schema = z.object({
   groupName: z.string().trim().min(1, 'Group name is required'),
   teacherName: z.string().trim().min(2, 'Teacher name is required'),
   passcode: z.string().trim().min(4, 'Passcode is required'),
+  grammarLevel: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -26,6 +27,7 @@ export default function StudentLoginPage() {
   const [showPasscode, setShowPasscode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [requiresGrammarLevel, setRequiresGrammarLevel] = useState(false);
 
   const {
     register,
@@ -58,7 +60,8 @@ export default function StudentLoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           passcode: data.passcode,
-          fullName: transformedData.fullName 
+          fullName: transformedData.fullName,
+          grammarLevel: data.grammarLevel
         }),
       });
 
@@ -74,7 +77,15 @@ export default function StudentLoginPage() {
         return;
       }
 
-      const { token: sessionToken, allowSkip, programme, grammarLevel } = await res.json();
+      const resData = await res.json();
+      
+      if (resData.requiresLevel) {
+        setRequiresGrammarLevel(true);
+        setIsLoading(false);
+        return;
+      }
+
+      const { token: sessionToken, allowSkip, programme, grammarLevel } = resData;
 
       // Store session metadata and the signed JWT — NOT the raw passcode
       sessionStorage.setItem(
@@ -276,6 +287,30 @@ export default function StudentLoginPage() {
                   <p className="text-xs text-destructive">{errors.passcode.message}</p>
                 )}
               </div>
+
+              {/* Grammar Level Selection */}
+              {requiresGrammarLevel && (
+                <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700">
+                    Select Your Grammar Level
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="grammarLevel"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700"
+                      {...register('grammarLevel', { required: 'Please select a level' })}
+                    >
+                      <option value="">Choose a level...</option>
+                      <option value="elementary">Elementary</option>
+                      <option value="pre-intermediate">Pre-Intermediate</option>
+                      <option value="intermediate">Intermediate</option>
+                    </select>
+                  </div>
+                  {errors.grammarLevel && (
+                    <p className="text-xs text-destructive">{errors.grammarLevel.message}</p>
+                  )}
+                </div>
+              )}
 
               {/* Auth error */}
               {authError && (

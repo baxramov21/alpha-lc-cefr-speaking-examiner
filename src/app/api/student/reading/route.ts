@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
+import { verifyStudentSessionToken } from '@/lib/sessionToken';
 
 export async function GET(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.split('Bearer ')[1] || null;
+    const session = await verifyStudentSessionToken(token);
+    
+    const programme = session?.programme || 'CEFR';
+    const grammarLevel = session?.grammarLevel || null;
+
     // 1. Fetch the most recent active reading exam
-    const { data: exams, error: examError } = await supabase
+    let query = supabase
       .from('canonical_exams')
       .select('*')
       .eq('exam_type', 'CEFR_READING')
-      .order('is_active', { ascending: false, nullsFirst: false })
+      .eq('is_active', true)
+      .eq('programme', programme);
+      
+    if (programme === 'GRAMMAR' && grammarLevel) {
+      query = query.eq('grammar_level', grammarLevel);
+    }
+
+    const { data: exams, error: examError } = await query
       .order('created_at', { ascending: false })
       .limit(1);
 

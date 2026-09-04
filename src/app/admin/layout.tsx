@@ -72,7 +72,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname.startsWith(item.href);
+            const isExact = pathname === item.href;
+            const isLongestMatch = NAV_ITEMS.filter(n => pathname.startsWith(n.href)).sort((a, b) => b.href.length - a.href.length)[0]?.href === item.href;
+            const isActive = isExact || (pathname.startsWith(item.href) && isLongestMatch);
             const Icon = item.icon;
             return (
               <Link

@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
         title: data.title,
         exam_type: data.exam_type,
         programme: data.programme || 'CEFR',
+        grammar_level: data.programme === 'GRAMMAR' ? data.grammar_level : null,
         time_limit: data.time_limit || (data.exam_type === 'CEFR_READING' ? 3600 : 2400),
         prep_time: data.prep_time || (data.exam_type === 'CEFR_LISTENING' ? 10 : 0),
       })

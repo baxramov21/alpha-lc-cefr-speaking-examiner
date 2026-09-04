@@ -11,7 +11,6 @@ export default function PasscodesPage() {
   // New Passcode Form State
   const [code, setCode] = useState('');
   const [programme, setProgramme] = useState('CEFR');
-  const [grammarLevel, setGrammarLevel] = useState('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -41,10 +40,7 @@ export default function PasscodesPage() {
       setError('Code is required.');
       return;
     }
-    if (programme === 'GRAMMAR' && !grammarLevel) {
-      setError('Grammar Level is required for Grammar programme.');
-      return;
-    }
+
 
     setIsSubmitting(true);
     setError('');
@@ -53,7 +49,6 @@ export default function PasscodesPage() {
       const payload = {
         code,
         programme,
-        grammar_level: programme === 'GRAMMAR' ? grammarLevel : undefined,
       };
 
       const res = await fetch('/api/admin/passcodes', {
@@ -121,10 +116,7 @@ export default function PasscodesPage() {
                 <label className="block text-xs font-bold text-slate-600 mb-1.5">Programme</label>
                 <select
                   value={programme}
-                  onChange={(e) => {
-                    setProgramme(e.target.value);
-                    if (e.target.value !== 'GRAMMAR') setGrammarLevel('');
-                  }}
+                  onChange={(e) => setProgramme(e.target.value)}
                   className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors appearance-none"
                 >
                   <option value="CEFR">CEFR</option>
@@ -132,22 +124,6 @@ export default function PasscodesPage() {
                   <option value="GRAMMAR">Grammar</option>
                 </select>
               </div>
-
-              {programme === 'GRAMMAR' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Grammar Level</label>
-                  <select
-                    value={grammarLevel}
-                    onChange={(e) => setGrammarLevel(e.target.value)}
-                    className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors appearance-none"
-                  >
-                    <option value="">Select level...</option>
-                    <option value="elementary">Elementary</option>
-                    <option value="pre-intermediate">Pre-Intermediate</option>
-                    <option value="intermediate">Intermediate</option>
-                  </select>
-                </div>
-              )}
 
               {error && <p className="text-rose-500 text-xs font-bold">{error}</p>}
               {success && <p className="text-emerald-500 text-xs font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Created successfully!</p>}
@@ -194,9 +170,6 @@ export default function PasscodesPage() {
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100">{p.programme}</span>
-                          {p.grammar_level && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-50 text-purple-600 rounded border border-purple-100 capitalize">{p.grammar_level}</span>
-                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">

@@ -21,6 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const schema = z.object({
   passcode: z.string().min(4).max(64),
   fullName: z.string().min(1).optional(),
+  grammarLevel: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   }
 
-  const { passcode, fullName } = parsed.data;
+  const { passcode, fullName, grammarLevel: requestedGrammarLevel } = parsed.data;
 
   // 1. Fetch settings for allow_skip
   const { data: settingsData } = await supabase
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
   // 2. Check new passcodes table
   const { data: passcodeRecord } = await supabase
     .from('passcodes')
-    .select('code, group_name, teacher_name, programme, grammar_level')
+    .select('code, group_name, teacher_name, programme')
     .eq('code', passcode.toUpperCase())
     .eq('is_active', true)
     .single();
@@ -59,7 +60,6 @@ export async function POST(req: NextRequest) {
   if (passcodeRecord) {
     validPasscode = passcodeRecord.code;
     programme = passcodeRecord.programme || 'CEFR';
-    grammarLevel = passcodeRecord.grammar_level || null;
   }
 
   if (!validPasscode) {
@@ -67,6 +67,13 @@ export async function POST(req: NextRequest) {
       { error: 'Invalid or inactive passcode. Please check with your teacher.' },
       { status: 403 }
     );
+  }
+
+  if (programme === 'GRAMMAR') {
+    if (!requestedGrammarLevel) {
+      return NextResponse.json({ requiresLevel: true, programme: 'GRAMMAR' }, { status: 200 });
+    }
+    grammarLevel = requestedGrammarLevel;
   }
 
   // Issue a short-lived student session token (2 hours)
