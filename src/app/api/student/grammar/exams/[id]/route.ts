@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const sessionToken = req.headers.get('Authorization')?.replace('Bearer ', '');
     
@@ -15,7 +15,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Invalid or expired session' }, { status: 403 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
 
     // Fetch the exam
     const { data: exam, error: examError } = await supabaseAdmin
