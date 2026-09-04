@@ -7,8 +7,8 @@ export async function GET() {
       .from('exam_pairs')
       .select(`
         id, name, is_active, created_at,
-        reading_exam:canonical_exams!exam_pairs_reading_exam_id_fkey(id, title, exam_type),
-        listening_exam:canonical_exams!exam_pairs_listening_exam_id_fkey(id, title, exam_type)
+        reading_exam:canonical_exams!exam_pairs_reading_exam_id_fkey(id, title, exam_type, programme),
+        listening_exam:canonical_exams!exam_pairs_listening_exam_id_fkey(id, title, exam_type, programme)
       `)
       .order('created_at', { ascending: false });
 

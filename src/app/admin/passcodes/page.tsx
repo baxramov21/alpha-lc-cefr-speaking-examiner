@@ -10,8 +10,6 @@ export default function PasscodesPage() {
 
   // New Passcode Form State
   const [code, setCode] = useState('');
-  const [groupName, setGroupName] = useState('');
-  const [teacherName, setTeacherName] = useState('');
   const [programme, setProgramme] = useState('CEFR');
   const [grammarLevel, setGrammarLevel] = useState('');
   
@@ -39,8 +37,8 @@ export default function PasscodesPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code || !groupName || !teacherName) {
-      setError('Code, Group Name, and Teacher Name are required.');
+    if (!code) {
+      setError('Code is required.');
       return;
     }
     if (programme === 'GRAMMAR' && !grammarLevel) {
@@ -54,8 +52,6 @@ export default function PasscodesPage() {
     try {
       const payload = {
         code,
-        group_name: groupName,
-        teacher_name: teacherName,
         programme,
         grammar_level: programme === 'GRAMMAR' ? grammarLevel : undefined,
       };
@@ -71,8 +67,6 @@ export default function PasscodesPage() {
 
       setSuccess(true);
       setCode('');
-      setGroupName('');
-      setTeacherName('');
       setTimeout(() => setSuccess(false), 3000);
       fetchPasscodes();
     } catch (err: any) {
@@ -119,28 +113,6 @@ export default function PasscodesPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   placeholder="e.g. MON1800"
-                  className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">Group / Class Name</label>
-                <input
-                  type="text"
-                  value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
-                  placeholder="e.g. IELTS 7.0 Group"
-                  className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">Teacher Name</label>
-                <input
-                  type="text"
-                  value={teacherName}
-                  onChange={(e) => setTeacherName(e.target.value)}
-                  placeholder="e.g. John Doe"
                   className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors"
                 />
               </div>
@@ -220,11 +192,7 @@ export default function PasscodesPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-slate-700">{p.group_name}</div>
-                        <div className="text-sm text-slate-500 flex items-center gap-1 mt-0.5">
-                          <Users className="w-3 h-3" /> {p.teacher_name}
-                        </div>
-                        <div className="mt-2 flex gap-2">
+                        <div className="flex gap-2">
                           <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100">{p.programme}</span>
                           {p.grammar_level && (
                             <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-50 text-purple-600 rounded border border-purple-100 capitalize">{p.grammar_level}</span>

@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('canonical_exams')
-      .select('id, title, exam_type, created_at, time_limit, prep_time, is_active')
+      .select('id, title, exam_type, created_at, time_limit, prep_time, is_active, programme')
       .order('exam_type', { ascending: true })
       .order('created_at', { ascending: false });
 

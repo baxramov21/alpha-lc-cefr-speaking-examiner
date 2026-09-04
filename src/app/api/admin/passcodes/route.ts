@@ -4,8 +4,8 @@ import { supabaseAdmin as supabase } from '@/lib/supabase';
 
 const createPasscodeSchema = z.object({
   code: z.string().min(4).max(64).toUpperCase(),
-  group_name: z.string().min(1).max(200),
-  teacher_name: z.string().min(1).max(200),
+  group_name: z.string().max(200).optional().default('All Groups'),
+  teacher_name: z.string().max(200).optional().default('All Teachers'),
   programme: z.enum(['CEFR', 'IELTS', 'GRAMMAR']).default('CEFR'),
   grammar_level: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
   is_active: z.boolean().optional().default(true),

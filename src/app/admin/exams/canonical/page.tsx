@@ -18,6 +18,7 @@ interface Exam {
   time_limit: number;
   prep_time: number;
   created_at: string;
+  programme?: string;
 }
 
 interface ExamPair {
@@ -62,6 +63,7 @@ function StatusToggle({ exam, onToggle }: { exam: Exam; onToggle: (exam: Exam) =
 export default function CanonicalExamsPage() {
   const router = useRouter();
   const [tab, setTab] = useState<'exams' | 'pairs'>('exams');
+  const [programmeTab, setProgrammeTab] = useState<'CEFR' | 'IELTS'>('CEFR');
 
   // ─── Exams state ───────────────────────────────────────────────────────────
   const [exams, setExams] = useState<Exam[]>([]);
@@ -215,8 +217,14 @@ export default function CanonicalExamsPage() {
     }
   };
 
-  const readingExams = exams.filter(e => e.exam_type === 'CEFR_READING');
-  const listeningExams = exams.filter(e => e.exam_type === 'CEFR_LISTENING');
+  const programmeExams = exams.filter(e => (e.programme || 'CEFR') === programmeTab);
+  const readingExams = programmeExams.filter(e => e.exam_type === 'CEFR_READING');
+  const listeningExams = programmeExams.filter(e => e.exam_type === 'CEFR_LISTENING');
+
+  const programmePairs = pairs.filter(p => {
+    const prog = p.reading_exam?.programme || p.listening_exam?.programme || 'CEFR';
+    return prog === programmeTab;
+  });
 
   // ──────────────────────────────────────────────────────────────────────────
   return (
@@ -235,19 +243,36 @@ export default function CanonicalExamsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-8 bg-slate-100 p-1 rounded-xl w-fit">
-        <button
-          onClick={() => setTab('exams')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Individual Exams</span>
-        </button>
-        <button
-          onClick={() => setTab('pairs')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
-        >
-          <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
-        </button>
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setProgrammeTab('CEFR')}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'CEFR' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            CEFR
+          </button>
+          <button
+            onClick={() => setProgrammeTab('IELTS')}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'IELTS' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            IELTS
+          </button>
+        </div>
+        
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setTab('exams')}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Individual Exams</span>
+          </button>
+          <button
+            onClick={() => setTab('pairs')}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
+          </button>
+        </div>
       </div>
 
       {/* ── EXAMS TAB ────────────────────────────────────────────────────────── */}
@@ -273,9 +298,9 @@ export default function CanonicalExamsPage() {
               <tbody className="divide-y divide-slate-100">
                 {examsLoading ? (
                   <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">Loading exams...</td></tr>
-                ) : exams.length === 0 ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">No canonical exams found. Upload some via Canonical Upload.</td></tr>
-                ) : exams.map(exam => (
+                ) : programmeExams.length === 0 ? (
+                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">No {programmeTab} canonical exams found.</td></tr>
+                ) : programmeExams.map(exam => (
                   <tr key={exam.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-4 font-semibold text-slate-800">{exam.title}</td>
                     <td className="px-6 py-4">
@@ -405,15 +430,15 @@ export default function CanonicalExamsPage() {
           {/* Pairs List */}
           {pairsLoading ? (
             <div className="py-12 text-center text-slate-400">Loading pairs...</div>
-          ) : pairs.length === 0 ? (
+          ) : programmePairs.length === 0 ? (
             <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200">
               <Link2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">No exam pairs yet.</p>
+              <p className="text-slate-500 font-medium">No {programmeTab} exam pairs yet.</p>
               <p className="text-slate-400 text-sm mt-1">Create one to assign a Reading + Listening bundle to students.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {pairs.map(pair => (
+              {programmePairs.map(pair => (
                 <div key={pair.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
                   pair.is_active ? 'border-green-300 shadow-green-100' : 'border-slate-200'
                 }`}>
