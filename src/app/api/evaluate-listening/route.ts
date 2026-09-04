@@ -50,7 +50,10 @@ export async function POST(req: NextRequest) {
         if (!correctAnswerRaw || correctAnswerRaw.trim() === '') {
           isCorrect = false;
         } else if (q.type === 'multiple_choice' || q.type === 'matching') {
-          isCorrect = userAnswerRaw === correctAnswerRaw;
+          const options = q.options || [];
+          const userIndex = options.indexOf(userAnswerRaw);
+          const userLetter = userIndex >= 0 ? String.fromCharCode(65 + userIndex) : userAnswerRaw;
+          isCorrect = (userAnswerRaw === correctAnswerRaw) || (userLetter === correctAnswerRaw);
         } else {
           isCorrect = normalizeText(userAnswerRaw) === normalizeText(correctAnswerRaw);
         }

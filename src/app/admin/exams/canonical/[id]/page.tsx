@@ -273,7 +273,22 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                     </div>
                   )}
 
-                  {/* HTML Editor removed to prevent accidental breakage by inexperienced users */}
+                  <details className="mt-4 border border-amber-200 bg-amber-50 rounded-xl">
+                    <summary className="p-4 font-bold text-amber-800 cursor-pointer outline-none">
+                      Advanced: Edit Passage HTML (Fix Map Images)
+                    </summary>
+                    <div className="p-4 border-t border-amber-200">
+                      <p className="text-sm text-amber-700 mb-2 font-medium">
+                        Use this to replace [UPLOAD_MAP_IMAGE_HERE] with a real image URL. Be careful not to break HTML tags!
+                      </p>
+                      <textarea 
+                        value={part.passage_html} 
+                        onChange={e => updatePart(pIdx, 'passage_html', e.target.value)} 
+                        className="w-full h-40 p-4 rounded-xl border border-amber-300 focus:border-amber-500 outline-none font-mono text-sm resize-y bg-white" 
+                        placeholder="<p>Passage HTML...</p>" 
+                      />
+                    </div>
+                  </details>
 
                   <div>
                     <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">

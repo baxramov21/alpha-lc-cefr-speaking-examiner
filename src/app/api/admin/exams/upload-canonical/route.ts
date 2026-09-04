@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         exam_type: data.exam_type,
         programme: data.programme || 'CEFR',
         time_limit: data.time_limit || (data.exam_type === 'CEFR_READING' ? 3600 : 2400),
-        prep_time: data.prep_time || (data.exam_type === 'CEFR_LISTENING' ? 300 : 0),
+        prep_time: data.prep_time || (data.exam_type === 'CEFR_LISTENING' ? 10 : 0),
       })
       .select()
       .single();
