@@ -37,6 +37,14 @@ export async function POST(req: NextRequest) {
 
     // 3. Loop through parts and persist
     for (const part of data.parts) {
+      // Move context_text from questions to passage_html so it appears on the static left side
+      let finalPassageHtml = part.passage_html || '';
+      for (const q of part.questions) {
+        if (q.context_text) {
+          finalPassageHtml += `\n<div class="bg-slate-50 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
+        }
+      }
+
       const { data: passageData, error: passageError } = await supabase
         .from('passages')
         .insert({
@@ -44,7 +52,7 @@ export async function POST(req: NextRequest) {
           part_number: part.part_number,
           title: part.title,
           exam_type: data.exam_type,
-          passage_html: part.passage_html,
+          passage_html: finalPassageHtml,
           audio_urls: part.audio_urls ? JSON.stringify(part.audio_urls) : null,
         })
         .select()
@@ -59,16 +67,11 @@ export async function POST(req: NextRequest) {
 
       // 4. Persist Questions for this part
       const questionsToInsert = part.questions.map((q) => {
-        let finalQuestionText = q.question_text;
-        if (q.context_text) {
-          finalQuestionText = `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-4 text-sm text-slate-700 shadow-sm leading-relaxed">${q.context_text.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800">${q.question_text}</div>`;
-        }
-
         return {
           passage_id: passageId,
           question_number: q.question_number,
           type: q.type,
-          question_text: finalQuestionText,
+          question_text: q.question_text,
           options: q.options ? JSON.stringify(q.options) : null,
           correct_answer: q.correct_answer || "",
         };
