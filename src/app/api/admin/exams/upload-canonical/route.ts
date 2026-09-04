@@ -39,8 +39,11 @@ export async function POST(req: NextRequest) {
     for (const part of data.parts) {
       // Move context_text from questions to passage_html so it appears on the static left side
       let finalPassageHtml = part.passage_html || '';
+      let currentContextText: string | null = null;
+      
       for (const q of part.questions) {
         if (q.context_text) {
+          currentContextText = q.context_text;
           finalPassageHtml += `\n<div class="bg-slate-50 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
         }
       }
@@ -66,12 +69,24 @@ export async function POST(req: NextRequest) {
       const passageId = passageData.id;
 
       // 4. Persist Questions for this part
+      // Reset currentContextText for the actual question mapping
+      currentContextText = null;
+      
       const questionsToInsert = part.questions.map((q) => {
+        if (q.context_text) {
+          currentContextText = q.context_text;
+        }
+
+        let finalQuestionText = q.question_text;
+        if (currentContextText) {
+          finalQuestionText = `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-4 text-sm text-slate-700 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800">${q.question_text}</div>`;
+        }
+
         return {
           passage_id: passageId,
           question_number: q.question_number,
           type: q.type,
-          question_text: q.question_text,
+          question_text: finalQuestionText,
           options: q.options ? JSON.stringify(q.options) : null,
           correct_answer: q.correct_answer || "",
         };
