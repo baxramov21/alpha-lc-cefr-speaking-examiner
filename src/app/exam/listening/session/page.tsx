@@ -322,14 +322,14 @@ export default function ListeningSessionPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
-        <div className="h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-100 pb-32">
+        <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
           
-          {/* Left Column: Audio & Passage */}
-          <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          {/* Top Block: Audio & Passage */}
+          <div className="flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             
-            {/* Audio Player Card (Fixed at top of left column) */}
-            <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
+            {/* Audio Player Card (Sticky at top) */}
+            <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800 sticky top-0 z-20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -383,33 +383,29 @@ export default function ListeningSessionPage() {
               </div>
             </div>
 
-            {/* Passage Content (Scrollable) */}
-            <div id="listening-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
+            {/* Passage Content */}
+            <div id="listening-text-container" className="p-6 lg:p-10">
               <div className="mb-6 pb-6 border-b border-slate-100 ">
                 <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
                 <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
               </div>
-              {currentTask.passage_html ? (
+              {currentTask.passage_html && (
                 <div 
                   className="prose prose-sm md:prose-base max-w-none text-slate-800 "
                   dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
                 />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-40 text-slate-400 ">
-                  <p>No text provided for this part.</p>
-                </div>
               )}
             </div>
           </div>
 
-          {/* Right Column: Questions */}
-          <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          {/* Bottom Block: Questions */}
+          <div className="flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 ">
               <h2 className="text-xl font-bold text-slate-800 ">Questions</h2>
               <p className="text-sm text-slate-500  ">Answer all questions based on the audio.</p>
             </div>
             
-            <div id="listening-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
+            <div id="listening-questions-container" className="p-6 lg:p-10">
               <div className="space-y-10 pb-8">
                 {currentTask.questions.map((q) => (
                   <div key={q.id} className="group">
@@ -470,10 +466,14 @@ export default function ListeningSessionPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      </main>
 
-            {/* Action Bar (Fixed at bottom of right column) */}
-            <div className="bg-white p-6 border-t border-slate-200 shrink-0 flex justify-between items-center">
-              <Button 
+      {/* Action Bar (Fixed at bottom of screen) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 lg:p-6 border-t border-slate-200 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <Button 
                 variant="outline" 
                 onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
                 disabled={currentTaskIndex === 0}
@@ -515,11 +515,9 @@ export default function ListeningSessionPage() {
                     )}
                   </Button>
                 )}
-              </div>
-            </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Exit Warning Modal */}
       {showExitWarning && (
