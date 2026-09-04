@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Plus, Trash2, Loader2, Music, CheckCircle2, ChevronRight, ChevronDown, RefreshCw } from 'lucide-react';
+import { Save, ArrowLeft, Plus, Trash2, Loader2, Music, CheckCircle2, ChevronRight, ChevronDown, RefreshCw, UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EditCanonicalExamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -150,6 +150,46 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
     updateField('parts', newParts);
   };
 
+  const handleImageUpload = async (pIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Clear the input so the same file can be selected again if needed
+    e.target.value = '';
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      const { url } = await res.json();
+      
+      const newParts = [...exam.parts];
+      let currentHtml = newParts[pIdx].passage_html || '';
+      
+      if (currentHtml.includes('[UPLOAD_MAP_IMAGE_HERE]')) {
+         currentHtml = currentHtml.replace('[UPLOAD_MAP_IMAGE_HERE]', url);
+      } else {
+         // Just append it at the beginning if they lost the placeholder
+         currentHtml = `<img src="${url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200" alt="Part Diagram" />\n` + currentHtml;
+      }
+      
+      newParts[pIdx].passage_html = currentHtml;
+      updateField('parts', newParts);
+    } catch (err: any) {
+      alert(`Error uploading image: ${err.message}`);
+    }
+  };
+
   if (loading) return (
     <div className="p-12 text-center">
       <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500 mb-3" />
@@ -278,9 +318,26 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                       Advanced: Edit Passage HTML (Fix Map Images)
                     </summary>
                     <div className="p-4 border-t border-amber-200">
-                      <p className="text-sm text-amber-700 mb-2 font-medium">
-                        Use this to replace [UPLOAD_MAP_IMAGE_HERE] with a real image URL. Be careful not to break HTML tags!
-                      </p>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
+                        <p className="text-sm text-amber-700 font-medium">
+                          Use this to manually edit the HTML. To replace <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-800">[UPLOAD_MAP_IMAGE_HERE]</code> with a real image, click upload.
+                        </p>
+                        <div className="shrink-0">
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            id={`img-upload-${pIdx}`} 
+                            className="hidden" 
+                            onChange={(e) => handleImageUpload(pIdx, e)} 
+                          />
+                          <label 
+                            htmlFor={`img-upload-${pIdx}`} 
+                            className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-amber-600 text-white shadow hover:bg-amber-700 h-9 px-4 py-2"
+                          >
+                            <UploadCloud className="w-4 h-4 mr-2" /> Upload Image
+                          </label>
+                        </div>
+                      </div>
                       <textarea 
                         value={part.passage_html} 
                         onChange={e => updatePart(pIdx, 'passage_html', e.target.value)} 

@@ -14,7 +14,6 @@ export async function GET() {
     }
 
     const authSettings = data?.value || { 
-      student_password: process.env.STUDENT_PASSWORD || 'ALPHA2024',
       allow_skip: true
     };
     return NextResponse.json(authSettings);
@@ -32,7 +31,6 @@ export async function POST(req: NextRequest) {
       .upsert({
         key: 'auth_settings',
         value: {
-          student_password: body.student_password || 'ALPHA2024',
           allow_skip: body.allow_skip ?? true
         },
         updated_at: new Date().toISOString()

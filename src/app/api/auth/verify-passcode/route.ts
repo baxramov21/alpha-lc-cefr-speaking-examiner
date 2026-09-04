@@ -37,34 +37,29 @@ export async function POST(req: NextRequest) {
 
   const { passcode, fullName } = parsed.data;
 
-  // 1. Check legacy global passcode from app_settings
+  // 1. Fetch settings for allow_skip
   const { data: settingsData } = await supabase
     .from('app_settings')
     .select('value')
     .eq('key', 'auth_settings')
     .single();
 
-  const globalPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
   let validPasscode = null;
   let programme = 'CEFR';
   let grammarLevel = null;
 
-  if (passcode.toUpperCase() === globalPasscode.toUpperCase()) {
-    validPasscode = globalPasscode.toUpperCase();
-  } else {
-    // 2. Check new passcodes table
-    const { data: passcodeRecord } = await supabase
-      .from('passcodes')
-      .select('code, group_name, teacher_name, programme, grammar_level')
-      .eq('code', passcode.toUpperCase())
-      .eq('is_active', true)
-      .single();
-      
-    if (passcodeRecord) {
-      validPasscode = passcodeRecord.code;
-      programme = passcodeRecord.programme || 'CEFR';
-      grammarLevel = passcodeRecord.grammar_level || null;
-    }
+  // 2. Check new passcodes table
+  const { data: passcodeRecord } = await supabase
+    .from('passcodes')
+    .select('code, group_name, teacher_name, programme, grammar_level')
+    .eq('code', passcode.toUpperCase())
+    .eq('is_active', true)
+    .single();
+    
+  if (passcodeRecord) {
+    validPasscode = passcodeRecord.code;
+    programme = passcodeRecord.programme || 'CEFR';
+    grammarLevel = passcodeRecord.grammar_level || null;
   }
 
   if (!validPasscode) {

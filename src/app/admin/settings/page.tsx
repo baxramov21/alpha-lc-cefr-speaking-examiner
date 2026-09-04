@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase';
 
 export default function AdminSettingsPage() {
   // Auth Settings State
-  const [studentPassword, setStudentPassword] = useState('ALPHA2024');
   const [allowSkip, setAllowSkip] = useState(true);
   const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   
@@ -161,7 +160,6 @@ export default function AdminSettingsPage() {
       const res = await fetch('/api/admin/settings/auth');
       if (res.ok) {
         const data = await res.json();
-        setStudentPassword(data.student_password || 'ALPHA2024');
         setAllowSkip(data.allow_skip ?? true);
       }
     } catch (err) {
@@ -176,7 +174,6 @@ export default function AdminSettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          student_password: studentPassword,
           allow_skip: allowSkip
         })
       });
@@ -399,9 +396,9 @@ export default function AdminSettingsPage() {
               <Key className="w-4 h-4 text-teal-600" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-800">Universal Student Access</h2>
+              <h2 className="font-bold text-slate-800">Student Access Settings</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Manage the master password and exam capabilities
+                Manage general exam capabilities for students
               </p>
             </div>
           </div>
@@ -416,19 +413,7 @@ export default function AdminSettingsPage() {
           </Button>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <Label className="text-slate-700 font-bold">Universal Student Password</Label>
-            <div className="relative">
-              <Input 
-                type="text"
-                value={studentPassword}
-                onChange={(e) => setStudentPassword(e.target.value.toUpperCase())}
-                className="rounded-xl border-slate-200 h-12 text-slate-700 font-bold font-mono tracking-widest bg-slate-50 focus:bg-white uppercase"
-              />
-            </div>
-            <p className="text-xs text-slate-500">Students will use this to enter the exam.</p>
-          </div>
+        <div className="p-6 grid grid-cols-1 gap-6">
 
           <div className="space-y-3">
             <Label className="text-slate-700 font-bold">Allow Skipping Questions</Label>
