@@ -12,7 +12,8 @@ import { MOCK_SUBMISSION_SUMMARIES } from '@/lib/mockSubmissions';
 import { CefrBand, SubmissionSummary } from '@/lib/types';
 
 type StatusFilter = 'all' | 'graded' | 'pending';
-type SkillFilter = 'speaking' | 'writing' | 'listening' | 'reading';
+type SkillFilter = 'speaking' | 'writing' | 'listening' | 'reading' | 'grammar';
+type ProgrammeFilter = 'CEFR' | 'IELTS' | 'GRAMMAR';
 
 function StatusBadge({ status }: { status: SubmissionSummary['status'] }) {
   if (status === 'graded') {
@@ -32,6 +33,7 @@ function formatDate(iso: string) {
 
 export default function SubmissionsPage() {
   const router = useRouter();
+  const [programme, setProgramme] = useState<ProgrammeFilter>('CEFR');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [skillFilter, setSkillFilter] = useState<SkillFilter>('speaking');
@@ -40,8 +42,9 @@ export default function SubmissionsPage() {
 
   useEffect(() => {
     async function loadSubmissions() {
+      setIsLoading(true);
       try {
-        const res = await fetch('/api/admin/submissions');
+        const res = await fetch(`/api/admin/submissions?programme=${programme}`);
         const data = await res.json();
         if (data.submissions) {
           setSubmissions(data.submissions);
@@ -53,7 +56,7 @@ export default function SubmissionsPage() {
       }
     }
     loadSubmissions();
-  }, []);
+  }, [programme]);
 
   const filtered = submissions.filter((s) => {
     const q = search.toLowerCase();
@@ -63,7 +66,7 @@ export default function SubmissionsPage() {
       s.teacherName.toLowerCase().includes(q);
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
     const type = s.examType || 'speaking';
-    const matchesSkill = type === skillFilter;
+    const matchesSkill = programme === 'GRAMMAR' ? true : type === skillFilter;
     
     return matchesSearch && matchesStatus && matchesSkill;
   });
@@ -104,33 +107,60 @@ export default function SubmissionsPage() {
         </Button>
       </div>
 
-      {/* Skill Tabs */}
+      {/* Programme Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200">
         <button
-          onClick={() => setSkillFilter('speaking')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'speaking' ? 'bg-teal-100 text-teal-700' : 'text-slate-500 hover:bg-slate-100'}`}
+          onClick={() => { setProgramme('CEFR'); setSkillFilter('speaking'); }}
+          className={`px-6 py-3 font-bold transition-all relative ${programme === 'CEFR' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
-          Speaking
+          CEFR
+          {programme === 'CEFR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 rounded-t-full" />}
         </button>
         <button
-          onClick={() => setSkillFilter('writing')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'writing' ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500 hover:bg-slate-100'}`}
+          onClick={() => { setProgramme('IELTS'); setSkillFilter('speaking'); }}
+          className={`px-6 py-3 font-bold transition-all relative ${programme === 'IELTS' ? 'text-emerald-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
-          Writing
+          IELTS
+          {programme === 'IELTS' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />}
         </button>
         <button
-          onClick={() => setSkillFilter('listening')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:bg-slate-100'}`}
+          onClick={() => setProgramme('GRAMMAR')}
+          className={`px-6 py-3 font-bold transition-all relative ${programme === 'GRAMMAR' ? 'text-amber-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
-          Listening
-        </button>
-        <button
-          onClick={() => setSkillFilter('reading')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-fuchsia-100 text-fuchsia-700' : 'text-slate-500 hover:bg-slate-100'}`}
-        >
-          Reading
+          Grammar
+          {programme === 'GRAMMAR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
         </button>
       </div>
+
+      {/* Skill Tabs (Hidden for Grammar) */}
+      {programme !== 'GRAMMAR' && (
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setSkillFilter('speaking')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'speaking' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          >
+            Speaking
+          </button>
+          <button
+            onClick={() => setSkillFilter('writing')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'writing' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          >
+            Writing
+          </button>
+          <button
+            onClick={() => setSkillFilter('listening')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          >
+            Listening
+          </button>
+          <button
+            onClick={() => setSkillFilter('reading')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+          >
+            Reading
+          </button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">

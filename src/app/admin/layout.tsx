@@ -19,9 +19,12 @@ const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/submissions', label: 'Submissions', icon: FileText },
   { href: '/admin/questions', label: 'Questions', icon: Database },
-  { href: '/admin/exams/upload', label: 'Canonical Upload', icon: FileText },
-  { href: '/admin/exams/canonical', label: 'Canonical Exams', icon: Database },
-  { href: '/admin/students', label: 'Students', icon: Users },
+  { href: '/admin/exams/canonical', label: 'IELTS / CEFR Tests', icon: Database },
+  { href: '/admin/exams/upload', label: 'Upload IELTS/CEFR', icon: FileText },
+  { href: '/admin/grammar', label: 'Grammar Tests', icon: Database },
+  { href: '/admin/grammar/upload', label: 'Upload Grammar', icon: FileText },
+  { href: '/admin/passcodes', label: 'Passcodes', icon: Users },
+  { href: '/admin/students', label: 'Saved Students', icon: Users },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 

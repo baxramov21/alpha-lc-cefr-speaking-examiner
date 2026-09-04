@@ -74,7 +74,7 @@ export default function StudentLoginPage() {
         return;
       }
 
-      const { token: sessionToken, allowSkip } = await res.json();
+      const { token: sessionToken, allowSkip, programme, grammarLevel } = await res.json();
 
       // Store session metadata and the signed JWT — NOT the raw passcode
       sessionStorage.setItem(
@@ -85,11 +85,19 @@ export default function StudentLoginPage() {
           teacherName: transformedData.teacherName,
           sessionToken,          // signed JWT — never the raw passcode
           allowSkip,             // Skip permission toggle
+          programme,
+          grammarLevel,
           startedAt: new Date().toISOString(),
         })
       );
 
-      router.push('/dashboard');
+      if (programme === 'IELTS') {
+        router.push('/dashboard/ielts');
+      } else if (programme === 'GRAMMAR') {
+        router.push('/dashboard/grammar');
+      } else {
+        router.push('/dashboard');
+      }
     } catch {
       setAuthError('An error occurred while verifying the passcode. Please try again.');
       setIsLoading(false);

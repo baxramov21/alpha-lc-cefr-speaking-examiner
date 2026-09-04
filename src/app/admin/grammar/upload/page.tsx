@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp } from 'lucide-react';
-import { ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
+import { GrammarExamSchema, GrammarExamPayload } from '@/lib/schemas/examSchema';
 import DOMPurify from 'dompurify';
 
 export default function CanonicalUploadPage() {
@@ -10,7 +10,7 @@ export default function CanonicalUploadPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<any[]>([]);
-  const [previewData, setPreviewData] = useState<ExamCanonicalPayload | null>(null);
+  const [previewData, setPreviewData] = useState<GrammarExamPayload | null>(null);
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
@@ -18,39 +18,27 @@ export default function CanonicalUploadPage() {
   const [showPrompt, setShowPrompt] = useState(false);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
-  const claudePrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
+  const claudePrompt = `Please act as an expert English examiner converting grammar questions into a strict JSON format for my app.
 
 CRITICAL INSTRUCTIONS:
 1. Do NOT output the JSON as raw text in the chat. You MUST use your advanced data analysis or code execution tool to save the JSON to a file named 'exam.json' and provide a direct download link for me. No explanations.
 2. The JSON must exactly match the schema below.
-3. For Reading exams, set "exam_type" to "CEFR_READING". For Listening exams, set it to "CEFR_LISTENING".
-4. Set "programme" to "CEFR" or "IELTS" depending on the exam format.
-4. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
-5. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
-6. If the exam requires images (e.g., map questions, diagrams), use the "image_url" field. You should set its value to a placeholder like "[UPLOAD_MAP_IMAGE_HERE]" and the administrator will replace it with the real URL later.
+3. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
+4. Provide a brief explanation for the correct answer if possible.
 
 SCHEMA:
 {
-  "title": "String - The title of the exam",
-  "exam_type": "CEFR_READING or CEFR_LISTENING",
-  "programme": "CEFR or IELTS",
-  "parts": [
+  "title": "String - The title of the grammar test (e.g. Unit 1 Grammar)",
+  "level": "elementary or pre-intermediate or intermediate",
+  "time_limit": 1800,
+  "questions": [
     {
-      "part_number": 1,
-      "title": "String - Title of the part",
-      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty for listening if no text.",
-      "image_url": "String (Optional) - If the entire part has a map/diagram, put placeholder here",
-      "questions": [
-        {
-          "question_number": 1,
-          "type": "MULTIPLE_CHOICE or MATCHING or FILL_IN",
-          "context_text": "String (Optional) - If this question belongs to an extract or specific paragraph, put the extract text here. Only put this on the FIRST question of the extract.",
-          "image_url": "String (Optional) - If this specific question or extract has a map/diagram, put placeholder here",
-          "question_text": "String - The actual question",
-          "options": ["Array of Strings - Optional, for multiple choice"],
-          "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT"
-        }
-      ]
+      "question_number": 1,
+      "type": "MULTIPLE_CHOICE or FILL_IN",
+      "question_text": "String - The actual question",
+      "options": ["Array of Strings - Optional, for multiple choice"],
+      "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT",
+      "explanation": "String - Optional brief explanation"
     }
   ]
 }
@@ -94,7 +82,7 @@ Please give in file.`;
         };
       }
       
-      const valResult = ExamCanonicalSchema.safeParse(json);
+      const valResult = GrammarExamSchema.safeParse(json);
       if (!valResult.success) {
         setValidationErrors(valResult.error.issues);
         setErrorMsg('Client Validation Failed. Please fix the JSON structure.');
@@ -115,67 +103,11 @@ Please give in file.`;
     setValidationErrors([]);
 
     try {
-      let finalPayload = { ...previewData };
 
-      if (examMode === 'listening' && audioFiles.length > 0) {
-        setUploadProgress(0);
-
-        const uploadedUrls: string[] = [];
-        
-        for (let i = 0; i < audioFiles.length; i++) {
-           const file = audioFiles[i];
-           
-           // 1. Get Presigned URL
-           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ fileName: file.name, contentType: file.type || 'audio/mpeg' })
-           });
-           const urlData = await urlRes.json();
-           if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
-
-           // 2. Upload file to signed URL with XHR for progress
-           await new Promise((resolve, reject) => {
-             const xhr = new XMLHttpRequest();
-             xhr.open('PUT', urlData.signedUrl, true);
-             xhr.setRequestHeader('Content-Type', file.type || 'audio/mpeg');
-             
-             xhr.upload.onprogress = (event) => {
-               if (event.lengthComputable) {
-                 const baseProgress = (i / audioFiles.length) * 100;
-                 const fileProgress = (event.loaded / event.total) * (100 / audioFiles.length);
-                 setUploadProgress(Math.round(baseProgress + fileProgress));
-               }
-             };
-
-             xhr.onload = () => {
-               if (xhr.status >= 200 && xhr.status < 300) {
-                 resolve(null);
-               } else {
-                 reject(new Error(`Upload failed with status ${xhr.status}`));
-               }
-             };
-
-             xhr.onerror = () => reject(new Error('Network error during upload'));
-             xhr.send(file); // Send the raw file directly
-           });
-
-           uploadedUrls.push(urlData.publicUrl);
-        }
-        
-        if (finalPayload.parts && finalPayload.parts.length > 0) {
-          finalPayload.parts.forEach((part: any, i: number) => {
-            if (uploadedUrls[i]) {
-              part.audio_urls = [uploadedUrls[i]];
-            }
-          });
-        }
-      }
-
-      const res = await fetch('/api/admin/exams/upload-canonical', {
+      const res = await fetch('/api/admin/grammar/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(finalPayload),
+        body: JSON.stringify(previewData),
       });
 
       const data = await res.json();
@@ -382,20 +314,17 @@ Please give in file.`;
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
                 <h4 className="text-sm font-semibold text-slate-700 mb-4 flex justify-between">
-                  Passage Rendering
-                  <span className="text-xs font-medium px-2 py-0.5 bg-slate-200 text-slate-600 rounded">{previewData.exam_type}</span>
+                  Test Details
+                  <span className="text-xs font-medium px-2 py-0.5 bg-slate-200 text-slate-600 rounded">{previewData.level}</span>
                 </h4>
                 <h1 className="text-xl font-bold mb-4">{previewData.title}</h1>
-                <div 
-                  className="prose prose-sm max-w-none bg-white p-4 rounded-lg shadow-sm border border-slate-100 h-96 overflow-y-auto"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewData.parts?.[0]?.passage_html || '') }}
-                />
+                <p className="text-sm text-slate-600">Time limit: {previewData.time_limit} seconds</p>
               </div>
 
               <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-                <h4 className="text-sm font-semibold text-slate-700 mb-4">Extracted Questions ({previewData.parts?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0})</h4>
+                <h4 className="text-sm font-semibold text-slate-700 mb-4">Extracted Questions ({previewData.questions?.length || 0})</h4>
                 <div className="space-y-3 h-96 overflow-y-auto pr-2">
-                  {previewData.parts?.map((p: any) => p.questions || []).flat().map((q: any, i: number) => (
+                  {previewData.questions?.map((q: any, i: number) => (
                     <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-slate-400">Q{q.question_number}</span>
@@ -406,15 +335,22 @@ Please give in file.`;
                         <div className="space-y-1.5 mb-3">
                           {q.options.map((opt: string, j: number) => (
                             <div key={j} className="text-xs flex gap-2">
-                              <span className="text-slate-400 font-mono">{String.fromCharCode(65 + j)}.</span>
+                              <span className="text-slate-400 font-bold">{String.fromCharCode(65 + j)}.</span>
                               <span className="text-slate-600">{opt}</span>
                             </div>
                           ))}
                         </div>
                       )}
-                      <div className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded inline-block">
-                        Ans: {q.correct_answer}
+                      <div className="mt-3 pt-3 border-t border-slate-100 text-xs">
+                        <span className="font-semibold text-emerald-600">Answer: </span>
+                        <span className="text-slate-700">{q.correct_answer}</span>
                       </div>
+                      {q.explanation && (
+                        <div className="mt-1 text-xs text-slate-500">
+                          <span className="font-semibold">Explanation: </span>
+                          {q.explanation}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
 
   const globalPasscode = settingsData?.value?.student_password || process.env.STUDENT_PASSWORD || 'ALPHA2024';
   let validPasscode = null;
+  let programme = 'CEFR';
+  let grammarLevel = null;
 
   if (passcode.toUpperCase() === globalPasscode.toUpperCase()) {
     validPasscode = globalPasscode.toUpperCase();
@@ -53,13 +55,15 @@ export async function POST(req: NextRequest) {
     // 2. Check new passcodes table
     const { data: passcodeRecord } = await supabase
       .from('passcodes')
-      .select('code, group_name, teacher_name')
+      .select('code, group_name, teacher_name, programme, grammar_level')
       .eq('code', passcode.toUpperCase())
       .eq('is_active', true)
       .single();
       
     if (passcodeRecord) {
       validPasscode = passcodeRecord.code;
+      programme = passcodeRecord.programme || 'CEFR';
+      grammarLevel = passcodeRecord.grammar_level || null;
     }
   }
 
@@ -75,6 +79,8 @@ export async function POST(req: NextRequest) {
   const token = await new SignJWT({
     passcode: validPasscode.toUpperCase(),
     fullName: fullName || '',
+    programme,
+    grammarLevel,
     type: 'student_session',
   })
     .setProtectedHeader({ alg: 'HS256' })
@@ -85,6 +91,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ 
     token,
+    programme,
+    grammarLevel,
     allowSkip: settingsData?.value?.allow_skip ?? true 
   }, { status: 200 });
 }

@@ -18,6 +18,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export interface StudentSessionPayload {
   passcode: string;
   fullName?: string;
+  programme?: string;
+  grammarLevel?: string;
+  groupName?: string;
+  teacherName?: string;
 }
 
 /**
@@ -43,6 +47,10 @@ export async function verifyStudentSessionToken(
     return {
       passcode: payload.passcode as string,
       fullName: payload.fullName as string | undefined,
+      programme: payload.programme as string | undefined,
+      grammarLevel: payload.grammarLevel as string | undefined,
+      groupName: payload.groupName as string | undefined,
+      teacherName: payload.teacherName as string | undefined,
     };
   } catch {
     return null;

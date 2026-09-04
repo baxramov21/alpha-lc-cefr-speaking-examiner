@@ -126,11 +126,13 @@ export interface ExamResult {
   groupName: string;
   teacherName: string;
   overallScore: number;
-  overallCefrBand: CefrBand;
+  overallCefrBand: CefrBand | string;
   evaluation: any;
   submittedAt: string;
   status: 'graded' | 'pending' | 'error';
   adminNotes?: string;
+  programme?: 'CEFR' | 'IELTS' | 'GRAMMAR';
+  level?: string;
 }
 
 // ----- Reading -----
@@ -164,10 +166,12 @@ export interface SubmissionSummary {
   groupName: string;
   teacherName: string;
   overallScore: number;
-  overallCefrBand: CefrBand;
+  overallCefrBand: CefrBand | string;
   status: 'graded' | 'pending' | 'error';
   submittedAt: string;
-  examType?: 'speaking' | 'writing' | 'reading' | 'listening';
+  examType?: 'speaking' | 'writing' | 'reading' | 'listening' | 'grammar';
+  programme?: 'CEFR' | 'IELTS' | 'GRAMMAR';
+  level?: string;
 }
 
 export interface AdminUser {

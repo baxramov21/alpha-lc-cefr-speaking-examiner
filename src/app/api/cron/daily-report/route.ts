@@ -23,30 +23,42 @@ export async function GET(req: NextRequest) {
 
     const { data: submissions, error: submissionsError } = await supabaseAdmin
       .from('submissions')
-      .select('id, created_at, overall_score, evaluation_data')
+      .select('id, created_at, overall_score, evaluation_data, programme')
       .gte('created_at', oneDayAgo);
 
     if (submissionsError) {
       throw submissionsError;
     }
 
+    const { data: grammarSubmissions, error: grammarError } = await supabaseAdmin
+      .from('grammar_submissions')
+      .select('id, created_at, total_score')
+      .gte('created_at', oneDayAgo);
+
+    if (grammarError) {
+      throw grammarError;
+    }
+
     // 3. Calculate statistics
-    const totalExams = submissions?.length || 0;
+    const totalCEFR = submissions?.filter(s => s.programme === 'CEFR' || !s.programme).length || 0;
+    const totalIELTS = submissions?.filter(s => s.programme === 'IELTS').length || 0;
+    const totalGrammar = grammarSubmissions?.length || 0;
+    const totalExams = totalCEFR + totalIELTS + totalGrammar;
     
     let totalScore = 0;
-    let speakingCount = 0;
-    let readingCount = 0;
-    let writingCount = 0;
-    let listeningCount = 0;
+    let cefrCount = 0;
+    let ieltsCount = 0;
+    let grammarCount = totalGrammar;
 
     submissions?.forEach(sub => {
       totalScore += (sub.overall_score || 0);
-      
-      const examType = sub.evaluation_data?.examType || 'speaking'; // default to speaking for older records
-      if (examType === 'speaking') speakingCount++;
-      else if (examType === 'reading') readingCount++;
-      else if (examType === 'writing') writingCount++;
-      else if (examType === 'listening') listeningCount++;
+      const prog = sub.programme || 'CEFR';
+      if (prog === 'CEFR') cefrCount++;
+      if (prog === 'IELTS') ieltsCount++;
+    });
+
+    grammarSubmissions?.forEach(sub => {
+      totalScore += (sub.total_score || 0);
     });
 
     const averageScore = totalExams > 0 ? (totalScore / totalExams).toFixed(1) : 0;
@@ -74,11 +86,10 @@ export async function GET(req: NextRequest) {
     message += `👥 <b>Total Exams Today:</b> ${totalExams}\n`;
     if (totalExams > 0) {
       message += `🎯 <b>Average Score:</b> ${averageScore}\n\n`;
-      message += `<b>Breakdown by Type:</b>\n`;
-      message += `🗣 Speaking: ${speakingCount}\n`;
-      message += `📖 Reading: ${readingCount}\n`;
-      message += `🎧 Listening: ${listeningCount}\n`;
-      message += `✍️ Writing: ${writingCount}\n`;
+      message += `<b>Breakdown by Programme:</b>\n`;
+      message += `📚 CEFR: ${cefrCount}\n`;
+      message += `🎓 IELTS: ${ieltsCount}\n`;
+      message += `✍️ Grammar: ${grammarCount}\n`;
     } else {
       message += `\nNo exams were taken today.`;
     }

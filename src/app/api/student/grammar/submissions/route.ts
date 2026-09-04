@@ -11,50 +11,54 @@ export async function GET(req: NextRequest) {
     }
 
     const session = await verifyStudentSessionToken(sessionToken);
-    if (!session) {
+    if (!session || session.programme !== 'GRAMMAR') {
       return NextResponse.json({ error: 'Invalid or expired session' }, { status: 403 });
     }
 
-    const url = new URL(req.url);
-    const programme = url.searchParams.get('programme');
-
-    // Fetch submissions for this student by their name.
-    // We use ilike for case-insensitivity. We omit passcode_used filter 
-    // so students can still see their history even if the teacher rotates the global passcode.
     let query = supabaseAdmin
-      .from('submissions')
-      .select('id, created_at, overall_score, overall_band, evaluation_data');
-      
-    if (programme) {
-      query = query.eq('programme', programme);
-    }
+      .from('grammar_submissions')
+      .select('id, created_at, total_score, max_score, percentage, exam_id');
       
     if (session.fullName) {
       query = query.ilike('student_name', session.fullName);
     } else {
-      // Fallback: if no name provided, only show exams for this exact passcode to prevent data leaks
       query = query.eq('passcode_used', session.passcode);
     }
 
     const { data: rawSubmissions, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching student submissions:', error);
+      console.error('Error fetching grammar submissions:', error);
       return NextResponse.json({ error: 'Failed to fetch submissions' }, { status: 500 });
     }
 
-    // Extract examType from evaluation_data so the frontend can filter by it
+    // Fetch exam titles for these submissions
+    const examIds = [...new Set((rawSubmissions || []).map((sub: any) => sub.exam_id))];
+    let examTitles: Record<string, string> = {};
+    if (examIds.length > 0) {
+      const { data: exams } = await supabaseAdmin
+        .from('grammar_exams')
+        .select('id, title')
+        .in('id', examIds);
+      if (exams) {
+        exams.forEach(ex => {
+          examTitles[ex.id] = ex.title;
+        });
+      }
+    }
+
     const submissions = (rawSubmissions || []).map((sub: any) => ({
       id: sub.id,
       created_at: sub.created_at,
-      overall_score: sub.overall_score,
-      overall_band: sub.overall_band,
-      examType: sub.evaluation_data?.examType || 'speaking' // Default to speaking if not set
+      total_score: sub.total_score,
+      max_score: sub.max_score,
+      percentage: sub.percentage,
+      exam_title: examTitles[sub.exam_id] || 'Grammar Test'
     }));
 
     return NextResponse.json({ submissions }, { status: 200 });
   } catch (error: unknown) {
-    console.error('API /student/submissions error:', error);
+    console.error('API /student/grammar/submissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -6,6 +6,8 @@ const createPasscodeSchema = z.object({
   code: z.string().min(4).max(64).toUpperCase(),
   group_name: z.string().min(1).max(200),
   teacher_name: z.string().min(1).max(200),
+  programme: z.enum(['CEFR', 'IELTS', 'GRAMMAR']).default('CEFR'),
+  grammar_level: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
   is_active: z.boolean().optional().default(true),
 });
 
