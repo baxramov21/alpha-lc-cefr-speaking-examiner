@@ -13,10 +13,7 @@ export default function CanonicalUploadPage() {
   const [previewData, setPreviewData] = useState<GrammarExamPayload | null>(null);
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
-  const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [showPrompt, setShowPrompt] = useState(false);
-  const audioInputRef = useRef<HTMLInputElement>(null);
 
   const claudePrompt = `Please act as an expert English examiner converting grammar questions into a strict JSON format for my app.
 
@@ -62,25 +59,6 @@ Please give in file.`;
     try {
       const text = await selected.text();
       let json = JSON.parse(text);
-      
-      // Auto-migrate legacy format to multi-part
-      if (!json.parts && json.passage_html && json.questions) {
-        json = {
-          title: json.title || 'Legacy Exam',
-          exam_type: json.exam_type || 'CEFR_READING',
-          time_limit: json.time_limit,
-          prep_time: json.prep_time,
-          parts: [
-            {
-              part_number: 1,
-              title: json.title || 'Part 1',
-              passage_html: json.passage_html,
-              audio_urls: json.audio_urls,
-              questions: json.questions
-            }
-          ]
-        };
-      }
       
       const valResult = GrammarExamSchema.safeParse(json);
       if (!valResult.success) {
@@ -134,9 +112,9 @@ Please give in file.`;
     <div className="p-8 max-w-5xl mx-auto">
       <div className="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Canonical Exam</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Grammar Test</h1>
           <p className="text-slate-500 mt-2">
-            Ingest pre-formatted Reading and Listening JSON exams into the database.
+            Ingest pre-formatted Grammar JSON exams into the database.
           </p>
         </div>
         <button
@@ -177,30 +155,6 @@ Please give in file.`;
         </div>
       )}
 
-      <div className="flex gap-4 mb-8">
-        <button
-          onClick={() => { setExamMode('reading'); setAudioFiles([]); }}
-          className={`px-6 py-3 rounded-xl font-bold transition-all ${
-            examMode === 'reading' 
-              ? 'bg-fuchsia-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-          }`}
-        >
-          Reading Exam
-        </button>
-        <button
-          onClick={() => setExamMode('listening')}
-          className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
-            examMode === 'listening' 
-              ? 'bg-teal-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-          }`}
-        >
-          <Headphones className="w-5 h-5" />
-          Listening Exam
-        </button>
-      </div>
-
       {success && (
         <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
@@ -229,48 +183,9 @@ Please give in file.`;
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        
-        {examMode === 'listening' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col h-full">
-            <h3 className="font-bold text-slate-800 mb-4">Step 1: Upload Audio (MP3/WAV)</h3>
-            <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
-              <input 
-                type="file" 
-                accept="audio/*"
-                multiple
-                ref={audioInputRef}
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setAudioFiles(Array.from(e.target.files));
-                  }
-                }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
-              />
-              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
-                <UploadCloud className="w-5 h-5 text-teal-500" />
-              </div>
-              <p className="text-sm font-semibold text-slate-700">Select Audio Files</p>
-              
-              {audioFiles.length > 0 && (
-                <div className="mt-4 flex flex-col gap-2 w-full max-w-xs">
-                  {audioFiles.map((f, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs font-medium text-teal-700 bg-teal-50 px-3 py-2 rounded-full border border-teal-100 truncate w-full">
-                      <Headphones className="w-4 h-4 shrink-0" />
-                      <span className="truncate">{f.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col h-full ${examMode === 'reading' ? 'md:col-span-2' : ''}`}>
-          <h3 className="font-bold text-slate-800 mb-4">
-            {examMode === 'listening' ? 'Step 2: Upload JSON' : 'Upload JSON File'}
-          </h3>
-          <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col mb-8">
+        <h3 className="font-bold text-slate-800 mb-4">Upload JSON File</h3>
+        <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
           <input 
             type="file" 
             accept=".json" 
@@ -291,7 +206,6 @@ Please give in file.`;
             </div>
           )}
         </div>
-        </div>
       </div>
 
         {previewData && (
@@ -304,25 +218,35 @@ Please give in file.`;
               <button 
                 onClick={handleUpload}
                 disabled={isUploading}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-50"
+                className="w-full max-w-[200px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                Submit to Database
+                Submit
               </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-                <h4 className="text-sm font-semibold text-slate-700 mb-4 flex justify-between">
-                  Test Details
-                  <span className="text-xs font-medium px-2 py-0.5 bg-slate-200 text-slate-600 rounded">{previewData.level}</span>
-                </h4>
-                <h1 className="text-xl font-bold mb-4">{previewData.title}</h1>
-                <p className="text-sm text-slate-600">Time limit: {previewData.time_limit} seconds</p>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 grid grid-cols-2 gap-4 h-fit">
+                <div className="col-span-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Title</p>
+                  <p className="text-md font-bold">{previewData.title}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Level</p>
+                  <p className="text-sm font-semibold capitalize">{previewData.level}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Time Limit</p>
+                  <p className="text-sm font-semibold">{previewData.time_limit}s</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Total Questions</p>
+                  <p className="text-sm font-semibold">{previewData.questions.length}</p>
+                </div>
               </div>
 
               <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-                <h4 className="text-sm font-semibold text-slate-700 mb-4">Extracted Questions ({previewData.questions?.length || 0})</h4>
+                <h4 className="text-sm font-semibold text-slate-700 mb-4">Questions Preview</h4>
                 <div className="space-y-3 h-96 overflow-y-auto pr-2">
                   {previewData.questions?.map((q: any, i: number) => (
                     <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
@@ -366,20 +290,7 @@ Please give in file.`;
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
             <h3 className="text-xl font-bold text-slate-800 mb-2">Uploading Exam</h3>
             
-            {examMode === 'listening' && audioFiles.length > 0 ? (
-              <div className="w-full text-center">
-                <p className="text-slate-500 text-sm mb-6">Processing audio files and compiling JSON data...</p>
-                <div className="w-full bg-slate-100 rounded-full h-4 mb-2 overflow-hidden shadow-inner">
-                  <div 
-                    className="bg-teal-500 h-full rounded-full transition-all duration-300 ease-out flex items-center justify-end pr-2" 
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-teal-700 font-black text-lg">{uploadProgress}%</p>
-              </div>
-            ) : (
-              <p className="text-slate-500 text-sm text-center">Saving canonical exam data to the database...</p>
-            )}
+            <p className="text-slate-500 text-sm text-center">Saving grammar exam data to the database...</p>
           </div>
         </div>
       )}
