@@ -384,18 +384,28 @@ export default function ListeningSessionPage() {
             </div>
 
             {/* Passage Content */}
-            <div id="listening-text-container" className="p-6 lg:p-10">
-              <div className="mb-6 pb-6 border-b border-slate-100 ">
-                <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
-                <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
-              </div>
-              {currentTask.passage_html && (
-                <div 
-                  className="prose prose-sm md:prose-base max-w-none text-slate-800 "
-                  dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
+            {currentTask.pdf_url ? (
+              <div className="w-full h-[600px] relative border-t border-slate-200">
+                <iframe 
+                  src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
+                  className="absolute inset-0 w-full h-full border-0"
+                  title="Listening PDF"
                 />
-              )}
-            </div>
+              </div>
+            ) : (
+              <div id="listening-text-container" className="p-6 lg:p-10">
+                <div className="mb-6 pb-6 border-b border-slate-100 ">
+                  <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
+                  <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
+                </div>
+                {currentTask.passage_html && (
+                  <div 
+                    className="prose prose-sm md:prose-base max-w-none text-slate-800 "
+                    dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {/* Bottom Block: Questions */}

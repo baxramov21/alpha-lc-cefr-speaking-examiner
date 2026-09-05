@@ -21,7 +21,8 @@ export const ExamCanonicalSchema = z.object({
     z.object({
       part_number: z.number(),
       title: z.string(),
-      passage_html: z.string(),
+      passage_html: z.string().optional(),
+      pdf_url: z.string().nullable().optional(),
       audio_urls: z.array(z.string()).nullable().optional(),
       image_url: z.string().nullable().optional(), // Added for part-level images
       questions: z.array(QuestionSchema).min(1, 'At least one question is required'),

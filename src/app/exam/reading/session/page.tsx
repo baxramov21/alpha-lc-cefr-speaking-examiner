@@ -248,20 +248,30 @@ export default function ReadingSessionPage() {
               </h2>
             </div>
             
-            <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
-              <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
-                {currentTask.passage_html ? (
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: currentTask.passage_html
-                      .replace(/\(\s*\d+\s*\)_*/g, (match: string) => `<span class="bg-fuchsia-100 text-fuchsia-800 font-bold px-2 py-0.5 rounded-md mx-1 shadow-sm border border-fuchsia-200">${match}</span>`)
-                      .replace(/<\/(b|strong)>([a-zA-Z])/gi, '</$1> $2')
-                      .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
-                  }} />
-                ) : (
-                  <div className="p-8 text-center text-slate-500  ">No text available.</div>
-                )}
+            {currentTask.pdf_url ? (
+              <div className="flex-1 w-full relative">
+                <iframe 
+                  src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
+                  className="absolute inset-0 w-full h-full border-0"
+                  title="Reading PDF"
+                />
               </div>
-            </div>
+            ) : (
+              <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+                <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
+                  {currentTask.passage_html ? (
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: currentTask.passage_html
+                        .replace(/\(\s*\d+\s*\)_*/g, (match: string) => `<span class="bg-fuchsia-100 text-fuchsia-800 font-bold px-2 py-0.5 rounded-md mx-1 shadow-sm border border-fuchsia-200">${match}</span>`)
+                        .replace(/<\/(b|strong)>([a-zA-Z])/gi, '</$1> $2')
+                        .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
+                    }} />
+                  ) : (
+                    <div className="p-8 text-center text-slate-500  ">No text available.</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Questions */}

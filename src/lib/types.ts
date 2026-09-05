@@ -102,6 +102,7 @@ export interface ListeningTask {
   partLabel: string; // e.g. "Part 1"
   audioUrls?: string[];
   passage_html?: string;
+  pdf_url?: string;
   instructions: string;
   questions: ListeningSubQuestion[];
 }
@@ -139,7 +140,8 @@ export interface ExamResult {
 export interface ReadingTask {
   id: string;
   partLabel: string;
-  passage_html: string;
+  passage_html?: string;
+  pdf_url?: string;
   instructions: string;
   questions: ListeningSubQuestion[]; // Re-using sub question type
 }
