@@ -398,6 +398,11 @@ export default function ListeningSessionPage() {
                   <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
                   <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
                 </div>
+                {currentTask.image_url && (
+                  <div className="mb-6 flex justify-center">
+                    <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                  </div>
+                )}
                 {currentTask.passage_html && (
                   <div 
                     className="prose prose-sm md:prose-base max-w-none text-slate-800 "
@@ -425,6 +430,12 @@ export default function ListeningSessionPage() {
                       </div>
                       <div className="flex-1">
                         <div className="text-lg text-slate-800 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
+                        
+                        {q.image_url && (
+                          <div className="mb-4 flex justify-center">
+                            <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                          </div>
+                        )}
                         
                         {(q.type === 'multiple_choice' || q.type === 'matching') && q.options && (
                           <div className="space-y-3">

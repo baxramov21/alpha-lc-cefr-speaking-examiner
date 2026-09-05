@@ -259,6 +259,11 @@ export default function ReadingSessionPage() {
             ) : (
               <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
                 <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
+                  {currentTask.image_url && (
+                    <div className="mb-6 flex justify-center">
+                      <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                    </div>
+                  )}
                   {currentTask.passage_html ? (
                     <div dangerouslySetInnerHTML={{ 
                       __html: currentTask.passage_html
@@ -292,6 +297,12 @@ export default function ReadingSessionPage() {
                     </div>
                     <div className="flex-1">
                       <div className="text-lg text-slate-800 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
+                      
+                      {q.image_url && (
+                        <div className="mb-4 flex justify-center">
+                          <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                        </div>
+                      )}
                       
                       {(q.type === 'multiple_choice' || q.type === 'matching') && q.options && (
                         <div className="space-y-3">

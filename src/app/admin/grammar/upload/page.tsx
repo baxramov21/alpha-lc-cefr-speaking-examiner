@@ -318,7 +318,7 @@ SCHEMA:
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
-          <h3 className="font-bold text-slate-800 mb-4">Upload Answer Key (JSON)</h3>
+          <h3 className="font-bold text-slate-800 mb-4">{examMode === 'grammar' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
           <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
             <input type="file" accept=".json" onChange={handleJsonChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
             <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">

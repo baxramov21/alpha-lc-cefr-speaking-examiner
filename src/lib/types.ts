@@ -94,6 +94,7 @@ export interface ListeningSubQuestion {
   text: string;
   type: 'multiple_choice' | 'fill_in' | 'matching';
   options?: string[]; // For multiple choice
+  image_url?: string;
   correctAnswer: string;
 }
 
@@ -103,6 +104,7 @@ export interface ListeningTask {
   audioUrls?: string[];
   passage_html?: string;
   pdf_url?: string;
+  image_url?: string;
   instructions: string;
   questions: ListeningSubQuestion[];
 }
@@ -142,6 +144,7 @@ export interface ReadingTask {
   partLabel: string;
   passage_html?: string;
   pdf_url?: string;
+  image_url?: string;
   instructions: string;
   questions: ListeningSubQuestion[]; // Re-using sub question type
 }
