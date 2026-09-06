@@ -73,6 +73,7 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set());
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [isCleaningDuplicates, setIsCleaningDuplicates] = useState(false);
 
   // Deferred Edits (Draft State)
   const [pendingEdits, setPendingEdits] = useState<Record<string, Partial<Question>>>({});
@@ -292,6 +293,31 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       alert('Seed failed unexpectedly.');
     }
     setIsSeeding(false);
+  };
+
+  const handleCleanDuplicates = async () => {
+    if (!confirm('Are you sure you want to search and remove all duplicate questions for this programme?')) return;
+    
+    setIsCleaningDuplicates(true);
+    try {
+      const res = await fetch('/api/admin/questions/clean-duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ programme })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Successfully removed ${data.deleted} duplicate questions.`);
+        fetchQuestions();
+      } else {
+        alert('Failed to clean duplicates.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error cleaning duplicates.');
+    } finally {
+      setIsCleaningDuplicates(false);
+    }
   };
 
   const handleUploadJson = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1124,6 +1150,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           >
             {isSeeding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
             {isSeeding ? 'Seeding...' : 'Seed Database'}
+          </Button>
+          <Button 
+            onClick={handleCleanDuplicates} 
+            variant="outline" 
+            className="border-slate-300 text-red-600 font-medium bg-white hover:bg-red-50"
+            disabled={isCleaningDuplicates}
+          >
+            {isCleaningDuplicates ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+            {isCleaningDuplicates ? 'Cleaning...' : 'Clean Duplicates'}
           </Button>
           <Button onClick={() => setIsCreating(true)} className="bg-teal-600 hover:bg-teal-700 text-white shadow-md rounded-xl font-bold">
             <Plus className="w-4 h-4 mr-2" />
