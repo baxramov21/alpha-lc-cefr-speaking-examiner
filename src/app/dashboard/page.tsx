@@ -38,6 +38,14 @@ export default function DashboardPage() {
     }
     
     const parsed = JSON.parse(rawSession);
+    if (parsed.programme === 'IELTS') {
+      router.push('/dashboard/ielts');
+      return;
+    }
+    if (parsed.programme === 'GRAMMAR') {
+      router.push('/dashboard/grammar');
+      return;
+    }
     setSession(parsed);
 
     const fetchSubmissions = async () => {
