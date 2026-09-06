@@ -8,6 +8,7 @@ type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 
 export default function GrammarUploadPage() {
   const [examMode, setExamMode] = useState<ExamMode>('grammar_pdf');
+  const [grammarLevel, setGrammarLevel] = useState<string>('pre-intermediate');
   
   const [jsonFile, setJsonFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -149,7 +150,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               title: json.title || "Extracted Exam",
               exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
               programme: 'GRAMMAR',
-              grammar_level: json.grammar_level || 'pre-intermediate',
+              grammar_level: json.grammar_level || grammarLevel,
               time_limit: json.time_limit || 3600,
               parts: [
                 {
@@ -168,7 +169,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 title: "Extracted Exam",
                 exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
                 programme: 'GRAMMAR',
-                grammar_level: 'pre-intermediate',
+                grammar_level: grammarLevel,
                 time_limit: 3600,
                 parts: [
                   {
@@ -183,7 +184,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 title: "Extracted Exam",
                 exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
                 programme: 'GRAMMAR',
-                grammar_level: 'pre-intermediate',
+                grammar_level: grammarLevel,
                 time_limit: 3600,
                 parts: json
               };
@@ -219,7 +220,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 title: "Extracted Exam",
                 exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
                 programme: 'GRAMMAR',
-                grammar_level: 'pre-intermediate',
+                grammar_level: grammarLevel,
                 time_limit: 3600,
                 parts: [
                   {
@@ -254,6 +255,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
            });
         }
       }
+      
+      json.level = grammarLevel;
+      json.grammar_level = grammarLevel;
       
       if (examMode === 'grammar_json') {
         const valResult = GrammarExamSchema.safeParse(json);
@@ -449,6 +453,20 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         >
           Listening (PDF Mode)
         </button>
+      </div>
+
+      <div className="mb-8">
+        <label className="block text-sm font-semibold text-slate-700 mb-2">Select Grammar Level</label>
+        <select
+          value={grammarLevel}
+          onChange={(e) => setGrammarLevel(e.target.value)}
+          className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+        >
+          <option value="elementary">Elementary</option>
+          <option value="pre-intermediate">Pre-Intermediate</option>
+          <option value="intermediate">Intermediate</option>
+        </select>
+        <p className="text-xs text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
       </div>
 
       {showPrompt && (
