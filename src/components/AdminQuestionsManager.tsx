@@ -144,7 +144,10 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
       ]
     }
   ]
-}`;
+}
+
+OUTPUT FORMAT INSTRUCTION:
+Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
   const handleCopyPrompt = () => {
     navigator.clipboard.writeText(speakingPrompt);

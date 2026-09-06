@@ -48,7 +48,10 @@ SCHEMA:
       "explanation": "String - Optional brief explanation"
     }
   ]
-}`;
+}
+
+OUTPUT FORMAT INSTRUCTION:
+Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
   const grammarPdfPrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
@@ -74,7 +77,10 @@ SCHEMA:
       "type": "FILL_IN"
     }
   }
-}`;
+}
+
+OUTPUT FORMAT INSTRUCTION:
+Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
   const canonicalPdfPrompt = `Please act as an expert English examiner converting an exam answer key into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
@@ -102,7 +108,10 @@ SCHEMA:
       "type": "MULTIPLE_CHOICE"
     }
   }
-}`;
+}
+
+OUTPUT FORMAT INSTRUCTION:
+Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
   const handleCopyPrompt = () => {
     let promptText = canonicalPdfPrompt;
