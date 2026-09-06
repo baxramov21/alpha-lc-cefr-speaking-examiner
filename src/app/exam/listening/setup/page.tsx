@@ -32,7 +32,12 @@ export default function ListeningSetupPage() {
 
     const fetchTasks = async () => {
       try {
-        const res = await fetch('/api/student/listening');
+        const currentSession = JSON.parse(sessionStorage.getItem('examSession') || '{}');
+        const res = await fetch('/api/student/listening', {
+          headers: {
+            'Authorization': `Bearer ${currentSession.sessionToken}`
+          }
+        });
         const data = await res.json();
         if (data.tasks) {
           sessionStorage.setItem('listeningTasks', JSON.stringify(data.tasks));

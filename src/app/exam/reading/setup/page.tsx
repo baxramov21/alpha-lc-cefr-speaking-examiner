@@ -33,7 +33,12 @@ export default function ReadingSetupPage() {
 
     const fetchTasks = async () => {
       try {
-        const res = await fetch('/api/student/reading');
+        const currentSession = JSON.parse(sessionStorage.getItem('examSession') || '{}');
+        const res = await fetch('/api/student/reading', {
+          headers: {
+            'Authorization': `Bearer ${currentSession.sessionToken}`
+          }
+        });
         const data = await res.json();
         if (data.tasks) {
           sessionStorage.setItem('readingTasks', JSON.stringify(data.tasks));
