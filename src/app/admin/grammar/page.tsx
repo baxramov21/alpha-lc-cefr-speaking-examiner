@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2 } from 'lucide-react';
+import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type TabType = 'grammar' | 'reading' | 'listening' | 'triples';
@@ -161,24 +161,39 @@ export default function AdminGrammarExamsPage() {
         </div>
       </div>
 
-      <div className="flex gap-6 border-b border-slate-200">
-        {(['triples', 'grammar', 'reading', 'listening'] as TabType[]).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-4 px-2 font-bold transition-colors border-b-2 capitalize ${activeTab === tab ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-          >
-            {tab === 'grammar' ? 'Pure Grammar' : tab}
-          </button>
-        ))}
+      <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit mb-8">
+        <button
+          onClick={() => setActiveTab('grammar')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'grammar' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+        >
+          <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Pure Grammar</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('reading')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'reading' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+        >
+          <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Reading</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('listening')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'listening' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+        >
+          <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Listening</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('triples')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'triples' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+        >
+          <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
+        </button>
       </div>
 
       {activeTab === 'triples' && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-800">Grammar Triples</h2>
+            <h2 className="text-xl font-bold text-slate-800">Grammar Exam Pairs</h2>
             <Button onClick={() => setIsCreatingTriple(!isCreatingTriple)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9">
-              {isCreatingTriple ? 'Cancel' : 'Create Triple'}
+              {isCreatingTriple ? 'Cancel' : 'Create Pair'}
             </Button>
           </div>
 
@@ -186,7 +201,7 @@ export default function AdminGrammarExamsPage() {
             <form onSubmit={handleCreateTriple} className="bg-slate-50 p-6 rounded-xl border border-slate-100 mb-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-1">Triple Name</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Pair Name</label>
                   <input required value={tripleForm.name} onChange={e => setTripleForm({...tripleForm, name: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2" placeholder="e.g. End of Month Test" />
                 </div>
                 <div>
@@ -222,12 +237,12 @@ export default function AdminGrammarExamsPage() {
                   </select>
                 </div>
               </div>
-              <Button type="submit" className="w-full bg-slate-900 text-white font-bold h-10 mt-2">Save Triple</Button>
+              <Button type="submit" className="w-full bg-slate-900 text-white font-bold h-10 mt-2">Save Pair</Button>
             </form>
           )}
 
           {triples.length === 0 && !isLoading ? (
-            <p className="text-slate-500 text-center py-8">No triples created yet.</p>
+            <p className="text-slate-500 text-center py-8">No pairs created yet.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {triples.map(trip => (
