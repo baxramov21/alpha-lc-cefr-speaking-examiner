@@ -236,7 +236,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (json.parts && Array.isArray(json.parts)) {
            json.parts.forEach((p: any) => {
               if (p.questions && Array.isArray(p.questions)) {
-                 p.questions.forEach((q: any) => {
+                 p.questions.forEach((q: any, i: number) => {
+                    // Force question_number to exist
+                    if (q.question_number === undefined) {
+                       q.question_number = i + 1;
+                    } else if (typeof q.question_number === 'string') {
+                       q.question_number = parseInt(q.question_number) || i + 1;
+                    }
                     if (!q.question_text) {
                        q.question_text = `Question ${q.question_number}`;
                     }
