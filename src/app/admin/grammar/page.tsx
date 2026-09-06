@@ -2,33 +2,45 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Database, Power, PowerOff, Loader2, RefreshCw } from 'lucide-react';
+import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+type TabType = 'grammar' | 'reading' | 'listening' | 'triples';
+
 export default function AdminGrammarExamsPage() {
-  const [activeTab, setActiveTab] = useState<'grammar' | 'reading' | 'listening'>('grammar');
+  const [activeTab, setActiveTab] = useState<TabType>('grammar');
   const [exams, setExams] = useState<any[]>([]);
   const [canonicalExams, setCanonicalExams] = useState<any[]>([]);
+  const [triples, setTriples] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Edit level state
+  const [editingExam, setEditingExam] = useState<{ id: string, level: string, isCanonical: boolean } | null>(null);
+  
+  // Create Triple state
+  const [isCreatingTriple, setIsCreatingTriple] = useState(false);
+  const [tripleForm, setTripleForm] = useState({
+    name: '',
+    level: 'Elementary',
+    reading_exam_id: '',
+    listening_exam_id: '',
+    grammar_exam_id: ''
+  });
 
   const fetchExams = async () => {
     setIsLoading(true);
     try {
-      // Fetch pure grammar tests
-      const res = await fetch('/api/admin/grammar/exams');
-      if (res.ok) {
-        const data = await res.json();
-        setExams(data.exams || []);
-      }
-      
-      // Fetch reading and listening tests specifically for GRAMMAR programme
-      const canRes = await fetch('/api/admin/exams/canonical');
-      if (canRes.ok) {
-        const data = await canRes.json();
-        setCanonicalExams((data || []).filter((e: any) => e.programme === 'GRAMMAR'));
-      }
+      const [res, canRes, tripRes] = await Promise.all([
+        fetch('/api/admin/grammar/exams'),
+        fetch('/api/admin/exams/canonical'),
+        fetch('/api/admin/grammar/triples')
+      ]);
+
+      if (res.ok) setExams((await res.json()).exams || []);
+      if (canRes.ok) setCanonicalExams(((await canRes.json()) || []).filter((e: any) => e.programme === 'GRAMMAR'));
+      if (tripRes.ok) setTriples(await tripRes.json());
     } catch (err) {
-      console.error('Failed to fetch exams:', err);
+      console.error('Failed to fetch data:', err);
     } finally {
       setIsLoading(false);
     }
@@ -45,38 +57,94 @@ export default function AdminGrammarExamsPage() {
         : `/api/admin/grammar/exams/${id}/toggle`;
         
       const method = isCanonical ? 'PATCH' : 'POST';
-      const body = isCanonical 
-        ? { active: !currentStatus } 
-        : { is_active: !currentStatus };
+      const body = isCanonical ? { active: !currentStatus } : { is_active: !currentStatus };
 
       const res = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      if (res.ok) {
-        fetchExams();
-      }
+      if (res.ok) fetchExams();
     } catch (err) {
       console.error('Failed to toggle status', err);
     }
   };
 
+  const handleUpdateLevel = async () => {
+    if (!editingExam) return;
+    try {
+      const res = await fetch(`/api/admin/grammar/exams/${editingExam.id}/update-level`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          level: editingExam.level, 
+          table: editingExam.isCanonical ? 'canonical_exams' : 'grammar_exams' 
+        })
+      });
+      if (res.ok) {
+        setEditingExam(null);
+        fetchExams();
+      } else {
+        alert('Failed to update level');
+      }
+    } catch (err) {
+      console.error('Error updating level', err);
+    }
+  };
+
+  const handleCreateTriple = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/grammar/triples', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripleForm)
+      });
+      if (res.ok) {
+        setIsCreatingTriple(false);
+        fetchExams();
+      } else {
+        alert('Failed to create triple');
+      }
+    } catch (err) {
+      console.error('Error creating triple', err);
+    }
+  };
+
+  const toggleTripleStatus = async (id: string, level: string) => {
+    try {
+      const res = await fetch(`/api/admin/grammar/triples/${id}/set-active`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level })
+      });
+      if (res.ok) fetchExams();
+    } catch (err) {
+      console.error('Failed to toggle triple status', err);
+    }
+  };
+
+  const deleteTriple = async (id: string) => {
+    if (!confirm('Delete this triple?')) return;
+    try {
+      const res = await fetch(`/api/admin/grammar/triples/${id}`, { method: 'DELETE' });
+      if (res.ok) fetchExams();
+    } catch (err) {
+      console.error('Failed to delete triple', err);
+    }
+  };
+
   let displayedExams: any[] = [];
-  if (activeTab === 'grammar') {
-    displayedExams = exams;
-  } else if (activeTab === 'reading') {
-    displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_READING');
-  } else if (activeTab === 'listening') {
-    displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING');
-  }
+  if (activeTab === 'grammar') displayedExams = exams;
+  else if (activeTab === 'reading') displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_READING');
+  else if (activeTab === 'listening') displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING');
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-slate-800">Grammar Tests</h1>
-          <p className="text-slate-500 mt-1">Manage grammar quizzes for students.</p>
+          <p className="text-slate-500 mt-1">Manage grammar quizzes and bundles for students.</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -94,93 +162,189 @@ export default function AdminGrammarExamsPage() {
       </div>
 
       <div className="flex gap-6 border-b border-slate-200">
-        <button
-          onClick={() => setActiveTab('grammar')}
-          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'grammar' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Pure Grammar
-        </button>
-        <button
-          onClick={() => setActiveTab('reading')}
-          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'reading' ? 'border-fuchsia-600 text-fuchsia-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Reading
-        </button>
-        <button
-          onClick={() => setActiveTab('listening')}
-          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'listening' ? 'border-teal-600 text-teal-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Listening
-        </button>
+        {(['triples', 'grammar', 'reading', 'listening'] as TabType[]).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`pb-4 px-2 font-bold transition-colors border-b-2 capitalize ${activeTab === tab ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          >
+            {tab === 'grammar' ? 'Pure Grammar' : tab}
+          </button>
+        ))}
       </div>
 
-      <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
-        {isLoading ? (
-          <div className="py-24 flex flex-col items-center justify-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin mb-4" />
-            <p>Loading grammar tests...</p>
+      {activeTab === 'triples' && (
+        <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-800">Grammar Triples</h2>
+            <Button onClick={() => setIsCreatingTriple(!isCreatingTriple)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9">
+              {isCreatingTriple ? 'Cancel' : 'Create Triple'}
+            </Button>
           </div>
-        ) : displayedExams.length === 0 ? (
-          <div className="py-24 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
-              <Database className="w-8 h-8 text-slate-300" />
+
+          {isCreatingTriple && (
+            <form onSubmit={handleCreateTriple} className="bg-slate-50 p-6 rounded-xl border border-slate-100 mb-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Triple Name</label>
+                  <input required value={tripleForm.name} onChange={e => setTripleForm({...tripleForm, name: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2" placeholder="e.g. End of Month Test" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Level</label>
+                  <select value={tripleForm.level} onChange={e => setTripleForm({...tripleForm, level: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2">
+                    <option value="Elementary">Elementary</option>
+                    <option value="Pre-Intermediate">Pre-Intermediate</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Upper-Intermediate">Upper-Intermediate</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Reading Test</label>
+                  <select required value={tripleForm.reading_exam_id} onChange={e => setTripleForm({...tripleForm, reading_exam_id: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    <option value="">Select Reading...</option>
+                    {canonicalExams.filter(e => e.exam_type === 'CEFR_READING').map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Listening Test</label>
+                  <select required value={tripleForm.listening_exam_id} onChange={e => setTripleForm({...tripleForm, listening_exam_id: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    <option value="">Select Listening...</option>
+                    {canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING').map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Grammar Test</label>
+                  <select required value={tripleForm.grammar_exam_id} onChange={e => setTripleForm({...tripleForm, grammar_exam_id: e.target.value})} className="w-full border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    <option value="">Select Grammar...</option>
+                    {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                  </select>
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-slate-900 text-white font-bold h-10 mt-2">Save Triple</Button>
+            </form>
+          )}
+
+          {triples.length === 0 && !isLoading ? (
+            <p className="text-slate-500 text-center py-8">No triples created yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {triples.map(trip => (
+                <div key={trip.id} className="border border-slate-200 rounded-xl p-5 hover:border-indigo-200 transition-colors bg-slate-50/50">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Layers className="w-4 h-4 text-indigo-500" />
+                        <h3 className="font-bold text-slate-800">{trip.name}</h3>
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">{trip.level}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => toggleTripleStatus(trip.id, trip.level)} size="sm" variant={trip.is_active ? "default" : "outline"} className={trip.is_active ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}>
+                        {trip.is_active ? <CheckCircle2 className="w-4 h-4 mr-1" /> : <Power className="w-4 h-4 mr-1" />}
+                        {trip.is_active ? 'Active' : 'Set Active'}
+                      </Button>
+                      <Button onClick={() => deleteTriple(trip.id)} size="sm" variant="ghost" className="text-red-500 hover:bg-red-50">Delete</Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <p><strong className="text-slate-800 font-medium">R:</strong> {trip.reading_exam?.title || 'None'}</p>
+                    <p><strong className="text-slate-800 font-medium">L:</strong> {trip.listening_exam?.title || 'None'}</p>
+                    <p><strong className="text-slate-800 font-medium">G:</strong> {trip.grammar_exam?.title || 'None'}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-lg font-bold text-slate-700">No Tests Found</h3>
-            <p className="text-slate-500 max-w-sm mt-1">Upload your first {activeTab} test to get started.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/50">
-                  <th className="py-4 pl-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Title</th>
-                  <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Level</th>
-                  <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Time Limit</th>
-                  <th className="py-4 pr-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayedExams.map((exam) => (
-                  <tr key={exam.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors group">
-                    <td className="py-4 pl-6">
-                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${exam.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${exam.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                        {exam.is_active ? 'Active' : 'Inactive'}
-                      </div>
-                    </td>
-                    <td className="py-4">
-                      <div className="font-bold text-slate-800">{exam.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{exam.questions_count !== undefined ? `${exam.questions_count} questions` : 'PDF Exam'}</div>
-                    </td>
-                    <td className="py-4">
-                      <span className="capitalize text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                        {exam.level || exam.grammar_level || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="py-4 text-sm font-medium text-slate-500">
-                      {Math.round(exam.time_limit / 60)} min
-                    </td>
-                    <td className="py-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button 
-                          onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
-                          variant="outline" 
-                          size="sm"
-                          className={exam.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200'}
-                        >
-                          {exam.is_active ? <PowerOff className="w-4 h-4 mr-1.5" /> : <Power className="w-4 h-4 mr-1.5" />}
-                          {exam.is_active ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </div>
-                    </td>
+          )}
+        </div>
+      )}
+
+      {activeTab !== 'triples' && (
+        <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
+          {isLoading ? (
+            <div className="py-24 flex flex-col items-center justify-center text-slate-400">
+              <Loader2 className="w-8 h-8 animate-spin mb-4" />
+              <p>Loading tests...</p>
+            </div>
+          ) : displayedExams.length === 0 ? (
+            <div className="py-24 flex flex-col items-center justify-center text-center">
+              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
+                <Database className="w-8 h-8 text-slate-300" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-700">No Tests Found</h3>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/50">
+                    <th className="py-4 pl-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Title</th>
+                    <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Level</th>
+                    <th className="py-4 pr-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+                <tbody>
+                  {displayedExams.map((exam) => (
+                    <tr key={exam.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                      <td className="py-4 pl-6">
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${exam.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${exam.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                          {exam.is_active ? 'Active' : 'Inactive'}
+                        </div>
+                      </td>
+                      <td className="py-4">
+                        <div className="font-bold text-slate-800">{exam.title}</div>
+                      </td>
+                      <td className="py-4">
+                        {editingExam?.id === exam.id ? (
+                          <div className="flex gap-2 items-center">
+                            <select 
+                              value={editingExam!.level} 
+                              onChange={(e) => setEditingExam(prev => prev ? {...prev, level: e.target.value} : null)}
+                              className="border-slate-200 rounded px-2 py-1 text-sm bg-white"
+                            >
+                              <option value="Elementary">Elementary</option>
+                              <option value="Pre-Intermediate">Pre-Intermediate</option>
+                              <option value="Intermediate">Intermediate</option>
+                              <option value="Upper-Intermediate">Upper-Intermediate</option>
+                            </select>
+                            <Button onClick={handleUpdateLevel} size="sm" className="bg-indigo-600 text-white h-7 px-2 text-xs">Save</Button>
+                            <Button onClick={() => setEditingExam(null)} size="sm" variant="ghost" className="h-7 px-2 text-xs">Cancel</Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group">
+                            <span className="capitalize text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                              {exam.level || exam.grammar_level || 'N/A'}
+                            </span>
+                            <button onClick={() => setEditingExam({ id: exam.id, level: exam.level || exam.grammar_level || 'Elementary', isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4 pr-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button 
+                            onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
+                            variant="outline" 
+                            size="sm"
+                            className={exam.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200'}
+                          >
+                            {exam.is_active ? <PowerOff className="w-4 h-4 mr-1.5" /> : <Power className="w-4 h-4 mr-1.5" />}
+                            {exam.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

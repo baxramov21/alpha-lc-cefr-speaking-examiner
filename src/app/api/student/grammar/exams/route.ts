@@ -17,17 +17,43 @@ export async function GET(req: NextRequest) {
 
     const grammarLevel = session.grammarLevel || 'intermediate'; // fallback
 
-    // Fetch active exams for this level
-    const { data: exams, error } = await supabaseAdmin
-      .from('grammar_exams')
-      .select('id, title, level, time_limit')
-      .eq('is_active', true)
-      .eq('level', grammarLevel)
-      .order('created_at', { ascending: false });
+    let exams: any[] = [];
 
-    if (error) {
-      console.error('Error fetching grammar exams:', error);
-      return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
+    try {
+      const { data: triple } = await supabaseAdmin
+        .from('grammar_triples')
+        .select('grammar_exam_id')
+        .eq('level', grammarLevel)
+        .eq('is_active', true)
+        .single();
+
+      if (triple?.grammar_exam_id) {
+        const { data: tripleExam } = await supabaseAdmin
+          .from('grammar_exams')
+          .select('id, title, level, time_limit')
+          .eq('id', triple.grammar_exam_id)
+          .single();
+        if (tripleExam) exams = [tripleExam];
+      }
+    } catch (e) {
+      // Table might not exist yet
+    }
+
+    // Fallback if no triple active
+    if (exams.length === 0) {
+      const { data: fallbackExams, error } = await supabaseAdmin
+        .from('grammar_exams')
+        .select('id, title, level, time_limit')
+        .eq('is_active', true)
+        .eq('level', grammarLevel)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching grammar exams:', error);
+        return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
+      }
+      
+      exams = fallbackExams || [];
     }
 
     return NextResponse.json({ exams }, { status: 200 });

@@ -60,6 +60,31 @@ CREATE POLICY "Allow public insert on submissions"
 
 -- Admin read/update/delete is handled via service_role key which bypasses RLS.
 
+-- 10. Grammar Questions
+CREATE TABLE IF NOT EXISTS public.grammar_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    exam_id UUID NOT NULL REFERENCES public.grammar_exams(id) ON DELETE CASCADE,
+    question_number INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    question_type TEXT NOT NULL,
+    options JSONB,
+    correct_answer TEXT NOT NULL,
+    explanation TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 11. Grammar Triples (For bundled Grammar tests)
+CREATE TABLE IF NOT EXISTS public.grammar_triples (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    level TEXT NOT NULL,
+    reading_exam_id UUID REFERENCES public.canonical_exams(id) ON DELETE SET NULL,
+    listening_exam_id UUID REFERENCES public.canonical_exams(id) ON DELETE SET NULL,
+    grammar_exam_id UUID REFERENCES public.grammar_exams(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- 3. Create Question Results Table
 CREATE TABLE IF NOT EXISTS public.question_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

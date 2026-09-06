@@ -12,27 +12,53 @@ export async function GET(req: NextRequest) {
     const grammarLevel = session?.grammarLevel || null;
 
     // 1. Fetch the most recent active listening exam
-    let query = supabase
-      .from('canonical_exams')
-      .select('*')
-      .eq('exam_type', 'CEFR_LISTENING')
-      .eq('is_active', true)
-      .eq('programme', programme);
-      
+    let exam = null;
+
     if (programme === 'GRAMMAR' && grammarLevel) {
-      query = query.eq('grammar_level', grammarLevel);
+      try {
+        const { data: triple } = await supabase
+          .from('grammar_triples')
+          .select('listening_exam_id')
+          .eq('level', grammarLevel)
+          .eq('is_active', true)
+          .single();
+          
+        if (triple?.listening_exam_id) {
+          const { data: tripleExam } = await supabase
+            .from('canonical_exams')
+            .select('*')
+            .eq('id', triple.listening_exam_id)
+            .single();
+          if (tripleExam) exam = tripleExam;
+        }
+      } catch (e) {
+        // Table might not exist yet, fallback
+      }
     }
 
-    const { data: exams, error: examError } = await query
-      .order('created_at', { ascending: false })
-      .limit(1);
+    if (!exam) {
+      let query = supabase
+        .from('canonical_exams')
+        .select('*')
+        .eq('exam_type', 'CEFR_LISTENING')
+        .eq('is_active', true)
+        .eq('programme', programme);
+        
+      if (programme === 'GRAMMAR' && grammarLevel) {
+        query = query.eq('grammar_level', grammarLevel);
+      }
 
-    if (examError) throw examError;
-    if (!exams || exams.length === 0) {
+      const { data: exams, error: examError } = await query
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (examError) throw examError;
+      if (exams && exams.length > 0) exam = exams[0];
+    }
+
+    if (!exam) {
       return NextResponse.json({ tasks: [], time_limit: 2400, prep_time: 300 }, { status: 200 });
     }
-
-    const exam = exams[0];
 
     // 2. Fetch its parts
     const { data: passages, error: passagesError } = await supabase
