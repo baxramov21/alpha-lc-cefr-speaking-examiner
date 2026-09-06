@@ -39,10 +39,12 @@ export default function ExamSetupPage() {
     // Fetch random questions
     const fetchQuestions = async () => {
       try {
+        const programme = parsed.programme || 'CEFR';
         const { data, error } = await supabase
           .from('questions')
           .select('*')
-          .eq('is_active', true);
+          .eq('is_active', true)
+          .eq('programme', programme);
 
         if (error) throw error;
 
@@ -60,64 +62,106 @@ export default function ExamSetupPage() {
         const timingsJson = await timingsRes.json();
         const timingsMap = Object.fromEntries((timingsJson.data || []).map((t: any) => [t.part, t]));
 
-        // Part 1: 3 standard
-        const p1Standard = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'standard')).slice(0, 3);
-        
-        // Part 1.2: 3 image questions (derived from 1 single image pair)
-        const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
-        const p1ImageQuestions = p1ImageSource ? (() => {
-          const tFirst = timingsMap['part1_2_first'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
-          const tRest = timingsMap['part1_2_rest'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+        let finalRawQuestions: any[] = [];
 
-          const subQs = (p1ImageSource.table_data as any)?.sub_questions;
-          if (subQs && Array.isArray(subQs) && subQs.length === 3) {
-            return [
-              { ...p1ImageSource, id: p1ImageSource.id + '_q1', text: subQs[0], prep_seconds: tFirst.prep_seconds, speak_seconds: tFirst.speak_seconds },
-              { ...p1ImageSource, id: p1ImageSource.id + '_q2', text: subQs[1], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds },
-              { ...p1ImageSource, id: p1ImageSource.id + '_q3', text: subQs[2], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds }
-            ];
+        if (programme === 'IELTS') {
+          // Part 1: 8 questions (across 2 topics)
+          const part1Pool = data.filter(q => q.part === 'part1');
+          const part1Topics = Array.from(new Set(part1Pool.map(q => q.topic).filter(Boolean)));
+          const selectedTopics = shuffle(part1Topics).slice(0, 2);
+          
+          let p1Questions: any[] = [];
+          for (const topic of selectedTopics) {
+            const topicQs = shuffle(part1Pool.filter(q => q.topic === topic)).slice(0, 4);
+            p1Questions.push(...topicQs);
+          }
+          // Fallback if not enough topics/questions
+          if (p1Questions.length < 8) {
+             const remaining = shuffle(part1Pool.filter(q => !p1Questions.includes(q))).slice(0, 8 - p1Questions.length);
+             p1Questions.push(...remaining);
           }
 
-          // Fallback for older, unmigrated data
-          const fullText = p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim();
-          const subQuestions = fullText.split('?')
-            .map((q: string) => q.trim())
-            .filter((q: string) => q.length > 5)
-            .map((q: string) => q + '?');
-          const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
+          // Part 2: 1 Cue Card question
+          const part2Pool = data.filter(q => q.part === 'part2');
+          const p2Selected = shuffle(part2Pool)[0];
+          const p2Topic = p2Selected ? p2Selected.topic : null;
 
-          return [
-            {
-              ...p1ImageSource,
-              id: p1ImageSource.id + '_q1',
-              text: 'Please describe the pictures shown on the screen and compare them.',
-              prep_seconds: tFirst.prep_seconds,
-              speak_seconds: tFirst.speak_seconds
-            },
-            {
-              ...p1ImageSource,
-              id: p1ImageSource.id + '_q2',
-              text: finalQ2Text,
-              prep_seconds: tRest.prep_seconds,
-              speak_seconds: tRest.speak_seconds
-            },
-            {
-              ...p1ImageSource,
-              id: p1ImageSource.id + '_q3',
-              text: `How do you think this situation will change in the future?`,
-              prep_seconds: tRest.prep_seconds,
-              speak_seconds: tRest.speak_seconds
+          // Part 3: 5 follow-up questions related to Part 2
+          const part3Pool = data.filter(q => q.part === 'part3');
+          let p3Questions: any[] = [];
+          if (p2Topic) {
+            p3Questions = shuffle(part3Pool.filter(q => q.topic === p2Topic)).slice(0, 5);
+          }
+          // Fallback if not enough matching topic questions
+          if (p3Questions.length < 5) {
+             const remaining = shuffle(part3Pool.filter(q => !p3Questions.includes(q))).slice(0, 5 - p3Questions.length);
+             p3Questions.push(...remaining);
+          }
+
+          finalRawQuestions = [...p1Questions, ...(p2Selected ? [p2Selected] : []), ...p3Questions];
+        } else {
+          // CEFR
+          // Part 1: 3 standard
+          const p1Standard = shuffle(data.filter(q => q.part === 'part1' && q.question_type === 'standard')).slice(0, 3);
+          
+          // Part 1.2: 3 image questions (derived from 1 single image pair)
+          const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
+          const p1ImageQuestions = p1ImageSource ? (() => {
+            const tFirst = timingsMap['part1_2_first'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+            const tRest = timingsMap['part1_2_rest'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+
+            const subQs = (p1ImageSource.table_data as any)?.sub_questions;
+            if (subQs && Array.isArray(subQs) && subQs.length === 3) {
+              return [
+                { ...p1ImageSource, id: p1ImageSource.id + '_q1', text: subQs[0], prep_seconds: tFirst.prep_seconds, speak_seconds: tFirst.speak_seconds },
+                { ...p1ImageSource, id: p1ImageSource.id + '_q2', text: subQs[1], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds },
+                { ...p1ImageSource, id: p1ImageSource.id + '_q3', text: subQs[2], prep_seconds: tRest.prep_seconds, speak_seconds: tRest.speak_seconds }
+              ];
             }
-          ];
-        })() : [];
-        
-        // Part 2: 1 question
-        const p2Image = shuffle(data.filter(q => q.part === 'part2')).slice(0, 1);
-        
-        // Part 3: 1 debate question
-        const p3Debate = shuffle(data.filter(q => q.part === 'part3')).slice(0, 1);
 
-        const selectedQuestions = [...p1Standard, ...p1ImageQuestions, ...p2Image, ...p3Debate].map((q, idx) => ({
+            // Fallback for older, unmigrated data
+            const fullText = p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim();
+            const subQuestions = fullText.split('?')
+              .map((q: string) => q.trim())
+              .filter((q: string) => q.length > 5)
+              .map((q: string) => q + '?');
+            const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
+
+            return [
+              {
+                ...p1ImageSource,
+                id: p1ImageSource.id + '_q1',
+                text: 'Please describe the pictures shown on the screen and compare them.',
+                prep_seconds: tFirst.prep_seconds,
+                speak_seconds: tFirst.speak_seconds
+              },
+              {
+                ...p1ImageSource,
+                id: p1ImageSource.id + '_q2',
+                text: finalQ2Text,
+                prep_seconds: tRest.prep_seconds,
+                speak_seconds: tRest.speak_seconds
+              },
+              {
+                ...p1ImageSource,
+                id: p1ImageSource.id + '_q3',
+                text: `How do you think this situation will change in the future?`,
+                prep_seconds: tRest.prep_seconds,
+                speak_seconds: tRest.speak_seconds
+              }
+            ];
+          })() : [];
+          
+          // Part 2: 1 question
+          const p2Image = shuffle(data.filter(q => q.part === 'part2')).slice(0, 1);
+          
+          // Part 3: 1 debate question
+          const p3Debate = shuffle(data.filter(q => q.part === 'part3')).slice(0, 1);
+
+          finalRawQuestions = [...p1Standard, ...p1ImageQuestions, ...p2Image, ...p3Debate];
+        }
+
+        const selectedQuestions = finalRawQuestions.map((q, idx) => ({
           id: q.id,
           part: q.part,
           partLabel: q.part === 'part1' ? 'Part 1' : q.part === 'part1_2' ? 'Part 1.2' : q.part === 'part2' ? 'Part 2' : 'Part 3',

@@ -12,6 +12,7 @@ const patchQuestionSchema = z.object({
   speak_seconds: z.number().int().min(0).max(600).optional(),
   image_url: z.string().max(500).optional().nullable(),
   table_data: z.record(z.string(), z.unknown()).optional().nullable(),
+  programme: z.enum(['CEFR', 'IELTS']).optional(),
 });
 
 export async function POST(req: NextRequest) {

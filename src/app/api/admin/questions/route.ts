@@ -12,13 +12,18 @@ const createQuestionSchema = z.object({
   image_url: z.string().max(500).optional().nullable(),
   table_data: z.record(z.string(), z.unknown()).optional().nullable(),
   is_active: z.boolean().optional().default(true),
+  programme: z.enum(['CEFR', 'IELTS']).optional().default('CEFR'),
 });
 
 export async function GET(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const programme = url.searchParams.get('programme') || 'CEFR';
+
     const { data, error } = await supabase
       .from('questions')
       .select('*')
+      .eq('programme', programme)
       .order('created_at', { ascending: false });
 
     if (error) throw error;

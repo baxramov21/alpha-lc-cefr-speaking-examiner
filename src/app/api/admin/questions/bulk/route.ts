@@ -12,6 +12,7 @@ const createQuestionSchema = z.object({
   image_url: z.string().max(500).optional().nullable(),
   table_data: z.record(z.string(), z.unknown()).optional().nullable(),
   is_active: z.boolean().optional().default(true),
+  programme: z.enum(['CEFR', 'IELTS']).optional().default('CEFR'),
 });
 
 export async function POST(req: NextRequest) {

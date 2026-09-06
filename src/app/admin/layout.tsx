@@ -18,7 +18,8 @@ import {
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/submissions', label: 'Submissions', icon: FileText },
-  { href: '/admin/questions', label: 'Questions', icon: Database },
+  { href: '/admin/questions', label: 'CEFR Questions', icon: Database },
+  { href: '/admin/ielts-questions', label: 'IELTS Questions', icon: Database },
   { href: '/admin/exams/canonical', label: 'IELTS / CEFR Tests', icon: Database },
   { href: '/admin/exams/upload', label: 'Upload IELTS/CEFR', icon: FileText },
   { href: '/admin/grammar', label: 'Grammar Tests', icon: Database },
