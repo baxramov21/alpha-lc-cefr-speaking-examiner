@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, Check, Loader2, UploadCloud, AlertTriangle, Clock, CheckSquare, Square, Search, Image as ImageIcon, FileJson } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Check, Loader2, UploadCloud, AlertTriangle, Clock, CheckSquare, Square, Search, Image as ImageIcon, FileJson, Bot, Copy, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -85,6 +85,29 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
   const [isSearchingStock, setIsSearchingStock] = useState(false);
   const [isExtractingKeywords, setIsExtractingKeywords] = useState(false);
   const [activeSetter, setActiveSetter] = useState<{setter: Function, data: Partial<Question>, field: 'image_url' | 'image_url_2'} | null>(null);
+
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  const speakingPrompt = `Please act as an expert English examiner converting speaking exam questions into a strict JSON format for my app.
+
+CRITICAL INSTRUCTIONS:
+1. Save the JSON to a file named 'questions.json'.
+2. The JSON must exactly match the schema below. Output an Array of question objects.
+3. Keep the parts exactly as "part1", "part1_2", "part2", or "part3" depending on the exam.
+
+SCHEMA:
+[
+  {
+    "topic": "String - The overarching topic (e.g., Hometown, Work)",
+    "text": "String - The actual question",
+    "part": "part1 or part1_2 or part2 or part3"
+  }
+]`;
+
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(speakingPrompt);
+    alert('Prompt copied to clipboard! Paste this into Claude.');
+  };
 
   useEffect(() => {
     fetchQuestions();
@@ -1005,7 +1028,7 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-black text-slate-800">Question Database</h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -1013,6 +1036,15 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={() => setShowPrompt(!showPrompt)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
+          >
+            <Bot className="w-5 h-5" />
+            {showPrompt ? 'Hide AI Prompt Guide' : 'How to get JSON from Claude?'}
+            {showPrompt ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+          
           <div className="relative">
             <input 
               type="file" 
@@ -1023,7 +1055,7 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
             />
             <Button 
               variant="outline" 
-              className="border-slate-300 text-slate-700 font-medium bg-white hover:bg-slate-50 w-full"
+              className="border-slate-300 text-slate-700 font-medium bg-white hover:bg-slate-50 w-full h-full"
               disabled={isUploadingTest}
             >
               {isUploadingTest ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileJson className="w-4 h-4 mr-2" />}
@@ -1045,6 +1077,33 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
           </Button>
         </div>
       </div>
+
+      {showPrompt && (
+        <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 to-indigo-700 text-white shadow-lg border border-indigo-800/50">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Bot className="w-32 h-32" />
+          </div>
+          <div className="relative z-10 p-6">
+            <h2 className="text-xl font-bold mb-2 flex items-center gap-2 text-indigo-100">
+              AI Prompt Guide for Claude
+            </h2>
+            <p className="text-indigo-200 text-sm mb-4 max-w-3xl">
+              Paste this prompt into Claude to automatically generate the required JSON structure.
+            </p>
+            <div className="bg-slate-900 rounded-xl p-4 border border-indigo-800/50 relative group">
+              <pre className="text-xs text-indigo-200 font-mono whitespace-pre-wrap overflow-y-auto max-h-64 custom-scrollbar">
+                {speakingPrompt}
+              </pre>
+              <button 
+                onClick={handleCopyPrompt}
+                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
+              >
+                <Copy className="w-4 h-4" /> Copy Prompt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Skill Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 mb-6">
