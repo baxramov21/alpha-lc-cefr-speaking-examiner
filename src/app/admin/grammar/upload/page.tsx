@@ -129,6 +129,18 @@ SCHEMA:
       const text = await selected.text();
       let json = JSON.parse(text);
       
+      // Auto-wrap array if LLM returns just the parts array (very common)
+      if (Array.isArray(json) && (examMode === 'reading' || examMode === 'listening')) {
+        json = {
+          title: "Extracted Grammar Exam",
+          exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+          programme: 'GRAMMAR',
+          grammar_level: 'pre-intermediate',
+          time_limit: 3600,
+          parts: json
+        };
+      }
+      
       if (examMode === 'grammar_json') {
         const valResult = GrammarExamSchema.safeParse(json);
         if (!valResult.success) {
