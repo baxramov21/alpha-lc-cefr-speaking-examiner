@@ -88,10 +88,10 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
 
   const [showPrompt, setShowPrompt] = useState(false);
 
-  const speakingPrompt = `You are an expert CEFR Exam Data Parser. Your task is to process the uploaded CEFR Speaking Exam PDF and convert it into a strictly formatted JSON object.
+  const speakingPrompt = `You are an expert ${programme} Exam Data Parser. Your task is to process the uploaded ${programme} Speaking Exam PDF and convert it into a strictly formatted JSON object.
 
-### Extraction Rules for CEFR Speaking:
-1. Strict Exam Type: Set "exam_type": "CEFR_SPEAKING".
+### Extraction Rules for ${programme} Speaking:
+1. Strict Exam Type: Set "exam_type": "${programme}_SPEAKING".
 2. Text-Only Processing (No Images): 
    - Discard all embedded pictures, photos, and decorative graphics from the PDF.
    - If an image contains chart data, graphs, or structured visual tables, extract the information and convert it into a semantic HTML <table> or structured <p> tags inside passage_html.
@@ -105,7 +105,7 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
 ### Target JSON Schema:
 {
   "title": "<Exam PDF Title from>",
-  "exam_type": "CEFR_SPEAKING",
+  "exam_type": "${programme}_SPEAKING",
   "parts": [
     {
       "part_number": 1,
