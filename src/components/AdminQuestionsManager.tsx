@@ -88,19 +88,31 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
 
   const [showPrompt, setShowPrompt] = useState(false);
 
-  const speakingPrompt = `Please act as an expert English examiner converting speaking exam questions into a strict JSON format for my app.
+  const speakingPrompt = `You are an expert CEFR Exam Data Parser. Your task is to process the uploaded CEFR or IELTS Speaking Exam PDF and convert it into a strictly formatted JSON array.
 
-CRITICAL INSTRUCTIONS:
-1. Save the JSON to a file named 'questions.json'.
-2. The JSON must exactly match the schema below. Output an Array of question objects.
-3. Keep the parts exactly as "part1", "part1_2", "part2", or "part3" depending on the exam.
+### Extraction Rules for Speaking:
+1. Text & Image Processing: 
+   - Extract the overarching topic and the actual question text.
+   - If a question (like Part 2) contains a structured table, bullet points, or For/Against arguments, put that data into the "table_data" object.
+   - If a question includes an image (e.g. Part 1.2 or Part 2), set "image_url" to "[UPLOAD_IMAGE_HERE]".
+2. Part Isolation & Identification:
+   - Part 1: Personal Questions / Interview -> "part": "part1"
+   - Part 1.2: Picture Description (if applicable) -> "part": "part1_2"
+   - Part 2: Cue Card / Individual Long Turn -> "part": "part2"
+   - Part 3: Two-Way Discussion -> "part": "part3"
 
-SCHEMA:
+### Target JSON Schema:
 [
   {
     "topic": "String - The overarching topic (e.g., Hometown, Work)",
-    "text": "String - The actual question",
-    "part": "part1 or part1_2 or part2 or part3"
+    "text": "String - The actual question or instruction",
+    "part": "part1 or part1_2 or part2 or part3",
+    "question_type": "standard",
+    "image_url": "String (Optional) - Use '[UPLOAD_IMAGE_HERE]' if there is an image",
+    "table_data": {
+      "forPoints": ["Array of Strings (Optional) - Arguments FOR or cue card points"],
+      "againstPoints": ["Array of Strings (Optional) - Arguments AGAINST"]
+    }
   }
 ]`;
 
@@ -275,6 +287,9 @@ SCHEMA:
                   part: mappedPart,
                   text: q.question_text || q.text || '',
                   topic: p.title || '',
+                  image_url: q.image_url || p.image_url || '',
+                  table_data: q.table_data || null,
+                  question_type: q.question_type || q.type || 'standard'
                 });
               });
             }
