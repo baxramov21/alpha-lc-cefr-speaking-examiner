@@ -76,12 +76,14 @@ SCHEMA:
   }
 }`;
 
-  const canonicalPdfPrompt = `Please act as an expert English examiner converting exam answers into a strict JSON format for my app.
+  const canonicalPdfPrompt = `Please act as an expert English examiner converting an exam answer key into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
 
 CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json'.
 2. EVERY question MUST have a "correct_answer".
+3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
+4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
 
 SCHEMA:
 {
@@ -90,21 +92,16 @@ SCHEMA:
   "programme": "GRAMMAR",
   "grammar_level": "pre-intermediate", // elementary | pre-intermediate | intermediate
   "time_limit": 3600,
-  "parts": [
-    {
-      "part_number": 1,
-      "title": "Part 1",
-      "questions": [
-        {
-          "question_number": 1,
-          "type": "MULTIPLE_CHOICE",
-          "question_text": "Choose the correct option.",
-          "options": ["A", "B", "C", "D"],
-          "correct_answer": "A"
-        }
-      ]
+  "answers": {
+    "1": {
+      "correct_answer": "B",
+      "type": "MULTIPLE_CHOICE"
+    },
+    "2": {
+      "correct_answer": "A",
+      "type": "MULTIPLE_CHOICE"
     }
-  ]
+  }
 }`;
 
   const handleCopyPrompt = () => {
@@ -130,15 +127,75 @@ SCHEMA:
       let json = JSON.parse(text);
       
       // Auto-wrap array if LLM returns just the parts array (very common)
-      if (Array.isArray(json) && (examMode === 'reading' || examMode === 'listening')) {
-        json = {
-          title: "Extracted Grammar Exam",
-          exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
-          programme: 'GRAMMAR',
-          grammar_level: 'pre-intermediate',
-          time_limit: 3600,
-          parts: json
-        };
+      if (examMode === 'reading' || examMode === 'listening') {
+        // If it's a simple GrammarPdfExamSchema-like payload (has answers object)
+        if (json.answers && typeof json.answers === 'object') {
+           const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
+              question_number: parseInt(qNum),
+              type: val.type || "MULTIPLE_CHOICE",
+              question_text: "Question " + qNum,
+              correct_answer: val.correct_answer || val
+           }));
+           json = {
+              title: json.title || "Extracted Exam",
+              exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+              programme: 'GRAMMAR',
+              grammar_level: json.grammar_level || 'pre-intermediate',
+              time_limit: json.time_limit || 3600,
+              parts: [
+                {
+                  part_number: 1,
+                  title: "Part 1",
+                  questions: questions
+                }
+              ]
+           };
+        } 
+        // If it's just an array
+        else if (Array.isArray(json)) {
+           // check if it's array of parts or questions
+           if (json.length > 0 && json[0].question_number !== undefined) {
+              json = {
+                title: "Extracted Exam",
+                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                programme: 'GRAMMAR',
+                grammar_level: 'pre-intermediate',
+                time_limit: 3600,
+                parts: [
+                  {
+                    part_number: 1,
+                    title: "Part 1",
+                    questions: json
+                  }
+                ]
+              };
+           } else if (json.length > 0 && (json[0].part_number !== undefined || json[0].questions !== undefined)) {
+              json = {
+                title: "Extracted Exam",
+                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                programme: 'GRAMMAR',
+                grammar_level: 'pre-intermediate',
+                time_limit: 3600,
+                parts: json
+              };
+           }
+        }
+
+        // Lastly, ensure all questions have a question_text and type
+        if (json.parts && Array.isArray(json.parts)) {
+           json.parts.forEach((p: any) => {
+              if (p.questions && Array.isArray(p.questions)) {
+                 p.questions.forEach((q: any) => {
+                    if (!q.question_text) {
+                       q.question_text = `Question ${q.question_number}`;
+                    }
+                    if (!q.type) {
+                       q.type = 'MULTIPLE_CHOICE';
+                    }
+                 });
+              }
+           });
+        }
       }
       
       if (examMode === 'grammar_json') {
