@@ -40,10 +40,19 @@ export default function AdminGrammarExamsPage() {
 
   const toggleStatus = async (id: string, currentStatus: boolean, isCanonical: boolean) => {
     try {
-      const res = await fetch(`/api/admin/exams/${id}/toggle`, {
-        method: 'POST',
+      const endpoint = isCanonical 
+        ? `/api/admin/exams/canonical/${id}/set-active` 
+        : `/api/admin/grammar/exams/${id}/toggle`;
+        
+      const method = isCanonical ? 'PATCH' : 'POST';
+      const body = isCanonical 
+        ? { active: !currentStatus } 
+        : { is_active: !currentStatus };
+
+      const res = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !currentStatus, table: isCanonical ? 'canonical_exams' : 'grammar_exams' })
+        body: JSON.stringify(body)
       });
       if (res.ok) {
         fetchExams();
