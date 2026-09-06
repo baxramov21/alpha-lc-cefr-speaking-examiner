@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonicalPayload, GrammarPdfExamSchema } from '@/lib/schemas/examSchema';
+import { PDFDocument } from 'pdf-lib';
 
 type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 
@@ -23,6 +24,7 @@ export default function GrammarUploadPage() {
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [pageRange, setPageRange] = useState<string>('');
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -339,7 +341,26 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         let finalPayload = { ...previewData };
         setUploadProgress(30);
         
-        const pdfUrl = await uploadFileToSupabase(pdfFile);
+        let fileToUpload = pdfFile;
+        if (pageRange) {
+           const [start, end] = pageRange.split('-').map(Number);
+           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
+              const pdfBytes = await pdfFile.arrayBuffer();
+              const pdfDoc = await PDFDocument.load(pdfBytes);
+              const newPdf = await PDFDocument.create();
+              const indices = [];
+              for (let i = start - 1; i < end; i++) indices.push(i);
+              
+              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
+              copiedPages.forEach((page) => newPdf.addPage(page));
+              
+              const newPdfBytes = await newPdf.save();
+              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
+              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
+           }
+        }
+        
+        const pdfUrl = await uploadFileToSupabase(fileToUpload);
         finalPayload.pdf_url = pdfUrl;
         
         setUploadProgress(60);
@@ -359,7 +380,27 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         let finalPayload = { ...previewData };
 
         setUploadProgress(20);
-        const pdfUrl = await uploadFileToSupabase(pdfFile);
+        
+        let fileToUpload = pdfFile;
+        if (pageRange) {
+           const [start, end] = pageRange.split('-').map(Number);
+           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
+              const pdfBytes = await pdfFile.arrayBuffer();
+              const pdfDoc = await PDFDocument.load(pdfBytes);
+              const newPdf = await PDFDocument.create();
+              const indices = [];
+              for (let i = start - 1; i < end; i++) indices.push(i);
+              
+              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
+              copiedPages.forEach((page) => newPdf.addPage(page));
+              
+              const newPdfBytes = await newPdf.save();
+              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
+              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
+           }
+        }
+
+        const pdfUrl = await uploadFileToSupabase(fileToUpload);
         
         // Inject PDF URL into part 1
         if (finalPayload.parts && finalPayload.parts.length > 0) {
@@ -455,18 +496,34 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </button>
       </div>
 
-      <div className="mb-8">
-        <label className="block text-sm font-semibold text-slate-700 mb-2">Select Grammar Level</label>
-        <select
-          value={grammarLevel}
-          onChange={(e) => setGrammarLevel(e.target.value)}
-          className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-        >
-          <option value="elementary">Elementary</option>
-          <option value="pre-intermediate">Pre-Intermediate</option>
-          <option value="intermediate">Intermediate</option>
-        </select>
-        <p className="text-xs text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
+      <div className="mb-8 flex flex-col md:flex-row gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Select Grammar Level</label>
+          <select
+            value={grammarLevel}
+            onChange={(e) => setGrammarLevel(e.target.value)}
+            className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          >
+            <option value="elementary">Elementary</option>
+            <option value="pre-intermediate">Pre-Intermediate</option>
+            <option value="intermediate">Intermediate</option>
+          </select>
+          <p className="text-xs text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
+        </div>
+
+        {(examMode === 'grammar_pdf' || examMode === 'reading' || examMode === 'listening') && (
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">PDF Page Range (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. 12-14"
+              value={pageRange}
+              onChange={(e) => setPageRange(e.target.value)}
+              className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            />
+            <p className="text-xs text-slate-500 mt-2">Extracts only these pages from a large PDF book.</p>
+          </div>
+        )}
       </div>
 
       {showPrompt && (

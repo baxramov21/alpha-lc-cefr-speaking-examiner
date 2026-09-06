@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
           title: part.title,
           exam_type: data.exam_type,
           passage_html: finalPassageHtml,
+          pdf_url: part.pdf_url || null,
           audio_urls: part.audio_urls ? JSON.stringify(part.audio_urls) : null,
         })
         .select()

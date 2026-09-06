@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS public.passages (
     title TEXT NOT NULL,
     exam_type TEXT NOT NULL CHECK (exam_type IN ('CEFR_READING', 'CEFR_LISTENING')),
     passage_html TEXT NOT NULL,
+    pdf_url TEXT,
     audio_urls JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

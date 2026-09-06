@@ -78,6 +78,7 @@ export async function GET(req: NextRequest) {
         partLabel: d.title || `Part ${d.part_number}`,
         audioUrls: Array.isArray(d.audio_urls) ? d.audio_urls : (typeof d.audio_urls === 'string' ? JSON.parse(d.audio_urls) : []),
         passage_html: d.passage_html,
+        pdf_url: d.pdf_url,
         instructions: "Listen to the audio and answer the questions.",
         questions: sortedQs.map((q: any) => ({
           id: q.id,

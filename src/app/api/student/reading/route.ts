@@ -77,6 +77,7 @@ export async function GET(req: NextRequest) {
         id: d.id,
         partLabel: d.title || `Part ${d.part_number}`,
         passage_html: d.passage_html,
+        pdf_url: d.pdf_url,
         instructions: "Read the passage and answer the questions.",
         questions: sortedQs.map((q: any) => ({
           id: q.id,
