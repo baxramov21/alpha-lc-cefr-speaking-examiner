@@ -173,52 +173,115 @@ function GrammarSessionContent() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 mt-8 space-y-6">
-        {questions.map((q, idx) => (
-          <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
-                {q.question_number}
+      {exam.pdf_url ? (
+        <main className="max-w-[1600px] mx-auto w-full h-[calc(100vh-64px)] flex overflow-hidden">
+          {/* Left Side: PDF Viewer */}
+          <div className="w-1/2 h-full border-r border-slate-200 bg-slate-100 p-4">
+            <iframe 
+              src={`${exam.pdf_url}#toolbar=0&navpanes=0`}
+              className="w-full h-full rounded-xl shadow-sm border border-slate-200"
+            />
+          </div>
+
+          {/* Right Side: Questions Scrollable */}
+          <div className="w-1/2 h-full overflow-y-auto p-8 pb-32 space-y-6 custom-scrollbar">
+            {questions.map((q, idx) => (
+              <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
+                    {q.question_number}
+                  </div>
+                  <div className="flex-1 space-y-4">
+                    {/* Only show question text if it's not a generic placeholder */}
+                    {q.question_text !== `Question ${q.question_number}` && q.question_text !== `Question ${q.question_number}?` && (
+                      <div 
+                        className="text-lg font-medium text-slate-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: q.question_text }}
+                      />
+                    )}
+                    
+                    {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 ? (
+                      <div className="space-y-2 mt-4">
+                        {q.options.map((opt, oIdx) => {
+                          const isSelected = answers[q.id] === opt;
+                          return (
+                            <label 
+                              key={oIdx} 
+                              className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
+                            >
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
+                              </div>
+                              <span className="text-slate-700">{opt}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="mt-4">
+                        <input 
+                          type="text" 
+                          placeholder="Type your answer here..."
+                          className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 font-medium"
+                          value={answers[q.id] || ''}
+                          onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 space-y-4">
-                <div 
-                  className="text-lg font-medium text-slate-800 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: q.question_text }}
-                />
-                
-                {q.type === 'MULTIPLE_CHOICE' && q.options ? (
-                  <div className="space-y-2 mt-4">
-                    {q.options.map((opt, oIdx) => {
-                      const isSelected = answers[q.id] === opt;
-                      return (
-                        <label 
-                          key={oIdx} 
-                          className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
-                        >
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
-                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
-                          </div>
-                          <span className="text-slate-700">{opt}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="mt-4">
-                    <input 
-                      type="text" 
-                      placeholder="Type your answer here..."
-                      className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 font-medium"
-                      value={answers[q.id] || ''}
-                      onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
-                    />
-                  </div>
-                )}
+            ))}
+          </div>
+        </main>
+      ) : (
+        <main className="max-w-4xl mx-auto px-6 mt-8 space-y-6 pb-32">
+          {questions.map((q, idx) => (
+            <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
+                  {q.question_number}
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div 
+                    className="text-lg font-medium text-slate-800 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: q.question_text }}
+                  />
+                  
+                  {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 ? (
+                    <div className="space-y-2 mt-4">
+                      {q.options.map((opt, oIdx) => {
+                        const isSelected = answers[q.id] === opt;
+                        return (
+                          <label 
+                            key={oIdx} 
+                            className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
+                          >
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
+                            </div>
+                            <span className="text-slate-700">{opt}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <input 
+                        type="text" 
+                        placeholder="Type your answer here..."
+                        className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 font-medium"
+                        value={answers[q.id] || ''}
+                        onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </main>
+          ))}
+        </main>
+      )}
 
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-40">

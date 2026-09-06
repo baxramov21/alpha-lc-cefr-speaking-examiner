@@ -2,12 +2,12 @@
 
 import { useState, useRef } from 'react';
 import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
-import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
+import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonicalPayload, GrammarPdfExamSchema } from '@/lib/schemas/examSchema';
 
-type ExamMode = 'grammar' | 'reading' | 'listening';
+type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 
 export default function GrammarUploadPage() {
-  const [examMode, setExamMode] = useState<ExamMode>('grammar');
+  const [examMode, setExamMode] = useState<ExamMode>('grammar_pdf');
   
   const [jsonFile, setJsonFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -50,6 +50,32 @@ SCHEMA:
   ]
 }`;
 
+  const grammarPdfPrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
+You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
+
+CRITICAL INSTRUCTIONS:
+1. Save the JSON to a file named 'exam.json'.
+2. EVERY question MUST have a "correct_answer".
+3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
+4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
+
+SCHEMA:
+{
+  "title": "String - The title of the grammar test (e.g. Unit 1 Grammar)",
+  "level": "elementary or pre-intermediate or intermediate",
+  "time_limit": 1800,
+  "answers": {
+    "1": {
+      "correct_answer": "B",
+      "type": "MULTIPLE_CHOICE"
+    },
+    "2": {
+      "correct_answer": "is playing",
+      "type": "FILL_IN"
+    }
+  }
+}`;
+
   const canonicalPdfPrompt = `Please act as an expert English examiner converting exam answers into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
 
@@ -82,7 +108,11 @@ SCHEMA:
 }`;
 
   const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(examMode === 'grammar' ? grammarPrompt : canonicalPdfPrompt);
+    let promptText = canonicalPdfPrompt;
+    if (examMode === 'grammar_json') promptText = grammarPrompt;
+    if (examMode === 'grammar_pdf') promptText = grammarPdfPrompt;
+    
+    navigator.clipboard.writeText(promptText);
     alert('Prompt copied to clipboard! Paste this into Claude.');
   };
 
@@ -99,11 +129,20 @@ SCHEMA:
       const text = await selected.text();
       let json = JSON.parse(text);
       
-      if (examMode === 'grammar') {
+      if (examMode === 'grammar_json') {
         const valResult = GrammarExamSchema.safeParse(json);
         if (!valResult.success) {
           setValidationErrors(valResult.error.issues);
           setErrorMsg('Validation Failed for Grammar Exam.');
+          setPreviewData(null);
+        } else {
+          setPreviewData(valResult.data);
+        }
+      } else if (examMode === 'grammar_pdf') {
+        const valResult = GrammarPdfExamSchema.safeParse(json);
+        if (!valResult.success) {
+          setValidationErrors(valResult.error.issues);
+          setErrorMsg('Validation Failed for Grammar PDF Exam.');
           setPreviewData(null);
         } else {
           setPreviewData(valResult.data);
@@ -156,11 +195,29 @@ SCHEMA:
     setUploadProgress(0);
 
     try {
-      if (examMode === 'grammar') {
+      if (examMode === 'grammar_json') {
         const res = await fetch('/api/admin/grammar/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(previewData),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+      } else if (examMode === 'grammar_pdf') {
+        if (!pdfFile) throw new Error("A PDF file is required for Grammar (PDF Mode)");
+        
+        let finalPayload = { ...previewData };
+        setUploadProgress(30);
+        
+        const pdfUrl = await uploadFileToSupabase(pdfFile);
+        finalPayload.pdf_url = pdfUrl;
+        
+        setUploadProgress(60);
+        
+        const res = await fetch('/api/admin/grammar/upload-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(finalPayload),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
@@ -212,7 +269,7 @@ SCHEMA:
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || (examMode !== 'grammar' && !pdfFile) || (examMode === 'listening' && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || (examMode !== 'grammar_json' && !pdfFile) || (examMode === 'listening' && !audioFile);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -233,14 +290,22 @@ SCHEMA:
         </button>
       </div>
 
-      <div className="flex gap-4 mb-8 bg-slate-100 p-2 rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-4 mb-8 bg-slate-100 p-2 rounded-2xl w-fit">
         <button
-          onClick={() => { setExamMode('grammar'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
+          onClick={() => { setExamMode('grammar_json'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'
+            examMode === 'grammar_json' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
-          Pure Grammar
+          Grammar (JSON Mode)
+        </button>
+        <button
+          onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
+          className={`px-6 py-2 rounded-xl font-bold transition-all ${
+            examMode === 'grammar_pdf' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          Grammar (PDF Mode)
         </button>
         <button
           onClick={() => { setExamMode('reading'); setPreviewData(null); setJsonFile(null); setAudioFile(null); }}
@@ -274,7 +339,7 @@ SCHEMA:
             </p>
             <div className="bg-slate-900 rounded-xl p-4 border border-indigo-800/50 mb-4 relative group">
               <pre className="text-xs text-indigo-200 font-mono whitespace-pre-wrap overflow-y-auto max-h-64 custom-scrollbar">
-                {examMode === 'grammar' ? grammarPrompt : canonicalPdfPrompt}
+                {examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf' ? grammarPdfPrompt : canonicalPdfPrompt)}
               </pre>
               <button 
                 onClick={handleCopyPrompt}
@@ -318,7 +383,7 @@ SCHEMA:
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
-          <h3 className="font-bold text-slate-800 mb-4">{examMode === 'grammar' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
+          <h3 className="font-bold text-slate-800 mb-4">{examMode === 'grammar_json' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
           <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
             <input type="file" accept=".json" onChange={handleJsonChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
             <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
@@ -328,7 +393,7 @@ SCHEMA:
           </div>
         </div>
 
-        {examMode !== 'grammar' && (
+        {examMode !== 'grammar_json' && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
             <h3 className="font-bold text-slate-800 mb-4">Upload Questions (PDF)</h3>
             <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
@@ -373,7 +438,7 @@ SCHEMA:
           </div>
           <div className="bg-slate-50 p-4 rounded-xl font-mono text-sm border border-slate-200">
              <h4 className="font-bold text-slate-700 mb-2">{previewData.title}</h4>
-             <p>Total Questions: {examMode === 'grammar' ? previewData.questions.length : previewData.parts?.[0]?.questions?.length}</p>
+             <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
           </div>
         </div>
       )}

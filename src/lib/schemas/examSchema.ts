@@ -51,3 +51,19 @@ export const GrammarExamSchema = z.object({
 
 export type GrammarExamPayload = z.infer<typeof GrammarExamSchema>;
 export type GrammarQuestionPayload = z.infer<typeof GrammarQuestionSchema>;
+
+export const GrammarPdfExamSchema = z.object({
+  title: z.string().min(1, 'Title cannot be empty'),
+  level: z.enum(['elementary', 'pre-intermediate', 'intermediate']),
+  time_limit: z.number().int().positive().optional().default(1800),
+  pdf_url: z.string().optional(),
+  answers: z.record(
+    z.string(), // question_number (e.g. "1")
+    z.object({
+      correct_answer: z.string().min(1, 'Answer cannot be empty'),
+      type: z.enum(['MULTIPLE_CHOICE', 'FILL_IN']).optional().default('MULTIPLE_CHOICE')
+    })
+  )
+});
+
+export type GrammarPdfExamPayload = z.infer<typeof GrammarPdfExamSchema>;
