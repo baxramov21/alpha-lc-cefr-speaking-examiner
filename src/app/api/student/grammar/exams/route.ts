@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       const { data: triple } = await supabaseAdmin
         .from('grammar_triples')
         .select('grammar_exam_id')
-        .eq('level', grammarLevel)
+        .ilike('level', grammarLevel)
         .eq('is_active', true)
         .single();
 
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         .from('grammar_exams')
         .select('id, title, level, time_limit')
         .eq('is_active', true)
-        .eq('level', grammarLevel)
+        .ilike('level', grammarLevel)
         .order('created_at', { ascending: false });
 
       if (error) {

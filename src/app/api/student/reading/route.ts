@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         const { data: triple } = await supabase
           .from('grammar_triples')
           .select('reading_exam_id')
-          .eq('level', grammarLevel)
+          .ilike('level', grammarLevel)
           .eq('is_active', true)
           .single();
           
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         .eq('programme', programme);
         
       if (programme === 'GRAMMAR' && grammarLevel) {
-        query = query.eq('grammar_level', grammarLevel);
+        query = query.ilike('grammar_level', grammarLevel);
       }
 
       const { data: exams, error: examError } = await query
