@@ -288,6 +288,7 @@ export default function ListeningSessionPage() {
   if (!sessionToken || tasks.length === 0 || isRestoring) return null;
 
   const currentTask = tasks[currentTaskIndex];
+  const hasImage = currentTask?.passage_html?.includes('<img') || currentTask?.image_url;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
@@ -322,11 +323,11 @@ export default function ListeningSessionPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-100 pb-32">
-        <div className="w-full max-w-4xl mx-auto flex flex-col gap-6">
+      <main className={`flex-1 bg-slate-100 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}>
+        <div className={`w-full mx-auto ${hasImage ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
           {/* Top Block: Audio & Passage */}
-          <div className="flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className={`flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
             
             {/* Audio Player Card (Sticky at top) */}
             <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800 sticky top-0 z-20">
@@ -385,7 +386,7 @@ export default function ListeningSessionPage() {
 
             {/* Passage Content */}
             {currentTask.pdf_url ? (
-              <div className="w-full h-[600px] relative border-t border-slate-200">
+              <div className={`w-full relative border-t border-slate-200 ${hasImage ? 'flex-1' : 'h-[600px]'}`}>
                 <iframe 
                   src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
                   className="absolute inset-0 w-full h-full border-0"
@@ -393,7 +394,7 @@ export default function ListeningSessionPage() {
                 />
               </div>
             ) : (
-              <div id="listening-text-container" className="p-6 lg:p-10">
+              <div id="listening-text-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto relative' : ''}`}>
                 <div className="mb-6 pb-6 border-b border-slate-100 ">
                   <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
                   <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
@@ -414,13 +415,13 @@ export default function ListeningSessionPage() {
           </div>
 
           {/* Bottom Block: Questions */}
-          <div className="flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className={`flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
             <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 ">
               <h2 className="text-xl font-bold text-slate-800 ">Questions</h2>
               <p className="text-sm text-slate-500  ">Answer all questions based on the audio.</p>
             </div>
             
-            <div id="listening-questions-container" className="p-6 lg:p-10">
+            <div id="listening-questions-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto' : ''}`}>
               <div className="space-y-10 pb-8">
                 {currentTask.questions.map((q) => (
                   <div key={q.id} className="group">
