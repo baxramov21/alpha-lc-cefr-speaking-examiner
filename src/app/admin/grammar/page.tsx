@@ -6,16 +6,26 @@ import { Plus, Database, Power, PowerOff, Loader2, RefreshCw } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 
 export default function AdminGrammarExamsPage() {
+  const [activeTab, setActiveTab] = useState<'grammar' | 'reading' | 'listening'>('grammar');
   const [exams, setExams] = useState<any[]>([]);
+  const [canonicalExams, setCanonicalExams] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchExams = async () => {
     setIsLoading(true);
     try {
+      // Fetch pure grammar tests
       const res = await fetch('/api/admin/grammar/exams');
       if (res.ok) {
         const data = await res.json();
         setExams(data.exams || []);
+      }
+      
+      // Fetch reading and listening tests specifically for GRAMMAR programme
+      const canRes = await fetch('/api/admin/exams/canonical');
+      if (canRes.ok) {
+        const data = await canRes.json();
+        setCanonicalExams((data || []).filter((e: any) => e.programme === 'GRAMMAR'));
       }
     } catch (err) {
       console.error('Failed to fetch exams:', err);
@@ -28,12 +38,12 @@ export default function AdminGrammarExamsPage() {
     fetchExams();
   }, []);
 
-  const toggleStatus = async (id: string, currentStatus: boolean) => {
+  const toggleStatus = async (id: string, currentStatus: boolean, isCanonical: boolean) => {
     try {
       const res = await fetch(`/api/admin/exams/${id}/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !currentStatus, table: 'grammar_exams' })
+        body: JSON.stringify({ is_active: !currentStatus, table: isCanonical ? 'canonical_exams' : 'grammar_exams' })
       });
       if (res.ok) {
         fetchExams();
@@ -42,6 +52,15 @@ export default function AdminGrammarExamsPage() {
       console.error('Failed to toggle status', err);
     }
   };
+
+  let displayedExams: any[] = [];
+  if (activeTab === 'grammar') {
+    displayedExams = exams;
+  } else if (activeTab === 'reading') {
+    displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_READING');
+  } else if (activeTab === 'listening') {
+    displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING');
+  }
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -65,19 +84,40 @@ export default function AdminGrammarExamsPage() {
         </div>
       </div>
 
+      <div className="flex gap-6 border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('grammar')}
+          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'grammar' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Pure Grammar
+        </button>
+        <button
+          onClick={() => setActiveTab('reading')}
+          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'reading' ? 'border-fuchsia-600 text-fuchsia-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Reading
+        </button>
+        <button
+          onClick={() => setActiveTab('listening')}
+          className={`pb-4 px-2 font-bold transition-colors border-b-2 ${activeTab === 'listening' ? 'border-teal-600 text-teal-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          Listening
+        </button>
+      </div>
+
       <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="py-24 flex flex-col items-center justify-center text-slate-400">
             <Loader2 className="w-8 h-8 animate-spin mb-4" />
             <p>Loading grammar tests...</p>
           </div>
-        ) : exams.length === 0 ? (
+        ) : displayedExams.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
               <Database className="w-8 h-8 text-slate-300" />
             </div>
             <h3 className="text-lg font-bold text-slate-700">No Tests Found</h3>
-            <p className="text-slate-500 max-w-sm mt-1">Upload your first grammar test using AI to generate JSON from your materials.</p>
+            <p className="text-slate-500 max-w-sm mt-1">Upload your first {activeTab} test to get started.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -92,7 +132,7 @@ export default function AdminGrammarExamsPage() {
                 </tr>
               </thead>
               <tbody>
-                {exams.map((exam) => (
+                {displayedExams.map((exam) => (
                   <tr key={exam.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors group">
                     <td className="py-4 pl-6">
                       <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${exam.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
@@ -102,11 +142,11 @@ export default function AdminGrammarExamsPage() {
                     </td>
                     <td className="py-4">
                       <div className="font-bold text-slate-800">{exam.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{exam.questions_count} questions</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{exam.questions_count !== undefined ? `${exam.questions_count} questions` : 'PDF Exam'}</div>
                     </td>
                     <td className="py-4">
                       <span className="capitalize text-sm font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                        {exam.level}
+                        {exam.level || exam.grammar_level || 'N/A'}
                       </span>
                     </td>
                     <td className="py-4 text-sm font-medium text-slate-500">
@@ -115,7 +155,7 @@ export default function AdminGrammarExamsPage() {
                     <td className="py-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button 
-                          onClick={() => toggleStatus(exam.id, exam.is_active)}
+                          onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
                           variant="outline" 
                           size="sm"
                           className={exam.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200'}
