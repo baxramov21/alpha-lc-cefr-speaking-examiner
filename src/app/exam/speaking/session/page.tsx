@@ -867,7 +867,7 @@ export default function ExamSessionPage() {
                   </div>
                 ) : (
                   <>
-                    {question.part === 'part1_2' ? (
+                    {question.part === 'part1_2' && currentIndex === examQuestions.findIndex(q => q.part === 'part1_2') ? (
                       <div className="flex flex-col md:flex-row gap-4 w-full">
                         {question.imageUrl && (
                           <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
@@ -882,16 +882,7 @@ export default function ExamSessionPage() {
                           </div>
                         )}
                       </div>
-                    ) : question.imageUrl && (
-                      <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={question.imageUrl}
-                          alt="Exam prompt"
-                          className="w-full h-auto object-contain max-h-[350px]"
-                        />
-                      </div>
-                    )}
+                    ) : null}
                     <p className="text-xl font-bold text-slate-800 leading-relaxed whitespace-pre-line text-center">
                       {question.text}
                     </p>

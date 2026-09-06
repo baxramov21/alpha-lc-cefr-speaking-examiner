@@ -810,7 +810,7 @@ export default function AdminQuestionsPage() {
         </div>
       )}
 
-      {(data.question_type === 'image' || data.part === 'part1_2') && (
+      {data.part === 'part1_2' && (
         <div className="space-y-4 p-4 border border-indigo-100 bg-indigo-50/50 rounded-xl">
           <div>
             <Label className="text-indigo-900">{data.part === 'part1_2' ? 'Image 1' : 'Upload Image'}</Label>
