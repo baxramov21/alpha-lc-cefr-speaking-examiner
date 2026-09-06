@@ -13,6 +13,7 @@ export default function CanonicalUploadPage() {
   const [previewData, setPreviewData] = useState<ExamCanonicalPayload | null>(null);
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [programme, setProgramme] = useState<'CEFR'|'IELTS'>('CEFR');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -155,7 +156,7 @@ Please give in file.`;
     setValidationErrors([]);
 
     try {
-      let finalPayload = { ...previewData };
+      let finalPayload = { ...previewData, programme };
 
       if (examMode === 'listening' && audioFiles.length > 0) {
         setUploadProgress(0);
@@ -338,7 +339,33 @@ Please give in file.`;
         </div>
       )}
 
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-col md:flex-row gap-6 mb-8">
+        <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setProgramme('CEFR')}
+            className={`px-6 py-2 rounded-lg font-bold transition-all ${
+              programme === 'CEFR' 
+                ? 'bg-white text-indigo-700 shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            CEFR
+          </button>
+          <button
+            onClick={() => setProgramme('IELTS')}
+            className={`px-6 py-2 rounded-lg font-bold transition-all ${
+              programme === 'IELTS' 
+                ? 'bg-white text-indigo-700 shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            IELTS
+          </button>
+        </div>
+
+        <div className="w-px bg-slate-200 hidden md:block"></div>
+
+        <div className="flex gap-4">
         <button
           onClick={() => { setExamMode('reading'); setAudioFiles([]); }}
           className={`px-6 py-3 rounded-xl font-bold transition-all ${
@@ -360,6 +387,7 @@ Please give in file.`;
           <Headphones className="w-5 h-5" />
           Listening Exam
         </button>
+      </div>
       </div>
 
       {success && (
