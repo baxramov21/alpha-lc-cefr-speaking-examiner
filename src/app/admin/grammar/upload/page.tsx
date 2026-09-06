@@ -178,6 +178,48 @@ SCHEMA:
                 time_limit: 3600,
                 parts: json
               };
+           } else {
+              // The array contains unknown objects, try to map them to questions if they look like answer maps
+              let mappedQuestions: any[] = [];
+              json.forEach((item: any, i: number) => {
+                 if (typeof item === 'object') {
+                    // if it's like {"1": "B", "2": "A"}
+                    const keys = Object.keys(item);
+                    keys.forEach(k => {
+                       const num = parseInt(k);
+                       if (!isNaN(num)) {
+                          mappedQuestions.push({
+                             question_number: num,
+                             correct_answer: typeof item[k] === 'object' ? item[k].correct_answer : item[k],
+                             type: (typeof item[k] === 'object' ? item[k].type : null) || 'MULTIPLE_CHOICE',
+                             question_text: `Question ${num}`
+                          });
+                       } else {
+                          // just push the item as a question and hope it matches schema
+                          if (!mappedQuestions.includes(item)) {
+                             mappedQuestions.push(item);
+                          }
+                       }
+                    });
+                 }
+              });
+              
+              if (mappedQuestions.length === 0) mappedQuestions = json; // fallback
+
+              json = {
+                title: "Extracted Exam",
+                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                programme: 'GRAMMAR',
+                grammar_level: 'pre-intermediate',
+                time_limit: 3600,
+                parts: [
+                  {
+                    part_number: 1,
+                    title: "Part 1",
+                    questions: mappedQuestions
+                  }
+                ]
+              };
            }
         }
 
