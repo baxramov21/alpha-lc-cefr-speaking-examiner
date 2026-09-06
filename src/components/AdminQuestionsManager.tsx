@@ -88,33 +88,63 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
 
   const [showPrompt, setShowPrompt] = useState(false);
 
-  const speakingPrompt = `You are an expert CEFR Exam Data Parser. Your task is to process the uploaded CEFR or IELTS Speaking Exam PDF and convert it into a strictly formatted JSON array.
+  const speakingPrompt = `You are an expert CEFR Exam Data Parser. Your task is to process the uploaded CEFR Speaking Exam PDF and convert it into a strictly formatted JSON object.
 
-### Extraction Rules for Speaking:
-1. Text & Image Processing: 
-   - Extract the overarching topic and the actual question text.
-   - If a question (like Part 2) contains a structured table, bullet points, or For/Against arguments, put that data into the "table_data" object.
-   - If a question includes an image (e.g. Part 1.2 or Part 2), set "image_url" to "[UPLOAD_IMAGE_HERE]".
-2. Part Isolation & Identification:
-   - Part 1: Personal Questions / Interview -> "part": "part1"
-   - Part 1.2: Picture Description (if applicable) -> "part": "part1_2"
-   - Part 2: Cue Card / Individual Long Turn -> "part": "part2"
-   - Part 3: Two-Way Discussion -> "part": "part3"
+### Extraction Rules for CEFR Speaking:
+1. Strict Exam Type: Set "exam_type": "CEFR_SPEAKING".
+2. Text-Only Processing (No Images): 
+   - Discard all embedded pictures, photos, and decorative graphics from the PDF.
+   - If an image contains chart data, graphs, or structured visual tables, extract the information and convert it into a semantic HTML <table> or structured <p> tags inside passage_html.
+3. Part Isolation & Identification:
+   - Accurately categorize all prompts into their corresponding parts:
+     - Part 1: Personal Questions / Interview -> part_number: 1
+     - Part 2: Cue Card / Individual Long Turn (data/topics) -> part_number: 2
+     - Part 3: Two-Way Discussion / Deep Follow-up -> part_number: 3
+   - NEVER mix questions from different parts under the same part array.
 
 ### Target JSON Schema:
-[
-  {
-    "topic": "String - The overarching topic (e.g., Hometown, Work)",
-    "text": "String - The actual question or instruction",
-    "part": "part1 or part1_2 or part2 or part3",
-    "question_type": "standard",
-    "image_url": "String (Optional) - Use '[UPLOAD_IMAGE_HERE]' if there is an image",
-    "table_data": {
-      "forPoints": ["Array of Strings (Optional) - Arguments FOR or cue card points"],
-      "againstPoints": ["Array of Strings (Optional) - Arguments AGAINST"]
+{
+  "title": "<Exam PDF Title from>",
+  "exam_type": "CEFR_SPEAKING",
+  "parts": [
+    {
+      "part_number": 1,
+      "title": "Part 1: Interview",
+      "passage_html": "<p>General instructions for Part 1</p>",
+      "questions": [
+        {
+          "question_number": 1,
+          "question_text": "<Question text>",
+          "type": "SPEAKING_PROMPT"
+        }
+      ]
+    },
+    {
+      "part_number": 2,
+      "title": "Part 2: Cue Card",
+      "passage_html": "<div><b>Cue Card Topic</b><p>Instructions and bullet points or HTML data table</p></div>",
+      "questions": [
+        {
+          "question_number": 2,
+          "question_text": "<Prompt card cue for text>",
+          "type": "SPEAKING_PROMPT"
+        }
+      ]
+    },
+    {
+      "part_number": 3,
+      "title": "Part 3: Discussion",
+      "passage_html": "<p>Instructions for Part 3</p>",
+      "questions": [
+        {
+          "question_number": 3,
+          "question_text": "<Discussion question>",
+          "type": "SPEAKING_PROMPT"
+        }
+      ]
     }
-  }
-]`;
+  ]
+}`;
 
   const handleCopyPrompt = () => {
     navigator.clipboard.writeText(speakingPrompt);
@@ -283,9 +313,15 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
                 if (p.part_number === 1 && index >= 3) {
                   mappedPart = 'part1_2';
                 }
+                let combinedText = q.question_text || q.text || '';
+                // If there's a passage_html for the part (e.g. Cue Card content), and this is the first question, combine them so data isn't lost!
+                if (index === 0 && p.passage_html && p.passage_html.length > 5) {
+                   combinedText = p.passage_html + '\\n\\n' + combinedText;
+                }
+
                 flatQuestions.push({
                   part: mappedPart,
-                  text: q.question_text || q.text || '',
+                  text: combinedText,
                   topic: p.title || '',
                   image_url: q.image_url || p.image_url || '',
                   table_data: q.table_data || null,
