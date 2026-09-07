@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     if (programme === 'GRAMMAR' && grammarLevel) {
       try {
-        const { data: triple } = await supabase
+        const { data: triples } = await supabase
           .from('grammar_triples')
           .select('reading_exam_id')
           .ilike('level', grammarLevel)
