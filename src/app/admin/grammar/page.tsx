@@ -382,6 +382,18 @@ export default function AdminGrammarExamsPage() {
                       </td>
                       <td className="py-4 pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {activeTab !== 'grammar' && (
+                            <Link href={`/admin/exams/canonical/${exam.id}`}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                              >
+                                <Edit2 className="w-4 h-4 mr-1.5" />
+                                Edit
+                              </Button>
+                            </Link>
+                          )}
                           <Button 
                             onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
                             variant="outline" 
