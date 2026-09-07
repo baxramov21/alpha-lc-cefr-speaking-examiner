@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2, Link2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-type TabType = 'grammar' | 'reading' | 'listening' | 'triples';
+type TabType = 'grammar' | 'reading' | 'listening' | 'writing' | 'triples';
 
 export default function AdminGrammarExamsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('grammar');
   const [exams, setExams] = useState<any[]>([]);
   const [canonicalExams, setCanonicalExams] = useState<any[]>([]);
+  const [writingExams, setWritingExams] = useState<any[]>([]);
   const [triples, setTriples] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,21 +26,32 @@ export default function AdminGrammarExamsPage() {
     level: 'Elementary',
     reading_exam_id: '',
     listening_exam_id: '',
-    grammar_exam_id: ''
+    grammar_exam_id: '',
+    writing_exam_id: ''
+  });
+
+  // Create Writing state
+  const [isCreatingWriting, setIsCreatingWriting] = useState(false);
+  const [writingForm, setWritingForm] = useState({
+    title: '',
+    level: 'Elementary',
+    source_text: ''
   });
 
   const fetchExams = async () => {
     setIsLoading(true);
     try {
-      const [res, canRes, tripRes] = await Promise.all([
+      const [res, canRes, tripRes, writRes] = await Promise.all([
         fetch('/api/admin/grammar/exams'),
         fetch('/api/admin/exams/canonical'),
-        fetch('/api/admin/grammar/triples')
+        fetch('/api/admin/grammar/triples'),
+        fetch('/api/admin/grammar/writing')
       ]);
 
       if (res.ok) setExams((await res.json()).exams || []);
       if (canRes.ok) setCanonicalExams(((await canRes.json()) || []).filter((e: any) => e.programme === 'GRAMMAR'));
       if (tripRes.ok) setTriples(await tripRes.json());
+      if (writRes.ok) setWritingExams(await writRes.json());
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -153,6 +165,26 @@ export default function AdminGrammarExamsPage() {
     }
   };
 
+  const handleCreateWriting = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/grammar/writing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(writingForm)
+      });
+      if (res.ok) {
+        setIsCreatingWriting(false);
+        setWritingForm({ title: '', level: 'Elementary', source_text: '' });
+        fetchExams();
+      } else {
+        alert('Failed to create writing test');
+      }
+    } catch (err) {
+      console.error('Error creating writing test', err);
+    }
+  };
+
   const toggleTripleStatus = async (id: string, level: string) => {
     try {
       const res = await fetch(`/api/admin/grammar/triples/${id}/set-active`, {
@@ -180,6 +212,7 @@ export default function AdminGrammarExamsPage() {
   if (activeTab === 'grammar') displayedExams = exams;
   else if (activeTab === 'reading') displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_READING');
   else if (activeTab === 'listening') displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING');
+  else if (activeTab === 'writing') displayedExams = writingExams;
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -194,12 +227,19 @@ export default function AdminGrammarExamsPage() {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Link href="/admin/grammar/upload">
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white gap-2 font-bold px-6 h-11">
+          {activeTab === 'writing' ? (
+            <Button onClick={() => setIsCreatingWriting(!isCreatingWriting)} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 font-bold px-6 h-11">
               <Plus className="w-4 h-4" />
-              Upload Test
+              Create Writing Test
             </Button>
-          </Link>
+          ) : (
+            <Link href="/admin/grammar/upload">
+              <Button className="bg-slate-900 hover:bg-slate-800 text-white gap-2 font-bold px-6 h-11">
+                <Plus className="w-4 h-4" />
+                Upload Test
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -221,6 +261,12 @@ export default function AdminGrammarExamsPage() {
           className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'listening' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow text-slate-900' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'}`}
         >
           <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Listening</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('writing')}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'writing' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow text-slate-900' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'}`}
+        >
+          <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Writing</span>
         </button>
         <button
           onClick={() => setActiveTab('triples')}
@@ -278,6 +324,13 @@ export default function AdminGrammarExamsPage() {
                     {exams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Writing Test</label>
+                  <select required value={tripleForm.writing_exam_id} onChange={e => setTripleForm({...tripleForm, writing_exam_id: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-lg px-3 py-2 text-sm">
+                    <option value="">Select Writing...</option>
+                    {writingExams.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                  </select>
+                </div>
               </div>
               <Button type="submit" className="w-full bg-slate-900 text-white font-bold h-10 mt-2">Save Pair</Button>
             </form>
@@ -309,12 +362,41 @@ export default function AdminGrammarExamsPage() {
                     <p><strong className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium">R:</strong> {trip.reading_exam?.title || 'None'}</p>
                     <p><strong className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium">L:</strong> {trip.listening_exam?.title || 'None'}</p>
                     <p><strong className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium">G:</strong> {trip.grammar_exam?.title || 'None'}</p>
+                    <p><strong className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium">W:</strong> {trip.writing_exam?.title || 'None'}</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
+      )}
+
+      {activeTab === 'writing' && isCreatingWriting && (
+        <form onSubmit={handleCreateWriting} className="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200 dark:border-slate-700 shadow-sm p-6 mb-8 space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">New Writing (Translation) Test</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Title</label>
+              <input required value={writingForm.title} onChange={e => setWritingForm({...writingForm, title: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-950" placeholder="e.g. Translation Task 1" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Level</label>
+              <select required value={writingForm.level} onChange={e => setWritingForm({...writingForm, level: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-950">
+                <option value="Elementary">Elementary</option>
+                <option value="Pre-Intermediate">Pre-Intermediate</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Upper-Intermediate">Upper-Intermediate</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Source Text</label>
+            <textarea required value={writingForm.source_text} onChange={e => setWritingForm({...writingForm, source_text: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-950 min-h-[150px]" placeholder="Paste the text students need to translate..." />
+          </div>
+          <Button type="submit" className="w-full bg-slate-900 text-white font-bold h-11 mt-2">Save Writing Test</Button>
+        </form>
       )}
 
       {activeTab !== 'triples' && (

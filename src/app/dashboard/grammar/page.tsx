@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, LogOut, CheckCircle2, Award, Clock, Target, Loader2, Headphones, BookText, ChevronRight } from 'lucide-react';
+import { BookOpen, LogOut, CheckCircle2, Award, Clock, Target, Loader2, Headphones, BookText, ChevronRight, PenTool } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 
@@ -200,7 +200,7 @@ export default function GrammarDashboardPage() {
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Skill Tests</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Listening Card */}
             <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
@@ -237,6 +237,27 @@ export default function GrammarDashboardPage() {
               <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 dark:border-slate-800 pt-4">
                 <Button 
                   onClick={() => handleStartSkill('/exam/reading/setup')}
+                  variant="ghost" 
+                  className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
+                >
+                  Enter Test <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+            {/* Writing Card */}
+            <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <PenTool className="w-6 h-6" />
+                </div>
+              </div>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-1">Writing</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-6">Translation tasks</p>
+              
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 dark:border-slate-800 pt-4">
+                <Button 
+                  onClick={() => handleStartSkill('/exam/grammar-writing/setup')}
                   variant="ghost" 
                   className="text-blue-600 font-bold hover:bg-blue-50 hover:text-blue-700 p-0 h-auto"
                 >

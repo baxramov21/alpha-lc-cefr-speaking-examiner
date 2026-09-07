@@ -9,7 +9,8 @@ export async function GET() {
         id, name, level, is_active, created_at,
         reading_exam:canonical_exams!grammar_triples_reading_exam_id_fkey(id, title, exam_type, programme, grammar_level),
         listening_exam:canonical_exams!grammar_triples_listening_exam_id_fkey(id, title, exam_type, programme, grammar_level),
-        grammar_exam:grammar_exams!grammar_triples_grammar_exam_id_fkey(id, title, level)
+        grammar_exam:grammar_exams!grammar_triples_grammar_exam_id_fkey(id, title, level),
+        writing_exam:grammar_writing_exams!grammar_triples_writing_exam_id_fkey(id, title, level)
       `)
       .order('created_at', { ascending: false });
 
@@ -29,7 +30,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, level, reading_exam_id, listening_exam_id, grammar_exam_id } = await req.json();
+    const { name, level, reading_exam_id, listening_exam_id, grammar_exam_id, writing_exam_id } = await req.json();
 
     if (!name || !level) {
       return NextResponse.json({ error: 'Triple name and level are required.' }, { status: 400 });
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
         reading_exam_id: reading_exam_id || null, 
         listening_exam_id: listening_exam_id || null, 
         grammar_exam_id: grammar_exam_id || null, 
+        writing_exam_id: writing_exam_id || null,
         is_active: false 
       })
       .select()
