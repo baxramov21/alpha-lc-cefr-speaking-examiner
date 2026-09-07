@@ -253,6 +253,20 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                     if (!q.type) {
                        q.type = 'MULTIPLE_CHOICE';
                     }
+                    if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
+                       let maxCode = 68; // 'D'
+                       if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
+                         const code = q.correct_answer.toUpperCase().charCodeAt(0);
+                         if (code >= 65 && code <= 74) { // 'A' to 'J'
+                           maxCode = Math.max(maxCode, code);
+                         }
+                       }
+                       const opts = [];
+                       for (let c = 65; c <= maxCode; c++) {
+                         opts.push(String.fromCharCode(c));
+                       }
+                       q.options = opts;
+                    }
                  });
               }
            });

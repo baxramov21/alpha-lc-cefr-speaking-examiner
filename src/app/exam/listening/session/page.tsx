@@ -8,6 +8,18 @@ import { Button } from '@/components/ui/button';
 import { ListeningTask } from '@/lib/types';
 import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
 
+const getDisplayOptions = (q: any) => {
+  if (q.options && q.options.length > 0) return q.options;
+  let maxCode = 68; // 'D'
+  if (q.correctAnswer && typeof q.correctAnswer === 'string' && q.correctAnswer.length === 1) {
+    const code = q.correctAnswer.toUpperCase().charCodeAt(0);
+    if (code >= 65 && code <= 74) { // A to J
+      maxCode = Math.max(maxCode, code);
+    }
+  }
+  return Array.from({length: maxCode - 64}, (_, i) => String.fromCharCode(65 + i));
+};
+
 const playBeep = (freq: number, type: OscillatorType, duration: number, vol: number = 0.1) => {
   try {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -438,9 +450,9 @@ export default function ListeningSessionPage() {
                           </div>
                         )}
                         
-                        {(q.type === 'multiple_choice' || q.type === 'matching') && q.options && (
+                        {(q.type === 'multiple_choice' || q.type === 'matching') && (
                           <div className="space-y-3">
-                            {q.options.map((opt, i) => (
+                            {getDisplayOptions(q).map((opt, i) => (
                               <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                                 answers[q.id] === opt 
                                   ? 'border-teal-500 bg-teal-50 shadow-sm' 
