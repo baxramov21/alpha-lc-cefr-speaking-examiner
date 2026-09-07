@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonicalPayload, GrammarPdfExamSchema } from '@/lib/schemas/examSchema';
 import { PDFDocument } from 'pdf-lib';
+import { Button } from '@/components/ui/button';
 
 type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 
