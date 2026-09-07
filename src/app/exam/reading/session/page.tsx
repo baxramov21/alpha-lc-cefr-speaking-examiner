@@ -250,46 +250,46 @@ export default function ReadingSessionPage() {
 
       {/* Main Split Screen Area */}
       <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
-        <div className="h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 ${(!currentTask.pdf_url && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-2'} gap-6`}>
           
           {/* Left Column: Passage */}
-          <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
-              <h2 className="text-white font-bold text-lg flex items-center gap-2">
-                <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Text
-              </h2>
-            </div>
-            
-            {currentTask.pdf_url ? (
-              <div className="flex-1 w-full relative">
-                <iframe 
-                  src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
-                  className="absolute inset-0 w-full h-full border-0"
-                  title="Reading PDF"
-                />
+          {(currentTask.pdf_url || currentTask.passage_html || currentTask.image_url) && (
+            <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
+                <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Text
+                </h2>
               </div>
-            ) : (
-              <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
-                <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
-                  {currentTask.image_url && (
-                    <div className="mb-6 flex justify-center">
-                      <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
-                    </div>
-                  )}
-                  {currentTask.passage_html ? (
-                    <div dangerouslySetInnerHTML={{ 
-                      __html: currentTask.passage_html
-                        .replace(/\(\s*\d+\s*\)_*/g, (match: string) => `<span class="bg-fuchsia-100 text-fuchsia-800 font-bold px-2 py-0.5 rounded-md mx-1 shadow-sm border border-fuchsia-200">${match}</span>`)
-                        .replace(/<\/(b|strong)>([a-zA-Z])/gi, '</$1> $2')
-                        .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
-                    }} />
-                  ) : (
-                    <div className="p-8 text-center text-slate-500  ">No text available.</div>
-                  )}
+              
+              {currentTask.pdf_url ? (
+                <div className="flex-1 w-full relative">
+                  <iframe 
+                    src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
+                    className="absolute inset-0 w-full h-full border-0"
+                    title="Reading PDF"
+                  />
                 </div>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+                  <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
+                    {currentTask.image_url && (
+                      <div className="mb-6 flex justify-center">
+                        <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                      </div>
+                    )}
+                    {currentTask.passage_html && (
+                      <div dangerouslySetInnerHTML={{ 
+                        __html: currentTask.passage_html
+                          .replace(/\(\s*\d+\s*\)_*/g, (match: string) => `<span class="bg-fuchsia-100 text-fuchsia-800 font-bold px-2 py-0.5 rounded-md mx-1 shadow-sm border border-fuchsia-200">${match}</span>`)
+                          .replace(/<\/(b|strong)>([a-zA-Z])/gi, '</$1> $2')
+                          .replace(/<b>(\d+|[IVX]+)\./g, (match: string, p1: string) => `<b><span class="bg-indigo-100 text-indigo-800 font-black px-2 py-0.5 rounded-md mr-2 shadow-sm border border-indigo-200">${p1}.</span>`)
+                      }} />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Right Column: Questions */}
           <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
