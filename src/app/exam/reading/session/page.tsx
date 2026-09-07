@@ -203,6 +203,7 @@ export default function ReadingSessionPage() {
   const isWarning = timeLeft <= 300; // less than 5 mins
 
   const currentTask = tasks[currentTaskIndex];
+  const activePdfUrl = currentTask?.pdf_url || tasks.find(t => t.pdf_url)?.pdf_url;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
@@ -250,10 +251,10 @@ export default function ReadingSessionPage() {
 
       {/* Main Split Screen Area */}
       <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
-        <div className={`h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 ${(!currentTask.pdf_url && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-2'} gap-6`}>
+        <div className={`h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-2'} gap-6`}>
           
           {/* Left Column: Passage */}
-          {(currentTask.pdf_url || currentTask.passage_html || currentTask.image_url) && (
+          {(activePdfUrl || currentTask.passage_html || currentTask.image_url) && (
             <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">
@@ -261,10 +262,10 @@ export default function ReadingSessionPage() {
                 </h2>
               </div>
               
-              {currentTask.pdf_url ? (
+              {activePdfUrl ? (
                 <div className="flex-1 w-full relative">
                   <iframe 
-                    src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
+                    src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} 
                     className="absolute inset-0 w-full h-full border-0"
                     title="Reading PDF"
                   />
