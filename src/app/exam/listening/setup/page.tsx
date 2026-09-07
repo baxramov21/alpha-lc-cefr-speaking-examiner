@@ -90,7 +90,7 @@ export default function ListeningSetupPage() {
             </h2>
             
             <div className="space-y-6">
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <h3 className="font-semibold text-slate-800 mb-2">Important Playback Rules:</h3>
                 <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>The audio for each part will play <strong>automatically</strong>.</li>
@@ -100,7 +100,7 @@ export default function ListeningSetupPage() {
                 </ul>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <h3 className="font-semibold text-slate-800 mb-2">Test Format:</h3>
                 <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>There are multiple parts to this test.</li>
@@ -111,7 +111,7 @@ export default function ListeningSetupPage() {
             </div>
 
             <div className="mt-10 border-t border-slate-100 pt-8 flex items-center justify-between">
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
                 By clicking start, you agree to the examination terms and conditions.
               </div>
               

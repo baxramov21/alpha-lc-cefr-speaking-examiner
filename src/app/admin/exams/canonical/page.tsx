@@ -247,13 +247,13 @@ export default function CanonicalExamsPage() {
         <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setProgrammeTab('CEFR')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'CEFR' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'CEFR' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             CEFR
           </button>
           <button
             onClick={() => setProgrammeTab('IELTS')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'IELTS' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'IELTS' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             IELTS
           </button>
@@ -262,13 +262,13 @@ export default function CanonicalExamsPage() {
         <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setTab('exams')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Individual Exams</span>
           </button>
           <button
             onClick={() => setTab('pairs')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
           </button>
@@ -285,7 +285,7 @@ export default function CanonicalExamsPage() {
           )}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-left">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-slate-50 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Exam Title</th>
                   <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Type</th>
@@ -297,12 +297,12 @@ export default function CanonicalExamsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {examsLoading ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">Loading exams...</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">Loading exams...</td></tr>
                 ) : programmeExams.length === 0 ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400">No {programmeTab} canonical exams found.</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400 dark:text-slate-500">No {programmeTab} canonical exams found.</td></tr>
                 ) : programmeExams.map(exam => (
-                  <tr key={exam.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-slate-800">{exam.title}</td>
+                  <tr key={exam.id} className="hover:bg-slate-50 dark:bg-slate-950/80 transition-colors">
+                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">{exam.title}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
                         exam.exam_type === 'CEFR_READING' ? 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'
@@ -314,13 +314,13 @@ export default function CanonicalExamsPage() {
                     <td className="px-6 py-4">
                       <StatusToggle exam={exam} onToggle={handleToggleExamActive} />
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                    <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-slate-400" />
+                        <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                         {Math.floor(exam.time_limit / 60)}m{exam.prep_time > 0 && ` (+${Math.floor(exam.prep_time / 60)}m prep)`}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-500">
+                    <td className="px-6 py-4 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-500">
                       {new Date(exam.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -383,7 +383,7 @@ export default function CanonicalExamsPage() {
                   <select
                     value={pairReadingId}
                     onChange={e => setPairReadingId(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white"
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
                   >
                     <option value="">— None —</option>
                     {readingExams.map(e => (
@@ -398,7 +398,7 @@ export default function CanonicalExamsPage() {
                   <select
                     value={pairListeningId}
                     onChange={e => setPairListeningId(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white"
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
                   >
                     <option value="">— None —</option>
                     {listeningExams.map(e => (
@@ -429,9 +429,9 @@ export default function CanonicalExamsPage() {
 
           {/* Pairs List */}
           {pairsLoading ? (
-            <div className="py-12 text-center text-slate-400">Loading pairs...</div>
+            <div className="py-12 text-center text-slate-400 dark:text-slate-500">Loading pairs...</div>
           ) : programmePairs.length === 0 ? (
-            <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+            <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
               <Link2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-500 font-medium">No {programmeTab} exam pairs yet.</p>
               <p className="text-slate-400 text-sm mt-1">Create one to assign a Reading + Listening bundle to students.</p>
@@ -440,12 +440,12 @@ export default function CanonicalExamsPage() {
             <div className="space-y-4">
               {programmePairs.map(pair => (
                 <div key={pair.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-                  pair.is_active ? 'border-green-300 shadow-green-100' : 'border-slate-200'
+                  pair.is_active ? 'border-green-300 shadow-green-100' : 'border-slate-200 dark:border-slate-700'
                 }`}>
                   <div className="p-5 flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="font-bold text-lg text-slate-800">{pair.name}</h3>
+                        <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">{pair.name}</h3>
                         {pair.is_active && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Active for Students
@@ -482,7 +482,7 @@ export default function CanonicalExamsPage() {
                       <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => openEditPair(pair)}>
                         <Pencil className="w-4 h-4 mr-1" /> Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => handleDeletePair(pair.id, pair.name)}>
+                      <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 dark:bg-red-950" onClick={() => handleDeletePair(pair.id, pair.name)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

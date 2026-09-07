@@ -61,7 +61,7 @@ export default function ListeningResultsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center">
                 <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Total Score</div>
-                <div className="text-4xl font-black text-slate-800">{result.total_score} <span className="text-xl text-slate-400">/ {result.max_score}</span></div>
+                <div className="text-4xl font-black text-slate-800 dark:text-slate-200">{result.total_score} <span className="text-xl text-slate-400 dark:text-slate-500">/ {result.max_score}</span></div>
               </div>
               <div className="bg-teal-50 border border-teal-100 p-6 rounded-2xl text-center">
                 <div className="text-sm font-bold text-teal-600 uppercase tracking-wider mb-2">CEFR Level</div>
@@ -69,11 +69,11 @@ export default function ListeningResultsPage() {
               </div>
               <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl flex flex-col justify-center">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-bold text-slate-500">Correct</div>
+                  <div className="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500">Correct</div>
                   <div className="font-bold text-green-600 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> {result.correct_answers}</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold text-slate-500">Incorrect</div>
+                  <div className="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500">Incorrect</div>
                   <div className="font-bold text-red-600 flex items-center gap-1"><XCircle className="w-4 h-4" /> {result.incorrect_answers}</div>
                 </div>
               </div>
@@ -84,7 +84,7 @@ export default function ListeningResultsPage() {
             <div className="space-y-8">
               {tasks.map((task) => (
                 <div key={task.id} className="border border-slate-200 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-slate-800">
+                  <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-slate-800 dark:text-slate-200">
                     {task.partLabel}
                   </div>
                   <div className="divide-y divide-slate-100">
@@ -115,7 +115,7 @@ export default function ListeningResultsPage() {
                               <div className="bg-slate-100 rounded-lg p-3">
                                 <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
                                 <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
-                                  {formatAnswer(res.user_answer) || <span className="italic text-slate-400">Blank</span>}
+                                  {formatAnswer(res.user_answer) || <span className="italic text-slate-400 dark:text-slate-500">Blank</span>}
                                 </div>
                               </div>
                               <div className="bg-teal-50 rounded-lg p-3">

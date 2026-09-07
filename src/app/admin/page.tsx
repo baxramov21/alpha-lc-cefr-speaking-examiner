@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
             <div className="space-y-1.5">
               <Label htmlFor="admin-password" className="text-sm font-medium text-slate-300">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 dark:text-slate-500" />
                 <Input
                   id="admin-password"
                   type={showPw ? 'text' : 'password'}
@@ -100,7 +100,7 @@ export default function AdminLoginPage() {
 
             {/* Auth error */}
             {authError && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400">
+              <div className="bg-red-50 dark:bg-red-9500/10 border border-red-500/20 rounded-xl p-3 text-sm text-red-400">
                 {authError}
               </div>
             )}

@@ -115,7 +115,7 @@ export default function WritingSetupPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100">
+      <div className="w-full max-w-2xl bg-white rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800">
         
         {/* Header Area */}
         <div className="bg-slate-900 text-white p-8 pb-10 text-center relative overflow-hidden">
@@ -124,7 +124,7 @@ export default function WritingSetupPage() {
             <PenTool size={180} />
           </div>
           
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md mb-6 ring-1 ring-white/20">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white dark:bg-slate-900/10 backdrop-blur-md mb-6 ring-1 ring-white/20">
             <PenTool className="w-8 h-8 text-teal-300" />
           </div>
           <h1 className="text-3xl font-bold mb-2 tracking-tight">Writing Assessment</h1>
@@ -156,7 +156,7 @@ export default function WritingSetupPage() {
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Word Requirements</h3>
                 <p className="text-slate-600 leading-relaxed">
-                  Task 1 requires a minimum of <span className="font-semibold text-slate-800">150 words</span>. Task 2 requires a minimum of <span className="font-semibold text-slate-800">250 words</span>.
+                  Task 1 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200">150 words</span>. Task 2 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200">250 words</span>.
                 </p>
               </div>
             </div>

@@ -118,7 +118,7 @@ export default function StudentLoginPage() {
   return (
     <div className="min-h-screen flex font-sans selection:bg-teal-500/30">
       {/* Left: Brand Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#06090e] flex-col items-center justify-center p-12 relative overflow-hidden border-r border-slate-200">
+      <div className="hidden lg:flex lg:w-1/2 bg-[#06090e] flex-col items-center justify-center p-12 relative overflow-hidden border-r border-slate-200 dark:border-slate-700">
         {/* Universal Ambient Backgrounds */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-500 z-50 shadow-[0_0_20px_rgba(20,184,166,0.5)]" />
         <div className="absolute -top-[30%] -left-[10%] w-[100vw] h-[100vw] rounded-full bg-teal-900/20 blur-[120px] pointer-events-none" />
@@ -149,9 +149,9 @@ export default function StudentLoginPage() {
             ].map((f) => (
               <div
                 key={f.text}
-                className="flex items-center gap-4 bg-white/[0.03] border border-white/5 backdrop-blur-md rounded-2xl px-5 py-4 shadow-lg hover:bg-white/[0.06] hover:border-white/10 transition-all duration-300 group cursor-default"
+                className="flex items-center gap-4 bg-white dark:bg-slate-900/[0.03] border border-white/5 backdrop-blur-md rounded-2xl px-5 py-4 shadow-lg hover:bg-white dark:bg-slate-900/[0.06] hover:border-white/10 transition-all duration-300 group cursor-default"
               >
-                <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 shadow-lg ${f.shadow} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-10 h-10 rounded-xl bg-white dark:bg-slate-900/5 flex items-center justify-center shrink-0 border border-white/10 shadow-lg ${f.shadow} group-hover:scale-110 transition-transform duration-300`}>
                   <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
                 <span className="text-slate-200 font-medium text-sm md:text-base">{f.text}</span>
@@ -186,7 +186,7 @@ export default function StudentLoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 relative z-10" id="student-login-form">
               {/* Full Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Full Name
                 </Label>
                 <div className="relative">
@@ -210,7 +210,7 @@ export default function StudentLoginPage() {
 
               {/* Group Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Group Name / ID
                 </Label>
                 <div className="relative">
@@ -234,7 +234,7 @@ export default function StudentLoginPage() {
 
               {/* Teacher Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Teacher Name
                 </Label>
                 <div className="relative">
@@ -258,7 +258,7 @@ export default function StudentLoginPage() {
 
               {/* Passcode */}
               <div className="space-y-1.5">
-                <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Passcode
                 </Label>
                 <div className="relative">
@@ -291,13 +291,13 @@ export default function StudentLoginPage() {
               {/* Grammar Level Selection */}
               {requiresGrammarLevel && (
                 <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700">
+                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Select Your Grammar Level
                   </Label>
                   <div className="relative">
                     <select
                       id="grammarLevel"
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300"
                       {...register('grammarLevel', { required: 'Please select a level' })}
                     >
                       <option value="">Choose a level...</option>
@@ -345,7 +345,7 @@ export default function StudentLoginPage() {
 
           {/* Admin link & Footer */}
           <div className="mt-8 text-center space-y-4">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
               Are you a teacher?{' '}
               <a href="/admin" className="text-teal-600 hover:text-teal-500 font-semibold underline-offset-4 hover:underline transition-colors">
                 Admin Panel →

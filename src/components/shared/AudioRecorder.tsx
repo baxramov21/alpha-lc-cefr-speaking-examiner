@@ -161,7 +161,7 @@ export default function AudioRecorder({
       {/* Recording indicator */}
       {isRecording && (
         <div className="flex items-center gap-2 text-sm text-teal-600 font-medium">
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
           Recording...
         </div>
       )}
@@ -330,7 +330,7 @@ export function MicTestRecorder({
           ${stage === 'recording'
             ? 'bg-teal-500 pulse-ring shadow-lg shadow-teal-500/40'
             : stage === 'done'
-            ? 'bg-emerald-500 cursor-default'
+            ? 'bg-emerald-50 dark:bg-emerald-9500 cursor-default'
             : 'bg-slate-300 hover:bg-teal-500 hover:shadow-lg hover:shadow-teal-500/30'
           }
         `}
@@ -347,7 +347,7 @@ export function MicTestRecorder({
         {stage === 'idle' && 'Tap to start recording'}
         {stage === 'recording' && (
           <span className="flex items-center gap-2 text-teal-600">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
             Recording… tap to stop
           </span>
         )}

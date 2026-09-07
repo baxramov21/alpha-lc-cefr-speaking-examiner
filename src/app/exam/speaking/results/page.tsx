@@ -29,8 +29,8 @@ export default function ExamResultsPage() {
 
   if (!evaluation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Loading results...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500">Loading results...</p>
       </div>
     );
   }
@@ -44,7 +44,7 @@ export default function ExamResultsPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-teal-100 text-teal-600 mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800">Exam Completed, {studentName}</h1>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-200">Exam Completed, {studentName}</h1>
           <p className="text-slate-500 mb-8">Your AI examiner has finished evaluating your speaking test.</p>
           <div className="flex justify-center mt-6">
             <FullExamNextAction />
@@ -63,7 +63,7 @@ export default function ExamResultsPage() {
                 </div>
                 <div className="absolute bottom-6 text-sm font-bold text-teal-600/70">/ 75</div>
               </div>
-              <p className="mt-4 font-medium text-slate-600">Total Score</p>
+              <p className="mt-4 font-medium text-slate-600 dark:text-slate-300">Total Score</p>
             </div>
 
             <div className="h-24 w-px bg-slate-100 hidden md:block" />
@@ -74,7 +74,7 @@ export default function ExamResultsPage() {
                   {evaluation.cefr_level}
                 </div>
               </div>
-              <p className="mt-4 font-medium text-slate-600">CEFR Level</p>
+              <p className="mt-4 font-medium text-slate-600 dark:text-slate-300">CEFR Level</p>
             </div>
 
           </div>
@@ -84,19 +84,19 @@ export default function ExamResultsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Fluency</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.fluency_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{evaluation.fluency_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Interaction</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.lexical_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{evaluation.lexical_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Grammar</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.grammar_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{evaluation.grammar_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">Pronunciation</h3>
-            <div className="text-3xl font-bold text-slate-800">{evaluation.pronunciation_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{evaluation.pronunciation_score || 0} <span className="text-base text-slate-400 font-medium">/ 75</span></div>
           </div>
         </div>
         {/* Feedback Grid */}
@@ -115,7 +115,7 @@ export default function ExamResultsPage() {
                 ].map((crit) => (
                   <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium text-slate-700">{crit.label}</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300">{crit.label}</span>
                     </div>
                     <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
                   </div>
@@ -160,7 +160,7 @@ export default function ExamResultsPage() {
                     <Badge variant="outline" className="text-slate-500 border-slate-200 uppercase mb-1">
                       Question {qr.question_id.replace('q', '')}
                     </Badge>
-                    <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{qr.question_text}</p>
                   </div>
                 </div>
 
@@ -172,13 +172,13 @@ export default function ExamResultsPage() {
                   {qr.grammar_feedback && (
                     <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100/50 flex flex-col gap-2">
                       <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Grammar Notes</span>
-                      <p className="text-sm text-slate-600">{qr.grammar_feedback}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{qr.grammar_feedback}</p>
                     </div>
                   )}
                   {qr.pronunciation_notes && (
                     <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 flex flex-col gap-2">
                       <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Pronunciation Tips</span>
-                      <p className="text-sm text-slate-600">{qr.pronunciation_notes}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{qr.pronunciation_notes}</p>
                     </div>
                   )}
                 </div>
@@ -187,11 +187,11 @@ export default function ExamResultsPage() {
           </div>
         ) : (
           /* Fallback for legacy evaluations */
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="font-bold text-slate-800 mb-6">AI Transcripts</h3>
             <div className="space-y-6">
               {EXAM_QUESTIONS.map(q => (
-                <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 dark:border-slate-800">
                   <p className="text-sm font-semibold text-slate-700 mb-2">{q.partLabel} - {q.text}</p>
                   <p className="text-sm text-slate-600 italic">
                     &ldquo;{evaluation.transcripts?.[q.id] || '[No transcript]'}&rdquo;

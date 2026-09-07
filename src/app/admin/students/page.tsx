@@ -67,7 +67,7 @@ export default function StudentsPage() {
   }, [studentsList, selectedStudent, skillTab]);
 
   if (isLoading) {
-    return <div className="p-12 text-center text-slate-500">Loading Analytics...</div>;
+    return <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500">Loading Analytics...</div>;
   }
 
   const activeStudentData = selectedStudent ? studentsMap.get(selectedStudent) : [];
@@ -89,7 +89,7 @@ export default function StudentsPage() {
         </p>
       </div>
 
-      <div className="flex border-b border-slate-200">
+      <div className="flex border-b border-slate-200 dark:border-slate-700">
         <button
           onClick={() => setSkillTab('speaking')}
           className={`px-6 py-3 font-bold transition-all relative ${
@@ -113,7 +113,7 @@ export default function StudentsPage() {
         >
           Writing Analytics
           {skillTab === 'writing' && (
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-50 dark:bg-emerald-9500 rounded-t-full" />
           )}
         </button>
         <button
@@ -126,7 +126,7 @@ export default function StudentsPage() {
         >
           Listening Analytics
           {skillTab === 'listening' && (
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 rounded-t-full" />
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-50 dark:bg-indigo-9500 rounded-t-full" />
           )}
         </button>
       </div>
@@ -134,12 +134,12 @@ export default function StudentsPage() {
       <div className="flex flex-1 gap-8 min-h-0">
         {/* Left sidebar: Student List */}
         <div className="w-1/3 flex flex-col bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-50 bg-slate-50/50">
+          <div className="p-6 border-b border-slate-50 bg-slate-50 dark:bg-slate-950/50">
             <h3 className="font-bold text-slate-800 uppercase text-xs tracking-wider">Top Performers</h3>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {studentsList.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-500">No saved students yet. Add them from the grading panel!</div>
+              <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">No saved students yet. Add them from the grading panel!</div>
             ) : (
               studentsList.map(st => (
                 <button
@@ -148,23 +148,23 @@ export default function StudentsPage() {
                   className={`w-full text-left p-4 rounded-2xl transition-all border flex items-center justify-between ${
                     selectedStudent === st.name 
                       ? 'bg-amber-50 border-amber-200 shadow-sm' 
-                      : 'bg-white border-transparent hover:border-slate-100 hover:bg-slate-50'
+                      : 'bg-white border-transparent hover:border-slate-100 hover:bg-slate-50 dark:bg-slate-950'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
-                      selectedStudent === st.name ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-600'
+                      selectedStudent === st.name ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-600 dark:text-slate-300'
                     }`}>
                       {st.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="font-bold text-slate-800">{st.name}</div>
-                      <div className="text-xs text-slate-500">{st.attempts} attempts recorded</div>
+                      <div className="font-bold text-slate-800 dark:text-slate-200">{st.name}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">{st.attempts} attempts recorded</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-black text-slate-800">{st.bestScore}</div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400">Best</div>
+                    <div className="text-sm font-black text-slate-800 dark:text-slate-200">{st.bestScore}</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Best</div>
                   </div>
                 </button>
               ))
@@ -183,7 +183,7 @@ export default function StudentsPage() {
                     <User className="w-5 h-5" />
                     <span className="text-sm font-semibold uppercase tracking-wider">Student Name</span>
                   </div>
-                  <div className="text-2xl font-black text-slate-800">{selectedStudent}</div>
+                  <div className="text-2xl font-black text-slate-800 dark:text-slate-200">{selectedStudent}</div>
                 </div>
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1">
                   <div className="flex items-center gap-3 text-amber-500 mb-2">
@@ -191,7 +191,7 @@ export default function StudentsPage() {
                     <span className="text-sm font-semibold uppercase tracking-wider">Best Score</span>
                   </div>
                   <div className="text-2xl font-black text-amber-600">
-                    {Math.max(...activeStudentData.map(s => s.overall_score))} <span className="text-sm text-slate-400">/ 75</span>
+                    {Math.max(...activeStudentData.map(s => s.overall_score))} <span className="text-sm text-slate-400 dark:text-slate-500">/ 75</span>
                   </div>
                 </div>
               </div>
@@ -233,17 +233,17 @@ export default function StudentsPage() {
               {/* History List */}
               <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-shrink-0 max-h-[30%] flex flex-col">
                 <div className="p-4 border-b border-slate-50 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-400" />
+                  <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                   <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Attempt History</h3>
                 </div>
                 <div className="overflow-y-auto p-4 space-y-2">
                   {activeStudentData.slice().reverse().map((sub, idx) => (
-                    <div key={sub.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div key={sub.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-4">
                         <div className="text-xl font-black text-teal-600 w-12 text-center">{sub.overall_score}</div>
                         <div>
-                          <div className="text-sm font-bold text-slate-700">{new Date(sub.created_at).toLocaleDateString()}</div>
-                          <div className="text-xs text-slate-500">CEFR: {sub.overall_band}</div>
+                          <div className="text-sm font-bold text-slate-700 dark:text-slate-300">{new Date(sub.created_at).toLocaleDateString()}</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">CEFR: {sub.overall_band}</div>
                         </div>
                       </div>
                       <Link href={`/admin/submissions/${sub.id}`} className="p-2 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">

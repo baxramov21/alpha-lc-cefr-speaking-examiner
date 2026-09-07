@@ -90,7 +90,7 @@ export default function ReadingSetupPage() {
             </h2>
             
             <div className="space-y-6">
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <h3 className="font-semibold text-slate-800 mb-2">Important Test Rules:</h3>
                 <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>You will have a fixed amount of time to complete all reading tasks.</li>
@@ -101,7 +101,7 @@ export default function ReadingSetupPage() {
               </div>
 
               {isLoadingTasks ? (
-                <div className="flex flex-col items-center justify-center p-8 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex flex-col items-center justify-center p-8 bg-slate-50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <Loader2 className="w-8 h-8 text-fuchsia-500 animate-spin mb-4" />
                   <p className="text-slate-500 font-medium text-center">
                     Downloading reading materials securely...<br/>
@@ -110,7 +110,7 @@ export default function ReadingSetupPage() {
                 </div>
               ) : (
                 <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-9500 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
                   <div>

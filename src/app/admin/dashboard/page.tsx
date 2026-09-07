@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
         delta: 'Awaiting AI scoring',
         icon: Clock,
         color: 'text-amber-600',
-        bg: 'bg-amber-50',
+        bg: 'bg-amber-50 dark:bg-amber-950',
         border: 'border-amber-100',
       },
       {
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
         delta: '100% automated',
         icon: CheckCircle2,
         color: 'text-emerald-600',
-        bg: 'bg-emerald-50',
+        bg: 'bg-emerald-50 dark:bg-emerald-950',
         border: 'border-emerald-100',
       },
     ]);
@@ -125,20 +125,20 @@ export default function AdminDashboardPage() {
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">Dashboard</h1>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-slate-200">Dashboard</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Overview of student submissions filtered by skill.
           </p>
         </div>
         
         {/* Skill Tabs */}
-        <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+        <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setActiveSkill('speaking')}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'speaking' 
                 ? 'bg-teal-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:bg-slate-950'
             }`}
           >
             Speaking
@@ -147,8 +147,8 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveSkill('writing')}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'writing' 
-                ? 'bg-emerald-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                ? 'bg-emerald-50 dark:bg-emerald-9500 text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:bg-slate-950'
             }`}
           >
             Writing
@@ -157,8 +157,8 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveSkill('listening')}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'listening' 
-                ? 'bg-indigo-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                ? 'bg-indigo-50 dark:bg-indigo-9500 text-white shadow-sm' 
+                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:bg-slate-950'
             }`}
           >
             Listening
@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
               <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${kpi.color}`} />
               </div>
-              <p className="text-2xl font-black text-slate-800">{kpi.value}</p>
+              <p className="text-2xl font-black text-slate-800 dark:text-slate-200">{kpi.value}</p>
               <p className="text-xs text-slate-500 mt-0.5">{kpi.label}</p>
               <p className={`text-xs font-medium mt-1.5 ${kpi.color}`}>{kpi.delta}</p>
             </div>
@@ -195,20 +195,20 @@ export default function AdminDashboardPage() {
         <div className="xl:col-span-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold text-slate-800">Submissions Over Time</h2>
+              <h2 className="font-bold text-slate-800 dark:text-slate-200">Submissions Over Time</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Last 7 days</p>
             </div>
-            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100">
+            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setChartType('bar')}
-                className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600 dark:text-slate-300'}`}
                 title="Bar Chart"
               >
                 <BarChart2 className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setChartType('area')}
-                className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600 dark:text-slate-300'}`}
                 title="Line/Area Chart"
               >
                 <LineChart className="w-4 h-4" />
@@ -256,7 +256,7 @@ export default function AdminDashboardPage() {
         {/* Recent submissions */}
         <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-800">Recent {activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Submissions</h2>
+            <h2 className="font-bold text-slate-800 dark:text-slate-200">Recent {activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Submissions</h2>
             <Link
               href="/admin/submissions"
               className="text-xs text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-1"
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'View All Submissions', href: '/admin/submissions', icon: FileText, color: 'text-teal-600 bg-teal-50' },
-          { label: 'Manage Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 bg-slate-100' },
+          { label: 'Manage Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 bg-slate-100 dark:bg-slate-800' },
         ].map((a) => (
           <Link
             key={a.href}

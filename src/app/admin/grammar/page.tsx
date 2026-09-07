@@ -185,12 +185,12 @@ export default function AdminGrammarExamsPage() {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-800">Grammar Tests</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200">Grammar Tests</h1>
           <p className="text-slate-500 mt-1">Manage grammar quizzes and bundles for students.</p>
         </div>
         
         <div className="flex items-center gap-3">
-          <Button onClick={fetchExams} variant="outline" className="gap-2 text-slate-600 bg-white">
+          <Button onClick={fetchExams} variant="outline" className="gap-2 text-slate-600 bg-white dark:bg-slate-900">
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -206,25 +206,25 @@ export default function AdminGrammarExamsPage() {
       <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit mb-8">
         <button
           onClick={() => setActiveTab('grammar')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'grammar' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'grammar' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
         >
           <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Pure Grammar</span>
         </button>
         <button
           onClick={() => setActiveTab('reading')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'reading' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'reading' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
         >
           <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Reading</span>
         </button>
         <button
           onClick={() => setActiveTab('listening')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'listening' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'listening' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
         >
           <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Listening</span>
         </button>
         <button
           onClick={() => setActiveTab('triples')}
-          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'triples' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'triples' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
         >
           <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
         </button>
@@ -233,7 +233,7 @@ export default function AdminGrammarExamsPage() {
       {activeTab === 'triples' && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-800">Grammar Exam Pairs</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Grammar Exam Pairs</h2>
             <Button onClick={() => setIsCreatingTriple(!isCreatingTriple)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9">
               {isCreatingTriple ? 'Cancel' : 'Create Pair'}
             </Button>
@@ -288,24 +288,24 @@ export default function AdminGrammarExamsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {triples.map(trip => (
-                <div key={trip.id} className="border border-slate-200 rounded-xl p-5 hover:border-indigo-200 transition-colors bg-slate-50/50">
+                <div key={trip.id} className="border border-slate-200 rounded-xl p-5 hover:border-indigo-200 transition-colors bg-slate-50 dark:bg-slate-950/50">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Layers className="w-4 h-4 text-indigo-500" />
-                        <h3 className="font-bold text-slate-800">{trip.name}</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-slate-200">{trip.name}</h3>
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">{trip.level}</span>
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">{trip.level}</span>
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={() => toggleTripleStatus(trip.id, trip.level)} size="sm" variant={trip.is_active ? "default" : "outline"} className={trip.is_active ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}>
                         {trip.is_active ? <CheckCircle2 className="w-4 h-4 mr-1" /> : <Power className="w-4 h-4 mr-1" />}
                         {trip.is_active ? 'Active' : 'Set Active'}
                       </Button>
-                      <Button onClick={() => deleteTriple(trip.id)} size="sm" variant="ghost" className="text-red-500 hover:bg-red-50">Delete</Button>
+                      <Button onClick={() => deleteTriple(trip.id)} size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 dark:bg-red-950">Delete</Button>
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm text-slate-600">
+                  <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                     <p><strong className="text-slate-800 font-medium">R:</strong> {trip.reading_exam?.title || 'None'}</p>
                     <p><strong className="text-slate-800 font-medium">L:</strong> {trip.listening_exam?.title || 'None'}</p>
                     <p><strong className="text-slate-800 font-medium">G:</strong> {trip.grammar_exam?.title || 'None'}</p>
@@ -320,7 +320,7 @@ export default function AdminGrammarExamsPage() {
       {activeTab !== 'triples' && (
         <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
           {isLoading ? (
-            <div className="py-24 flex flex-col items-center justify-center text-slate-400">
+            <div className="py-24 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
               <Loader2 className="w-8 h-8 animate-spin mb-4" />
               <p>Loading tests...</p>
             </div>
@@ -329,13 +329,13 @@ export default function AdminGrammarExamsPage() {
               <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
                 <Database className="w-8 h-8 text-slate-300" />
               </div>
-              <h3 className="text-lg font-bold text-slate-700">No Tests Found</h3>
+              <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300">No Tests Found</h3>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/50">
+                  <tr className="border-b border-slate-100 bg-slate-50 dark:bg-slate-950/50">
                     <th className="py-4 pl-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
                     <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Title</th>
                     <th className="py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Level</th>
@@ -346,8 +346,8 @@ export default function AdminGrammarExamsPage() {
                   {displayedExams.map((exam) => (
                     <tr key={exam.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
                       <td className="py-4 pl-6">
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${exam.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${exam.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${exam.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${exam.is_active ? 'bg-emerald-50 dark:bg-emerald-9500' : 'bg-slate-400'}`} />
                           {exam.is_active ? 'Active' : 'Inactive'}
                         </div>
                       </td>
@@ -365,7 +365,7 @@ export default function AdminGrammarExamsPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 group">
-                            <div className="font-bold text-slate-800">{exam.title}</div>
+                            <div className="font-bold text-slate-800 dark:text-slate-200">{exam.title}</div>
                             <button onClick={() => setEditingTitle({ id: exam.id, title: exam.title, isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Edit2 className="w-4 h-4" />
                             </button>
@@ -378,7 +378,7 @@ export default function AdminGrammarExamsPage() {
                             <select 
                               value={editingExam!.level} 
                               onChange={(e) => setEditingExam(prev => prev ? {...prev, level: e.target.value} : null)}
-                              className="border-slate-200 rounded px-2 py-1 text-sm bg-white"
+                              className="border-slate-200 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900"
                             >
                               <option value="Elementary">Elementary</option>
                               <option value="Pre-Intermediate">Pre-Intermediate</option>
@@ -405,7 +405,7 @@ export default function AdminGrammarExamsPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                              className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:bg-indigo-950"
                             >
                               <Edit2 className="w-4 h-4 mr-1.5" />
                               Edit

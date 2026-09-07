@@ -50,7 +50,7 @@ export default function SubmissionDetailPage({
   }, [id]);
 
   if (isLoading) {
-    return <div className="p-12 flex justify-center text-slate-500"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+    return <div className="p-12 flex justify-center text-slate-500 dark:text-slate-400 dark:text-slate-500"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
 
   if (!submission || !submission.evaluation) notFound();
@@ -130,19 +130,19 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               {submission.studentName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">{submission.studentName}</h1>
+              <h1 className="text-xl font-bold text-slate-800 dark:text-slate-200">{submission.studentName}</h1>
               <div className="text-sm text-slate-500 font-medium">{submission.status.toUpperCase()}</div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-              <Users className="w-4 h-4 text-slate-400" /> {submission.groupName}
+          <div className="flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-300">
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+              <Users className="w-4 h-4 text-slate-400 dark:text-slate-500" /> {submission.groupName}
             </div>
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-              <GraduationCap className="w-4 h-4 text-slate-400" /> {submission.teacherName}
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+              <GraduationCap className="w-4 h-4 text-slate-400 dark:text-slate-500" /> {submission.teacherName}
             </div>
-            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-              <Calendar className="w-4 h-4 text-slate-400" /> {formatDate(submission.submittedAt)}
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
+              <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" /> {formatDate(submission.submittedAt)}
             </div>
           </div>
         </div>
@@ -152,7 +152,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           </Button>
           <Button
             variant={isSaved ? "default" : "outline"}
-            className={isSaved ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}
+            className={isSaved ? "bg-amber-50 dark:bg-amber-9500 hover:bg-amber-600 text-white" : ""}
             onClick={() => handleUpdate({ isSaved: !isSaved })}
           >
             <Star className={`w-4 h-4 mr-2 ${isSaved ? "fill-white" : ""}`} />
@@ -195,7 +195,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               </div>
               <div className="absolute bottom-6 text-sm font-bold text-teal-600/70">/ {ev.max_score || 75}</div>
             </div>
-            <p className="mt-4 font-medium text-slate-600">Total Score</p>
+            <p className="mt-4 font-medium text-slate-600 dark:text-slate-300">Total Score</p>
           </div>
 
           <div className="h-24 w-px bg-slate-100 hidden md:block" />
@@ -206,7 +206,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                 {ev.cefr_level}
               </div>
             </div>
-            <p className="mt-4 font-medium text-slate-600">CEFR Level</p>
+            <p className="mt-4 font-medium text-slate-600 dark:text-slate-300">CEFR Level</p>
           </div>
 
         </div>
@@ -217,11 +217,11 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Task 1 (Letter)</h3>
-            <div className="text-3xl font-bold text-slate-800">{ev.task_scores?.task_1_score || 0} <span className="text-base text-slate-400 font-medium">/ 24</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{ev.task_scores?.task_1_score || 0} <span className="text-base text-slate-400 font-medium">/ 24</span></div>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center">
             <h3 className="text-slate-400 text-sm font-semibold mb-2 uppercase tracking-wide">Task 2 (Essay)</h3>
-            <div className="text-3xl font-bold text-slate-800">{ev.task_scores?.task_2_score || 0} <span className="text-base text-slate-400 font-medium">/ 51</span></div>
+            <div className="text-3xl font-bold text-slate-800 dark:text-slate-200">{ev.task_scores?.task_2_score || 0} <span className="text-base text-slate-400 font-medium">/ 51</span></div>
           </div>
         </div>
       ) : ev.examType === 'listening' ? (
@@ -240,7 +240,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
       {/* Criteria & Feedback */}
       {ev.examType === 'writing' ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="font-bold text-slate-800 mb-6 flex items-center justify-between">
               Criteria Ratings
             </h3>
@@ -253,7 +253,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               ].map((crit) => (
                 <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-slate-700">{crit.label}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">{crit.label}</span>
                     <Badge variant="outline" className="text-teal-700 bg-teal-50">{crit.val}</Badge>
                   </div>
                 </div>
@@ -277,7 +277,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
         </div>
       ) : ev.examType === 'listening' ? null : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="font-bold text-slate-800 mb-6 flex items-center justify-between">
               Criteria Ratings
             </h3>
@@ -290,7 +290,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               ].map((crit) => (
                 <div key={crit.label} className="border-b border-slate-50 pb-4 last:border-0 last:pb-0">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium text-slate-700">{crit.label}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{crit.label}</span>
                     <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none px-3">{crit.val}</Badge>
                   </div>
                   <p className="text-sm text-slate-500 leading-relaxed">{crit.fb}</p>
@@ -299,7 +299,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <h3 className="font-bold text-slate-800 mb-4">Strengths</h3>
             <ul className="space-y-3 mb-8">
               {(ev.strengths || []).map((s: string, i: number) => (
@@ -337,22 +337,22 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                   <Badge variant="outline" className="text-slate-500 border-slate-200 uppercase mb-1">
                     {task.id}
                   </Badge>
-                  <p className="text-sm font-semibold text-slate-700">{task.title}</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{task.title}</p>
                 </div>
                 <div className="flex flex-col items-end">
                   <div className="text-xl font-bold text-teal-600">{task.eval?.word_count || 0}</div>
-                  <div className="text-xs font-medium text-slate-400">Words</div>
+                  <div className="text-xs font-medium text-slate-400 dark:text-slate-500">Words</div>
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm leading-relaxed mt-2 text-slate-700 dark:text-slate-300">
                 <div dangerouslySetInnerHTML={{ __html: sanitizeTranscriptHtml(task.eval?.corrected_text_html || '[No text provided]') }} />
               </div>
 
               {task.eval?.feedback && (
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 flex flex-col gap-2 mt-2">
                   <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Task Feedback</span>
-                  <p className="text-sm text-slate-600">{task.eval.feedback}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">{task.eval.feedback}</p>
                 </div>
               )}
             </div>
@@ -365,7 +365,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col gap-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="text-slate-500 border-slate-200">
+                  <Badge variant="outline" className="text-slate-500 border-slate-200 dark:border-slate-700">
                     Q{idx + 1}
                   </Badge>
                   {qr.is_correct ? (
@@ -379,7 +379,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-2">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Student Answer</span>
-                  <p className="text-sm font-medium text-slate-800">{qr.user_answer || '[No Answer]'}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{qr.user_answer || '[No Answer]'}</p>
                 </div>
                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100/50 flex flex-col gap-2">
                   <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">Correct Answer</span>
@@ -399,7 +399,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                   <Badge variant="outline" className="text-slate-500 border-slate-200 uppercase mb-1">
                     Question {qr.question_id.replace('q', '')}
                   </Badge>
-                  <p className="text-sm font-semibold text-slate-700">{qr.question_text}</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{qr.question_text}</p>
                 </div>
               </div>
 
@@ -411,13 +411,13 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
                 {qr.grammar_feedback && (
                   <div className="bg-orange-50/50 p-4 rounded-xl border border-orange-100/50 flex flex-col gap-2">
                     <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Grammar Notes</span>
-                    <p className="text-sm text-slate-600">{qr.grammar_feedback}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{qr.grammar_feedback}</p>
                   </div>
                 )}
                 {qr.pronunciation_notes && (
                   <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 flex flex-col gap-2">
                     <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Pronunciation Tips</span>
-                    <p className="text-sm text-slate-600">{qr.pronunciation_notes}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{qr.pronunciation_notes}</p>
                   </div>
                 )}
               </div>
@@ -425,11 +425,11 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
           <h3 className="font-bold text-slate-800 mb-6">AI Transcripts</h3>
           <div className="space-y-6">
             {EXAM_QUESTIONS.map(q => (
-              <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <div key={q.id} className="p-4 rounded-xl bg-slate-50 border border-slate-100 dark:border-slate-800">
                 <p className="text-sm font-semibold text-slate-700 mb-2">{q.partLabel} - {q.text}</p>
                 <p className="text-sm text-slate-600 italic">
                   &ldquo;{ev.transcripts?.[q.id] || '[No transcript]'}&rdquo;

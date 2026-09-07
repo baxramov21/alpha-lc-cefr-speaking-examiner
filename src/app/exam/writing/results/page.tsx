@@ -53,7 +53,7 @@ export default function WritingResultsPage() {
       <header className="bg-slate-900 text-white pt-16 pb-24 px-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
         <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md mb-6 ring-1 ring-white/20">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white dark:bg-slate-900/10 backdrop-blur-md mb-6 ring-1 ring-white/20">
             <Award className="w-10 h-10 text-teal-300" />
           </div>
           <h1 className="text-4xl font-extrabold mb-4 tracking-tight">Writing Assessment Complete</h1>
@@ -87,31 +87,31 @@ export default function WritingResultsPage() {
           <div className="flex-1 w-full grid grid-cols-3 gap-x-6 gap-y-4">
             <div>
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 1 (25%)</div>
-              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_1_score}</div>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">{evaluation.task_scores.task_1_score}</div>
             </div>
             <div>
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 1.2 (25%)</div>
-              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_1_2_score}</div>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">{evaluation.task_scores.task_1_2_score}</div>
             </div>
             <div>
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task 2 (50%)</div>
-              <div className="text-2xl font-bold text-slate-800">{evaluation.task_scores.task_2_score}</div>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-200">{evaluation.task_scores.task_2_score}</div>
             </div>
             <div className="col-span-3 h-px bg-slate-100 my-2" />
             <div className="col-span-1">
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Grammar & Lexical</div>
-              <div className="text-sm font-semibold text-slate-700">{evaluation.criteria_ratings.grammar_accuracy} / {evaluation.criteria_ratings.lexical_resource}</div>
+              <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">{evaluation.criteria_ratings.grammar_accuracy} / {evaluation.criteria_ratings.lexical_resource}</div>
             </div>
             <div className="col-span-2">
               <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Task & Coherence</div>
-              <div className="text-sm font-semibold text-slate-700">{evaluation.criteria_ratings.task_achievement} / {evaluation.criteria_ratings.coherence_cohesion}</div>
+              <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">{evaluation.criteria_ratings.task_achievement} / {evaluation.criteria_ratings.coherence_cohesion}</div>
             </div>
           </div>
         </div>
 
         {/* Global Feedback */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-[var(--radius-lg)] p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-[var(--radius-lg)] p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                 <CheckCircle className="w-5 h-5" />
@@ -128,7 +128,7 @@ export default function WritingResultsPage() {
             </ul>
           </div>
 
-          <div className="bg-white rounded-[var(--radius-lg)] p-6 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-[var(--radius-lg)] p-6 shadow-sm border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
                 <AlertCircle className="w-5 h-5" />
@@ -148,11 +148,11 @@ export default function WritingResultsPage() {
 
         {/* Task Breakdown */}
         <div className="bg-white rounded-[var(--radius-lg)] shadow-sm border border-slate-100 overflow-hidden">
-          <div className="flex border-b border-slate-100">
+          <div className="flex border-b border-slate-100 dark:border-slate-800">
             <button
               onClick={() => setActiveTask(1)}
               className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                activeTask === 1 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50'
+                activeTask === 1 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50 dark:bg-slate-950'
               }`}
             >
               Task 1 Review
@@ -161,7 +161,7 @@ export default function WritingResultsPage() {
               <button
                 onClick={() => setActiveTask(1.2)}
                 className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                  activeTask === 1.2 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50'
+                  activeTask === 1.2 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50 dark:bg-slate-950'
                 }`}
               >
                 Task 1.2 Review
@@ -170,7 +170,7 @@ export default function WritingResultsPage() {
             <button
               onClick={() => setActiveTask(2)}
               className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                activeTask === 2 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50'
+                activeTask === 2 ? 'bg-slate-50 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 hover:bg-slate-50 dark:bg-slate-950'
               }`}
             >
               Task 2 Review
@@ -179,7 +179,7 @@ export default function WritingResultsPage() {
 
           <div className="p-8">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-slate-800">{activePrompt?.title}</h3>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{activePrompt?.title}</h3>
               <div className="text-sm text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-md">
                 {activeEval.word_count} words
               </div>
@@ -202,7 +202,7 @@ export default function WritingResultsPage() {
             
             <div className="mb-8">
               <div className="text-sm font-bold text-slate-400 uppercase mb-2">AI Feedback</div>
-              <div className="bg-slate-50 p-4 rounded-xl text-slate-700 text-sm leading-relaxed border border-slate-100">
+              <div className="bg-slate-50 p-4 rounded-xl text-slate-700 text-sm leading-relaxed border border-slate-100 dark:border-slate-800">
                 {activeEval.feedback}
               </div>
             </div>

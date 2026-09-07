@@ -763,7 +763,7 @@ export default function ExamSessionPage() {
                   )}
                   {phase === 'speak' && (
                     <div className="flex-1 max-w-md bg-white border border-slate-200 shadow-sm rounded-full h-12 flex items-center px-6 gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
                       <span className="text-teal-700 font-bold text-sm flex-1">Recording...</span>
                       {allowSkip && <Button onClick={advanceQuestion} variant="outline" size="sm" className="h-8 rounded-full text-xs bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Finish Exam</Button>}
                     </div>
@@ -776,7 +776,7 @@ export default function ExamSessionPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                   {/* FOR Column */}
                   <div className="border-2 border-emerald-500 rounded-xl p-5 bg-white shadow-sm relative">
-                    <div className="absolute -top-3 left-4 bg-emerald-500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
+                    <div className="absolute -top-3 left-4 bg-emerald-50 dark:bg-emerald-9500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
                       FOR
                     </div>
                     <ul className="mt-2 space-y-3">
@@ -791,7 +791,7 @@ export default function ExamSessionPage() {
 
                   {/* AGAINST Column */}
                   <div className="border-2 border-red-500 rounded-xl p-5 bg-white shadow-sm relative">
-                    <div className="absolute -top-3 left-4 bg-red-500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
+                    <div className="absolute -top-3 left-4 bg-red-50 dark:bg-red-9500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
                       AGAINST
                     </div>
                     <ul className="mt-2 space-y-3">
@@ -813,12 +813,12 @@ export default function ExamSessionPage() {
               <div className="flex items-center gap-2 mb-5">
                 {phase === 'prep' ? (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-amber-50 dark:bg-amber-9500 animate-pulse" />
                     PREPARING
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-teal-100 text-teal-700 border border-teal-200">
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
                     SPEAK NOW
                   </span>
                 )}
@@ -942,7 +942,7 @@ export default function ExamSessionPage() {
                       </div>
 
                       <p className="text-xs text-teal-600 font-medium flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
                         Recording in progress...
                       </p>
 
@@ -976,7 +976,7 @@ export default function ExamSessionPage() {
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex
                   ? 'bg-slate-800 scale-125'
                   : idx < currentIndex
-                    ? 'bg-emerald-500'
+                    ? 'bg-emerald-50 dark:bg-emerald-9500'
                     : 'bg-slate-200 '
                   }`}
               />

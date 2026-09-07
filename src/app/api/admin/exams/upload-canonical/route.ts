@@ -43,14 +43,14 @@ export async function POST(req: NextRequest) {
       let finalPassageHtml = part.passage_html || '';
       
       if (part.image_url) {
-        finalPassageHtml = `<img src="${part.image_url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200" alt="Part Diagram" />\n` + finalPassageHtml;
+        finalPassageHtml = `<img src="${part.image_url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200 dark:border-slate-700" alt="Part Diagram" />\n` + finalPassageHtml;
       }
       
       let currentContextText: string | null = null;
       
       for (const q of part.questions) {
         if (q.image_url) {
-          finalPassageHtml += `\n<img src="${q.image_url}" class="w-full max-w-lg mx-auto rounded-xl shadow-sm my-4 border border-slate-200" alt="Question Diagram" />`;
+          finalPassageHtml += `\n<img src="${q.image_url}" class="w-full max-w-lg mx-auto rounded-xl shadow-sm my-4 border border-slate-200 dark:border-slate-700" alt="Question Diagram" />`;
         }
         if (q.context_text) {
           currentContextText = q.context_text;
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
         let finalQuestionText = q.question_text;
         if (currentContextText) {
-          finalQuestionText = `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-4 text-sm text-slate-700 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800">${q.question_text}</div>`;
+          finalQuestionText = `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-4 text-sm text-slate-700 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800 dark:text-slate-200">${q.question_text}</div>`;
         }
 
         return {

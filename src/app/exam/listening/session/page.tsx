@@ -459,7 +459,7 @@ export default function ListeningSessionPage() {
                                   : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50 '
                               }`}>
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
-                                  answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300'
+                                  answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300 dark:border-slate-600'
                                 }`}>
                                   {answers[q.id] === opt && <div className="w-2.5 h-2.5 bg-teal-500 rounded-full" />}
                                 </div>
