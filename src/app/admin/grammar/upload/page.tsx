@@ -26,6 +26,7 @@ export default function GrammarUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [showPrompt, setShowPrompt] = useState(false);
   const [pageRange, setPageRange] = useState<string>('');
+  const [questionRange, setQuestionRange] = useState<string>('');
   const [customExamName, setCustomExamName] = useState<string>('');
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
@@ -406,9 +407,36 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     setUploadProgress(0);
 
     try {
+      let finalPayload = { ...previewData };
+      if (customExamName) finalPayload.title = customExamName;
+
+      if (questionRange) {
+        const [startQ, endQ] = questionRange.split('-').map(Number);
+        if (!isNaN(startQ) && !isNaN(endQ) && startQ > 0 && endQ >= startQ) {
+          if (finalPayload.parts) {
+            finalPayload.parts.forEach((part: any) => {
+              if (part.questions) {
+                part.questions = part.questions.filter((q: any) => {
+                  const qNum = Number(q.question_number || q.number);
+                  return qNum >= startQ && qNum <= endQ;
+                });
+              }
+            });
+            finalPayload.parts = finalPayload.parts.filter((p: any) => p.questions && p.questions.length > 0);
+          }
+          if (finalPayload.answers) {
+            const filteredAnswers: any = {};
+            for (const key in finalPayload.answers) {
+              const qNum = Number(key);
+              if (qNum >= startQ && qNum <= endQ) {
+                filteredAnswers[key] = finalPayload.answers[key];
+              }
+            }
+            finalPayload.answers = filteredAnswers;
+          }
+        }
+      }
       if (examMode === 'grammar_json') {
-        let finalPayload = { ...previewData };
-        if (customExamName) finalPayload.title = customExamName;
         
         const res = await fetch('/api/admin/grammar/upload', {
           method: 'POST',
@@ -419,8 +447,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (!res.ok) throw new Error(data.error);
       } else if (examMode === 'grammar_pdf') {
         if (!pdfFile) throw new Error("A PDF file is required for Grammar (PDF Mode)");
-        let finalPayload = { ...previewData };
-        if (customExamName) finalPayload.title = customExamName;
         
         setUploadProgress(30);
         
@@ -459,9 +485,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         // Upload Reading / Listening
         if (!pdfFile) throw new Error("A PDF file is required for Grammar Reading/Listening");
         if (examMode === 'listening' && !audioFile) throw new Error("An audio file is required for Listening");
-
-        let finalPayload = { ...previewData };
-        if (customExamName) finalPayload.title = customExamName;
 
         setUploadProgress(20);
         
@@ -631,6 +654,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <p className="text-xs text-slate-500 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
           </div>
         )}
+        
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Question Range (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. 11-20"
+            value={questionRange}
+            onChange={(e) => setQuestionRange(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 mt-2">Filters the JSON to only include these questions.</p>
+        </div>
       </div>
 
       {showPrompt && (
