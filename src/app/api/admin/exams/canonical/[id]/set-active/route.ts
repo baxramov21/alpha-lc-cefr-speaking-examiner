@@ -19,16 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const newActiveState = forceActive !== undefined ? forceActive : !exam.is_active;
 
-    if (newActiveState) {
-      // Deactivate all other exams of the same type first
-      const { error: resetError } = await supabase
-        .from('canonical_exams')
-        .update({ is_active: false })
-        .eq('exam_type', exam.exam_type)
-        .neq('id', id);
-
-      if (resetError) throw resetError;
-    }
+    // We no longer deactivate other exams, allowing multiple active exams.
 
     // Set the target exam's new state
     const { error: updateError } = await supabase

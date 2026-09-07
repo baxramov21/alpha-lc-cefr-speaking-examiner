@@ -20,14 +20,14 @@ export async function GET(req: NextRequest) {
           .from('grammar_triples')
           .select('reading_exam_id')
           .ilike('level', grammarLevel)
-          .eq('is_active', true)
-          .single();
+          .eq('is_active', true);
           
-        if (triple?.reading_exam_id) {
+        if (triples && triples.length > 0) {
+          const randomTriple = triples[Math.floor(Math.random() * triples.length)];
           const { data: tripleExam } = await supabase
             .from('canonical_exams')
             .select('*')
-            .eq('id', triple.reading_exam_id)
+            .eq('id', randomTriple.reading_exam_id)
             .single();
           if (tripleExam) exam = tripleExam;
         }
@@ -49,11 +49,12 @@ export async function GET(req: NextRequest) {
       }
 
       const { data: exams, error: examError } = await query
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('created_at', { ascending: false });
 
       if (examError) throw examError;
-      if (exams && exams.length > 0) exam = exams[0];
+      if (exams && exams.length > 0) {
+        exam = exams[Math.floor(Math.random() * exams.length)];
+      }
     }
 
     if (!exam) {

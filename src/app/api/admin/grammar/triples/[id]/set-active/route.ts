@@ -12,14 +12,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Level is required to set active triple.' }, { status: 400 });
     }
 
-    // Set all triples of this level to inactive first
-    const { error: resetError } = await supabase
-      .from('grammar_triples')
-      .update({ is_active: false })
-      .eq('level', level)
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // update all rows matching level
-
-    if (resetError) throw resetError;
+    // We no longer deactivate other triples of this level, allowing multiple active triples.
 
     // Now activate the target triple
     const { error: activateError } = await supabase

@@ -20,18 +20,18 @@ export async function GET(req: NextRequest) {
     let exams: any[] = [];
 
     try {
-      const { data: triple } = await supabaseAdmin
+      const { data: triples } = await supabaseAdmin
         .from('grammar_triples')
         .select('grammar_exam_id')
         .ilike('level', grammarLevel)
-        .eq('is_active', true)
-        .single();
+        .eq('is_active', true);
 
-      if (triple?.grammar_exam_id) {
+      if (triples && triples.length > 0) {
+        const randomTriple = triples[Math.floor(Math.random() * triples.length)];
         const { data: tripleExam } = await supabaseAdmin
           .from('grammar_exams')
           .select('id, title, level, time_limit')
-          .eq('id', triple.grammar_exam_id)
+          .eq('id', randomTriple.grammar_exam_id)
           .single();
         if (tripleExam) exams = [tripleExam];
       }
@@ -53,7 +53,12 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
       }
       
-      exams = fallbackExams || [];
+      if (fallbackExams && fallbackExams.length > 0) {
+        const randomFallback = fallbackExams[Math.floor(Math.random() * fallbackExams.length)];
+        exams = [randomFallback];
+      } else {
+        exams = [];
+      }
     }
 
     return NextResponse.json({ exams }, { status: 200 });
