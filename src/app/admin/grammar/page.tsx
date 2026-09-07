@@ -14,8 +14,9 @@ export default function AdminGrammarExamsPage() {
   const [triples, setTriples] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Edit level state
+  // Edit level and title state
   const [editingExam, setEditingExam] = useState<{ id: string, level: string, isCanonical: boolean } | null>(null);
+  const [editingTitle, setEditingTitle] = useState<{ id: string, title: string, isCanonical: boolean } | null>(null);
   
   // Create Triple state
   const [isCreatingTriple, setIsCreatingTriple] = useState(false);
@@ -89,6 +90,28 @@ export default function AdminGrammarExamsPage() {
       }
     } catch (err) {
       console.error('Error updating level', err);
+    }
+  };
+
+  const handleUpdateTitle = async () => {
+    if (!editingTitle) return;
+    try {
+      const res = await fetch(`/api/admin/grammar/exams/${editingTitle.id}/update-title`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          title: editingTitle.title, 
+          table: editingTitle.isCanonical ? 'canonical_exams' : 'grammar_exams' 
+        })
+      });
+      if (res.ok) {
+        setEditingTitle(null);
+        fetchExams();
+      } else {
+        alert('Failed to update title');
+      }
+    } catch (err) {
+      console.error('Error updating title', err);
     }
   };
 
@@ -310,7 +333,25 @@ export default function AdminGrammarExamsPage() {
                         </div>
                       </td>
                       <td className="py-4">
-                        <div className="font-bold text-slate-800">{exam.title}</div>
+                        {editingTitle?.id === exam.id ? (
+                          <div className="flex gap-2 items-center">
+                            <input 
+                              type="text"
+                              value={editingTitle.title} 
+                              onChange={(e) => setEditingTitle(prev => prev ? {...prev, title: e.target.value} : null)}
+                              className="border-slate-200 rounded px-2 py-1 text-sm bg-white w-48"
+                            />
+                            <Button onClick={handleUpdateTitle} size="sm" className="bg-indigo-600 text-white h-7 px-2 text-xs">Save</Button>
+                            <Button onClick={() => setEditingTitle(null)} size="sm" variant="ghost" className="h-7 px-2 text-xs">Cancel</Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 group">
+                            <div className="font-bold text-slate-800">{exam.title}</div>
+                            <button onClick={() => setEditingTitle({ id: exam.id, title: exam.title, isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                       <td className="py-4">
                         {editingExam?.id === exam.id ? (
