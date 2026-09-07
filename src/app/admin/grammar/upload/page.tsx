@@ -25,6 +25,7 @@ export default function GrammarUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [showPrompt, setShowPrompt] = useState(false);
   const [pageRange, setPageRange] = useState<string>('');
+  const [customExamName, setCustomExamName] = useState<string>('');
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -260,6 +261,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       
       json.level = grammarLevel;
       json.grammar_level = grammarLevel;
+      setCustomExamName(json.title || '');
       
       if (examMode === 'grammar_json') {
         const valResult = GrammarExamSchema.safeParse(json);
@@ -328,17 +330,21 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
     try {
       if (examMode === 'grammar_json') {
+        let finalPayload = { ...previewData };
+        if (customExamName) finalPayload.title = customExamName;
+        
         const res = await fetch('/api/admin/grammar/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(previewData),
+          body: JSON.stringify(finalPayload),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
       } else if (examMode === 'grammar_pdf') {
         if (!pdfFile) throw new Error("A PDF file is required for Grammar (PDF Mode)");
-        
         let finalPayload = { ...previewData };
+        if (customExamName) finalPayload.title = customExamName;
+        
         setUploadProgress(30);
         
         let fileToUpload = pdfFile;
@@ -378,6 +384,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (examMode === 'listening' && !audioFile) throw new Error("An audio file is required for Listening");
 
         let finalPayload = { ...previewData };
+        if (customExamName) finalPayload.title = customExamName;
 
         setUploadProgress(20);
         
@@ -509,6 +516,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <option value="intermediate">Intermediate</option>
           </select>
           <p className="text-xs text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Exam Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Unit 1 Test"
+            value={customExamName}
+            onChange={(e) => setCustomExamName(e.target.value)}
+            className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 mt-2">Overrides the title from JSON.</p>
         </div>
 
         {(examMode === 'grammar_pdf' || examMode === 'reading' || examMode === 'listening') && (
