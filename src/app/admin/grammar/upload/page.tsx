@@ -86,32 +86,48 @@ SCHEMA:
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
-  const canonicalPdfPrompt = `Please act as an expert English examiner converting an exam answer key into a strict JSON format for my app.
-You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
+  const canonicalPdfPrompt = `Please act as an expert English examiner converting an exam into a strict JSON format for my app.
+Even though a PDF is provided, I want you to EXTRACT the actual question texts and answer options so they can be displayed on the screen next to the PDF.
 
 CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json'.
 2. EVERY question MUST have a "correct_answer".
-3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
-4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
+3. For MULTIPLE_CHOICE questions, provide the full text for each option in the "options" array.
+4. "correct_answer" MUST exactly match one of the items in the "options" array.
+5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
 
 SCHEMA:
 {
   "title": "String - e.g., 'Grammar Reading Test 1'",
   "exam_type": "${examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING'}",
   "programme": "GRAMMAR",
-  "grammar_level": "pre-intermediate", // elementary | pre-intermediate | intermediate
+  "grammar_level": "pre-intermediate",
   "time_limit": 3600,
-  "answers": {
-    "1": {
-      "correct_answer": "B",
-      "type": "MULTIPLE_CHOICE"
-    },
-    "2": {
-      "correct_answer": "A",
-      "type": "MULTIPLE_CHOICE"
+  "parts": [
+    {
+      "part_number": 1,
+      "title": "Part 1",
+      "questions": [
+        {
+          "question_number": 1,
+          "type": "MULTIPLE_CHOICE",
+          "question_text": "Look at the text. What does it say?",
+          "options": [
+            "A) Go to the office if you have lost a floppy disc.",
+            "B) Make sure all schoolwork is given in...",
+            "C) If you have found a floppy disc..."
+          ],
+          "correct_answer": "C) If you have found a floppy disc..."
+        },
+        {
+          "question_number": 2,
+          "type": "FILL_IN",
+          "question_text": "Fill in the blank: The boy ___ to the store.",
+          "correct_answer": "went"
+        }
+      ]
     }
-  }
+  ]
 }
 
 OUTPUT FORMAT INSTRUCTION:
