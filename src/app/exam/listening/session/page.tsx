@@ -452,7 +452,7 @@ export default function ListeningSessionPage() {
                         
                         {(q.type === 'multiple_choice' || q.type === 'matching') && (
                           <div className="space-y-3">
-                            {getDisplayOptions(q).map((opt, i) => (
+                            {getDisplayOptions(q).map((opt: string, i: number) => (
                               <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                                 answers[q.id] === opt 
                                   ? 'border-teal-500 bg-teal-50 shadow-sm' 
