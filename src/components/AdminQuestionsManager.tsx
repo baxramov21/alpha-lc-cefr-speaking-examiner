@@ -827,7 +827,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <div className="space-y-2">
           <Label>Part</Label>
           <select 
-            className="w-full h-10 rounded-xl border border-slate-200 px-3 bg-white dark:bg-slate-900"
+            className="w-full h-10 rounded-xl border border-slate-200 dark:border-slate-700 px-3 bg-white dark:bg-slate-900"
             value={data.part}
             onChange={(e) => handlePartChange(e.target.value, isEdit)}
           >
@@ -850,7 +850,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <div className="space-y-2">
           <Label>Type</Label>
           <select 
-            className="w-full h-10 rounded-xl border border-slate-200 px-3 bg-white dark:bg-slate-900"
+            className="w-full h-10 rounded-xl border border-slate-200 dark:border-slate-700 px-3 bg-white dark:bg-slate-900"
             value={data.question_type}
             onChange={(e) => setter({ ...data, question_type: e.target.value })}
             disabled={data.part === 'part3' || data.part === 'part1_2'}
@@ -870,11 +870,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
       
       {data.part === 'part1_2' ? (
-        <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div className="space-y-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
           <div className="space-y-2">
-            <Label className="text-slate-700 font-semibold">Question 1 (Description)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 font-semibold">Question 1 (Description)</Label>
             <textarea
-              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm"
               value={data.table_data?.sub_questions?.[0] ?? 'Please describe the pictures shown on the screen and compare them.'}
               onChange={(e) => {
                 const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
@@ -884,9 +884,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-slate-700 font-semibold">Question 2 (Specific)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 font-semibold">Question 2 (Specific)</Label>
             <textarea
-              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm"
               value={data.table_data?.sub_questions?.[1] ?? data.text ?? ''}
               onChange={(e) => {
                 const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
@@ -896,9 +896,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-slate-700 font-semibold">Question 3 (General)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 font-semibold">Question 3 (General)</Label>
             <textarea
-              className="w-full min-h-[60px] rounded-lg border border-slate-200 p-3 text-sm"
+              className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 p-3 text-sm"
               value={data.table_data?.sub_questions?.[2] ?? 'How do you think this situation will change in the future?'}
               onChange={(e) => {
                 const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
@@ -912,7 +912,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <div className="space-y-2">
           <Label>Prompt Text</Label>
           <textarea
-            className="w-full min-h-[100px] rounded-xl border border-slate-200 p-3"
+            className="w-full min-h-[100px] rounded-xl border border-slate-200 dark:border-slate-700 p-3"
             value={data.text}
             onChange={(e) => setter({ ...data, text: e.target.value })}
           />
@@ -928,7 +928,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 type="file" 
                 accept="image/*" 
                 onChange={(e) => handleImageUpload(e, isEdit, 'image_url')} 
-                className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:bg-indigo-950 file:text-indigo-700 hover:file:bg-indigo-100"
               />
               <Button 
                 variant="outline" 
@@ -955,7 +955,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   type="file" 
                   accept="image/*" 
                   onChange={(e) => handleImageUpload(e, isEdit, 'image_url_2')} 
-                  className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 dark:bg-indigo-950 file:text-indigo-700 hover:file:bg-indigo-100"
                 />
                 <Button 
                   variant="outline" 
@@ -979,7 +979,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <Label>Or enter Image 1 URL manually</Label>
             <input 
               type="text" 
-              className="w-full h-10 rounded-xl border border-slate-200 px-3" 
+              className="w-full h-10 rounded-xl border border-slate-200 dark:border-slate-700 px-3" 
               value={data.image_url || ''}
               onChange={(e) => setter({ ...data, image_url: e.target.value })}
             />
@@ -989,7 +989,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <Label>Or enter Image 2 URL manually</Label>
               <input 
                 type="text" 
-                className="w-full h-10 rounded-xl border border-slate-200 px-3" 
+                className="w-full h-10 rounded-xl border border-slate-200 dark:border-slate-700 px-3" 
                 value={(data.table_data as any)?.image_url_2 || ''}
                 onChange={(e) => setter({ ...data, table_data: { ...data.table_data, image_url_2: e.target.value } })}
               />
@@ -1060,11 +1060,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {/* Upload Loading Overlay */}
       {isUploadingTest && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex flex-col items-center justify-center p-6 fade-in">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full relative overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 animate-gradient-x" />
              <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Processing Upload</h2>
-             <p className="text-slate-500 text-sm mt-2 text-center">Parsing JSON, validating schema, and deduplicating questions...</p>
+             <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm mt-2 text-center">Parsing JSON, validating schema, and deduplicating questions...</p>
           </div>
         </div>
       )}
@@ -1072,10 +1072,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {/* Upload Success Overlay */}
       {uploadSuccessStats && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex flex-col items-center justify-center p-6 fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800">
-             <div className="bg-emerald-50 border-b border-emerald-100 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800">
+             <div className="bg-emerald-50 dark:bg-emerald-950 border-b border-emerald-100 p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                <div className="absolute inset-0 bg-emerald-50 dark:bg-emerald-9500/10 blur-2xl rounded-full" />
-               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm ring-4 ring-emerald-50 relative z-10">
+               <div className="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mb-4 shadow-sm ring-4 ring-emerald-50 relative z-10">
                  <Check className="w-8 h-8 text-emerald-600" />
                </div>
                <h2 className="text-2xl font-black text-emerald-800 relative z-10">Upload Complete</h2>
@@ -1085,22 +1085,22 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                )}
              </div>
              <div className="p-6 bg-slate-50 dark:bg-slate-950">
-               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Questions Added By Part</h3>
+               <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Questions Added By Part</h3>
                <div className="space-y-2">
                  {Object.entries(uploadSuccessStats.stats || {}).map(([part, count]) => (
-                   <div key={part} className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm transition-all hover:border-slate-200 dark:border-slate-700">
+                   <div key={part} className="flex justify-between items-center bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:border-slate-200 dark:border-slate-700">
                      <span className="font-semibold text-slate-700 dark:text-slate-300">{part === 'part1_2' ? 'Part 1.2' : part.replace('part', 'Part ')}</span>
-                     <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-md font-bold text-sm">+{count as React.ReactNode}</span>
+                     <span className="bg-indigo-50 dark:bg-indigo-950 text-indigo-700 px-3 py-1 rounded-md font-bold text-sm">+{count as React.ReactNode}</span>
                    </div>
                  ))}
                  {Object.keys(uploadSuccessStats.stats || {}).length === 0 && (
-                   <div className="text-slate-500 text-sm italic text-center py-4 bg-white rounded-xl border border-slate-100 dark:border-slate-800">
+                   <div className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm italic text-center py-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                      No new questions were added.
                    </div>
                  )}
                </div>
              </div>
-             <div className="p-4 bg-white border-t border-slate-100 dark:border-slate-800">
+             <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
                <Button onClick={() => setUploadSuccessStats(null)} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-12 rounded-xl">
                  Done
                </Button>
@@ -1118,7 +1118,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <div className="flex gap-3">
           <button
             onClick={() => setShowPrompt(!showPrompt)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
           >
             <Bot className="w-5 h-5" />
             {showPrompt ? 'Hide AI Prompt Guide' : 'How to get JSON from Claude?'}
@@ -1135,7 +1135,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             />
             <Button 
               variant="outline" 
-              className="border-slate-300 text-slate-700 font-medium bg-white hover:bg-slate-50 w-full h-full"
+              className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-950 w-full h-full"
               disabled={isUploadingTest}
             >
               {isUploadingTest ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileJson className="w-4 h-4 mr-2" />}
@@ -1145,7 +1145,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <Button 
             onClick={openSeedModal} 
             variant="outline" 
-            className="border-slate-300 text-slate-700 font-medium bg-white hover:bg-slate-50 dark:bg-slate-950"
+            className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 hover:bg-slate-50 dark:bg-slate-950"
             disabled={isSeeding}
           >
             {isSeeding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
@@ -1154,7 +1154,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <Button 
             onClick={handleCleanDuplicates} 
             variant="outline" 
-            className="border-slate-300 text-red-600 font-medium bg-white hover:bg-red-50 dark:bg-red-950"
+            className="border-slate-300 dark:border-slate-600 text-red-600 font-medium bg-white dark:bg-slate-900 hover:bg-red-50 dark:bg-red-950"
             disabled={isCleaningDuplicates}
           >
             {isCleaningDuplicates ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
@@ -1195,7 +1195,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {/* Skill Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 mb-6">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700 mb-6">
         {availableSkills.includes('speaking') && (
         <button
           onClick={() => {
@@ -1206,7 +1206,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-5 py-3 text-sm font-bold transition-all relative ${
             skillTab === 'speaking' 
               ? 'text-teal-700' 
-              : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+              : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Speaking Questions
@@ -1225,7 +1225,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-5 py-3 text-sm font-bold transition-all relative ${
             skillTab === 'writing' 
               ? 'text-emerald-700' 
-              : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+              : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Writing Questions
@@ -1237,8 +1237,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
 
       {isCreating && (skillTab === 'speaking' || skillTab === 'writing') && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm mb-6 space-y-6">
-          <h3 className="font-bold text-slate-800 text-lg border-b pb-4">Create New Question</h3>
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm mb-6 space-y-6">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg border-b pb-4">Create New Question</h3>
           {renderFormFields(newQ, false, setNewQ)}
           <div className="flex gap-3 justify-end pt-4">
             <Button variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
@@ -1248,10 +1248,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {isCreating && skillTab === 'listening' && (
-        <div className="bg-white rounded-3xl border border-indigo-200 p-8 shadow-sm mb-6 space-y-6">
-          <h3 className="font-bold text-slate-800 text-lg border-b pb-4">Upload New Listening Task</h3>
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-200 p-8 shadow-sm mb-6 space-y-6">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg border-b pb-4">Upload New Listening Task</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+            <div className="space-y-3 bg-indigo-50 dark:bg-indigo-950 p-4 rounded-xl border border-indigo-100">
               <Label className="text-indigo-700 font-bold">1. Audio File (.mp3)</Label>
               <Input 
                 type="file" 
@@ -1284,12 +1284,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {/* SEED WARNING MODAL */}
       {seedModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl space-y-6 text-center transform transition-all">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-8 shadow-2xl space-y-6 text-center transform transition-all">
             <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
               <AlertTriangle className="w-10 h-10" />
             </div>
             <div>
-              <h3 className="font-black text-slate-800 text-2xl mb-2">Serious Warning</h3>
+              <h3 className="font-black text-slate-800 dark:text-slate-200 text-2xl mb-2">Serious Warning</h3>
               <p className="text-slate-600 dark:text-slate-300">
                 Seeding the database will <strong className="text-rose-600">DELETE</strong> all current questions and replace them with the default seed data. This action <strong className="underline">cannot be undone</strong>.
               </p>
@@ -1311,13 +1311,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {/* MODAL FOR IMAGE & PART3 EDITS */}
       {isModalEdit && editingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl space-y-6">
             <div className="flex justify-between items-center border-b pb-4">
-              <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg flex items-center gap-2">
                 <Edit2 className="w-5 h-5 text-teal-600" />
                 Edit Question
               </h3>
-              <button onClick={() => { setEditingId(null); setIsModalEdit(false); }} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-700 transition-colors">
+              <button onClick={() => { setEditingId(null); setIsModalEdit(false); }} className="p-2 hover:bg-slate-100 dark:bg-slate-800 rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1331,8 +1331,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {isCreating && skillTab === 'reading' && (
-        <div className="bg-white rounded-3xl border border-fuchsia-200 p-8 shadow-sm mb-6 space-y-6">
-          <h3 className="font-bold text-slate-800 text-lg border-b pb-4">Upload New Reading Task</h3>
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-fuchsia-200 p-8 shadow-sm mb-6 space-y-6">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg border-b pb-4">Upload New Reading Task</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3 bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-100 col-span-1 md:col-span-2">
               <Label className="text-fuchsia-700 font-bold">Reading PDF (Text + Questions)</Label>
@@ -1357,42 +1357,42 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {isLoading ? (
-        <div className="p-8 text-center text-slate-400 flex flex-col items-center gap-3">
+        <div className="p-8 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center gap-3">
           <Loader2 className="w-6 h-6 animate-spin" />
           <p>Loading questions...</p>
         </div>
       ) : skillTab === 'listening' ? (
         <div className="grid grid-cols-1 gap-6">
           {listeningTasks.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+            <div className="p-12 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
               No listening tasks uploaded yet.
             </div>
           ) : (
             listeningTasks.map((task) => (
-              <div key={task.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+              <div key={task.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-bold text-slate-800 text-lg">{task.partLabel}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{task.instructions}</p>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg">{task.partLabel}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1">{task.instructions}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => deleteListeningTask(task.id)}>
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:bg-red-950 hover:text-red-600" onClick={() => deleteListeningTask(task.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div className="mb-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                   <audio controls src={task.audioUrl} className="w-full h-10" />
                 </div>
                 
                 <div className="space-y-3">
-                  <p className="font-semibold text-slate-700 text-sm">Extracted Questions ({task.questions?.length || 0})</p>
+                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Extracted Questions ({task.questions?.length || 0})</p>
                   {task.questions?.map((q: any) => (
                     <div key={q.id} className="text-sm border-l-2 border-indigo-200 pl-4 py-1">
                       <p className="font-medium text-slate-800 dark:text-slate-200">{q.number}. {q.text}</p>
                       {q.type === 'multiple_choice' && (
-                        <p className="text-slate-500 mt-1">Options: {q.options?.join(', ')}</p>
+                        <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1">Options: {q.options?.join(', ')}</p>
                       )}
                       <p className="text-emerald-600 font-semibold mt-1">Answer: {q.correctAnswer}</p>
                     </div>
@@ -1405,35 +1405,35 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       ) : skillTab === 'reading' ? (
         <div className="grid grid-cols-1 gap-6">
           {readingTasks.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+            <div className="p-12 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
               No reading tasks uploaded yet.
             </div>
           ) : (
             readingTasks.map((task) => (
-              <div key={task.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+              <div key={task.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-bold text-slate-800 text-lg">{task.partLabel}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{task.instructions}</p>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg">{task.partLabel}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1">{task.instructions}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => deleteReadingTask(task.id)}>
+                    <Button variant="ghost" size="icon" className="text-red-500 hover:bg-red-50 dark:bg-red-950 hover:text-red-600" onClick={() => deleteReadingTask(task.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-slate-100 max-h-48 overflow-y-auto">
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{task.passageText}</p>
+                <div className="mb-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 max-h-48 overflow-y-auto">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{task.passageText}</p>
                 </div>
                 
                 <div className="space-y-3">
-                  <p className="font-semibold text-slate-700 text-sm">Extracted Questions ({task.questions?.length || 0})</p>
+                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Extracted Questions ({task.questions?.length || 0})</p>
                   {task.questions?.map((q: any) => (
                     <div key={q.id} className="text-sm border-l-2 border-fuchsia-200 pl-4 py-1">
                       <p className="font-medium text-slate-800 dark:text-slate-200">{q.number}. {q.text}</p>
                       {q.type === 'multiple_choice' && (
-                        <p className="text-slate-500 mt-1">Options: {q.options?.join(', ')}</p>
+                        <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1">Options: {q.options?.join(', ')}</p>
                       )}
                       <p className="text-emerald-600 font-semibold mt-1">Answer: {q.correctAnswer}</p>
                     </div>
@@ -1444,18 +1444,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           )}
         </div>
       ) : filteredQuestions.length === 0 ? (
-          <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
             No questions found in this category.
           </div>
         ) : (
         <>
           {skillTab === 'speaking' && !isCreating && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
-              <h3 className="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 mb-6 shadow-sm">
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-teal-600" />
                 Global Part Timings
               </h3>
-              <p className="text-sm text-slate-500 mb-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-4">
                 Update the prep and speaking times for entire parts. This instantly applies to all existing and future questions.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1463,8 +1463,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   const label = p === 'part1' ? 'Part 1' : p === 'part1_2_first' ? 'Part 1.2 (Q1)' : p === 'part1_2_rest' ? 'Part 1.2 (Q2 & Q3)' : p === 'part2' ? 'Part 2' : 'Part 3';
                   const timing = partTimings[p] || { prep_seconds: 0, speak_seconds: 0 };
                   return (
-                    <div key={p} className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-3">
-                      <span className="font-bold text-slate-700 text-sm">{label}</span>
+                    <div key={p} className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
+                      <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">{label}</span>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <Label className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">Prep (s)</Label>
@@ -1510,7 +1510,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </div>
           )}
 
-          <div className="flex border-b border-slate-200 mb-6 gap-6 overflow-x-auto">
+          <div className="flex border-b border-slate-200 dark:border-slate-700 mb-6 gap-6 overflow-x-auto">
             {skillTab === 'speaking' ? [
               { id: 'part1-std', label: 'Part 1' },
               { id: 'part1-img', label: 'Part 1.2' },
@@ -1523,7 +1523,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 className={`pb-3 font-semibold transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'border-teal-500 text-teal-600' 
-                    : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-200'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200'
                 }`}
               >
                 {tab.label}
@@ -1539,7 +1539,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 className={`pb-3 font-semibold transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'border-emerald-500 text-emerald-600' 
-                    : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-200'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200'
                 }`}
               >
                 {tab.label}
@@ -1574,7 +1574,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <div className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 ${
                 selectedQuestionIds.size > 0 
                   ? 'bg-teal-50 border-teal-200 shadow-sm' 
-                  : 'bg-white border-slate-200 dark:border-slate-700'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700'
               }`}>
                 <div 
                   className="flex items-center gap-3 pl-2 cursor-pointer group"
@@ -1588,7 +1588,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                     )}
                   </div>
                   <span className={`text-sm font-bold transition-colors ${
-                    selectedQuestionIds.size > 0 ? 'text-teal-700' : 'text-slate-500 group-hover:text-teal-600'
+                    selectedQuestionIds.size > 0 ? 'text-teal-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 group-hover:text-teal-600'
                   }`}>
                     {selectedQuestionIds.size > 0 ? `${selectedQuestionIds.size} items selected` : 'Select All'}
                   </span>
@@ -1623,7 +1623,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             )}
 
             {displayQuestions.length === 0 ? (
-              <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+              <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-950 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
                 No questions found in this category.
               </div>
             ) : (
@@ -1633,7 +1633,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   className={`p-6 rounded-3xl border transition-all duration-200 flex flex-col gap-4 ${
                     selectedQuestionIds.has(q.id) 
                       ? 'bg-teal-50/50 border-teal-400 shadow-md ring-4 ring-teal-50' 
-                      : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200'
                   }`}
                 >
               {editingId === q.id && !isModalEdit ? (
@@ -1661,34 +1661,34 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold px-2 py-1 bg-slate-100 text-slate-700 rounded-md uppercase">
+                        <span className="text-xs font-bold px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md uppercase">
                           {q.part}
                         </span>
                         <span className="text-xs font-medium px-2 py-1 bg-blue-50 text-blue-700 rounded-md">
                           {q.question_type}
                         </span>
                         {!q.is_active && (
-                          <span className="text-xs font-bold px-2 py-1 bg-red-50 text-red-700 rounded-md">
+                          <span className="text-xs font-bold px-2 py-1 bg-red-50 dark:bg-red-950 text-red-700 rounded-md">
                             INACTIVE
                           </span>
                         )}
                       </div>
                       {q.part === 'part1_2' ? (
-                        <ul className="list-disc pl-5 space-y-1 text-slate-800 font-medium group-hover:text-teal-700 transition-colors">
+                        <ul className="list-disc pl-5 space-y-1 text-slate-800 dark:text-slate-200 font-medium group-hover:text-teal-700 transition-colors">
                           {((q.table_data as any)?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', q.text || '', 'How do you think this situation will change in the future?']).map((sq: string, idx: number) => (
                             <li key={idx}>{sq}</li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-slate-800 font-medium group-hover:text-teal-700 transition-colors">{q.text}</p>
+                        <p className="text-slate-800 dark:text-slate-200 font-medium group-hover:text-teal-700 transition-colors">{q.text}</p>
                       )}
                       {q.question_type === 'image' && q.image_url && (
                         <div className="mt-4 flex gap-4 h-24">
-                          <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                          <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                             <img src={q.image_url} alt="Question Image 1" className="object-cover w-full h-full" />
                           </div>
                           {q.part === 'part1_2' && (q.table_data as any)?.image_url_2 && (
-                            <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                            <div className="w-24 h-24 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
                               <img src={(q.table_data as any).image_url_2} alt="Question Image 2" className="object-cover w-full h-full" />
                             </div>
                           )}
@@ -1738,20 +1738,20 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                             });
                           }
                         }} 
-                        className="text-slate-400 hover:text-sky-500" 
+                        className="text-slate-400 dark:text-slate-500 hover:text-sky-500" 
                         title="Search Stock Images"
                       >
                         <ImageIcon className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); startEdit(q); }} className="text-slate-400 hover:text-teal-600">
+                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); startEdit(q); }} className="text-slate-400 dark:text-slate-500 hover:text-teal-600">
                         <Edit2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); deleteQuestion(q.id); }} className="text-slate-400 hover:text-red-600">
+                      <Button variant="ghost" size="icon" onClick={(e: React.MouseEvent) => { e.stopPropagation(); deleteQuestion(q.id); }} className="text-slate-400 dark:text-slate-500 hover:text-red-600">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-slate-500 mt-4">
+                  <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-4">
                     {skillTab === 'speaking' ? (
                       <>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Prep: {q.prep_seconds}s</span>
@@ -1775,23 +1775,23 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
   {isStockModalOpen && (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-sky-100 text-sky-600 rounded-xl">
               <ImageIcon className="w-5 h-5" />
             </div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Search Stock Images</h3>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => setIsStockModalOpen(false)} className="text-slate-400 hover:bg-slate-200 hover:text-slate-700 rounded-full">
+          <Button variant="ghost" size="icon" onClick={() => setIsStockModalOpen(false)} className="text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:bg-slate-700 hover:text-slate-700 dark:text-slate-300 rounded-full">
             <X className="w-5 h-5" />
           </Button>
         </div>
         
-        <div className="p-6 border-b border-slate-100 bg-white dark:bg-slate-900">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
           <div className="flex gap-3">
             <Input 
-              className="flex-1 text-lg py-6 px-4 bg-slate-50 border-slate-200 rounded-2xl" 
+              className="flex-1 text-lg py-6 px-4 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 rounded-2xl" 
               placeholder="Search for an image (e.g. 'office meeting', 'nature landscape')..." 
               value={stockQuery}
               onChange={(e) => setStockQuery(e.target.value)}
@@ -1826,7 +1826,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 <div 
                   key={img.id}
                   onClick={() => selectStockImage(img.url)}
-                  className="group relative aspect-video bg-slate-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md hover:ring-4 ring-sky-400/50 transition-all"
+                  className="group relative aspect-video bg-slate-200 dark:bg-slate-700 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md hover:ring-4 ring-sky-400/50 transition-all"
                 >
                   <img src={img.thumbnail} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
@@ -1848,16 +1848,16 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
   {duplicateWarning && (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-center bg-amber-50 dark:bg-amber-950">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-center bg-amber-50 dark:bg-amber-950">
           <div className="p-3 bg-amber-100 text-amber-600 rounded-2xl">
             <AlertTriangle className="w-8 h-8" />
           </div>
         </div>
         <div className="p-6 text-center space-y-4">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Duplicate Found</h3>
-          <p className="text-slate-500 text-sm">{duplicateWarning.message}</p>
-          <p className="text-slate-700 font-medium text-sm">Would you like to replace the existing question with these new settings?</p>
+          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm">{duplicateWarning.message}</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium text-sm">Would you like to replace the existing question with these new settings?</p>
         </div>
         <div className="p-6 pt-0 flex gap-3">
           <Button variant="outline" className="flex-1" onClick={() => setDuplicateWarning(null)}>

@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
             <LayoutDashboard className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 tracking-tight">Alpha LC</h1>
-          <p className="text-slate-400 text-sm mt-1 font-medium">Examiner Dashboard</p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1 font-medium">Examiner Dashboard</p>
         </div>
 
         <div className="bg-slate-800 border border-slate-700 rounded-3xl p-8 shadow-2xl">
@@ -84,13 +84,13 @@ export default function AdminLoginPage() {
                   id="admin-password"
                   type={showPw ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="pl-10 pr-10 h-11 rounded-xl bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
+                  className="pl-10 pr-10 h-11 rounded-xl bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 dark:text-slate-400 dark:text-slate-500 focus-visible:ring-teal-500"
                   {...register('password')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -127,7 +127,7 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-600 mt-6">
+        <p className="text-center text-xs text-slate-600 dark:text-slate-300 mt-6">
           Student?{' '}
           <a href="/" className="text-teal-500 hover:text-teal-400">
             Go to exam entry →

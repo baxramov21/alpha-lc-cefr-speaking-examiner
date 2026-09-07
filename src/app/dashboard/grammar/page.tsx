@@ -124,7 +124,7 @@ export default function GrammarDashboardPage() {
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 hover:text-white hover:bg-white dark:bg-slate-900/10 rounded-full transition-colors" title="Logout">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 dark:text-slate-500 hover:text-white hover:bg-white dark:bg-slate-900/10 rounded-full transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
@@ -146,7 +146,7 @@ export default function GrammarDashboardPage() {
               <div>
                 <p className="text-indigo-300 text-xs font-bold tracking-wider mb-1">STUDENT PROFILE</p>
                 <h2 className="text-3xl font-black mb-1 tracking-tight">{session.fullName}</h2>
-                <p className="text-slate-400 text-sm">{session.groupName} • {session.teacherName}</p>
+                <p className="text-slate-400 dark:text-slate-500 text-sm">{session.groupName} • {session.teacherName}</p>
               </div>
             </div>
             
@@ -202,17 +202,17 @@ export default function GrammarDashboardPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Listening Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Headphones className="w-6 h-6" />
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Listening</h4>
-              <p className="text-sm text-slate-500 mb-6">Audio comprehension</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Listening</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Audio comprehension</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                 <Button 
                   onClick={() => handleStartSkill('/exam/listening/setup')}
                   variant="ghost" 
@@ -224,17 +224,17 @@ export default function GrammarDashboardPage() {
             </div>
 
             {/* Reading Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <BookText className="w-6 h-6" />
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Reading</h4>
-              <p className="text-sm text-slate-500 mb-6">Reading comprehension</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Reading</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Reading comprehension</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                 <Button 
                   onClick={() => handleStartSkill('/exam/reading/setup')}
                   variant="ghost" 
@@ -256,23 +256,23 @@ export default function GrammarDashboardPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {exams.length === 0 ? (
-              <div className="col-span-full bg-white border border-slate-200 rounded-2xl p-8 text-center">
-                <p className="text-slate-500 font-medium">No tests available for your level currently.</p>
+              <div className="col-span-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center">
+                <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium">No tests available for your level currently.</p>
               </div>
             ) : (
               exams.map((exam) => (
-                <div key={exam.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col">
+                <div key={exam.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-50 dark:bg-indigo-9500" />
                   <div className="flex-1">
-                    <h4 className="text-lg font-bold text-slate-800 mb-2">{exam.title}</h4>
-                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                    <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2">{exam.title}</h4>
+                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-4">
                       <Clock className="w-4 h-4" />
                       <span>{Math.round(exam.time_limit / 60)} minutes</span>
                     </div>
                   </div>
                   <Button 
                     onClick={() => handleStartExam(exam.id)}
-                    className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold mt-4"
+                    className="w-full bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 font-bold mt-4"
                   >
                     Start Test
                   </Button>
@@ -291,29 +291,29 @@ export default function GrammarDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6">
               {submissions.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="w-8 h-8 text-slate-300" />
                   </div>
-                  <h4 className="text-slate-800 font-bold mb-1">No results yet</h4>
-                  <p className="text-slate-500 text-sm">You haven't completed any grammar tests.</p>
+                  <h4 className="text-slate-800 dark:text-slate-200 font-bold mb-1">No results yet</h4>
+                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm">You haven't completed any grammar tests.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-slate-800">
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">Test Name</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-4">Score</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-4">Test Name</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Date</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right pr-4">Score</th>
                       </tr>
                     </thead>
                     <tbody>
                       {submissions.map((sub) => (
-                        <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                        <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 dark:bg-slate-950 transition-colors">
                           <td className="py-4 pl-4 text-sm font-bold text-slate-700 dark:text-slate-300">
                             {sub.exam_title}
                           </td>

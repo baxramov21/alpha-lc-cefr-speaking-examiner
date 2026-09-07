@@ -206,21 +206,21 @@ export default function ReadingSessionPage() {
   const activePdfUrl = currentTask?.pdf_url || tasks.find(t => t.pdf_url)?.pdf_url;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm shrink-0">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+            <h1 className="font-bold text-slate-800 dark:text-slate-200 text-lg flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-fuchsia-600" /> Reading Exam
             </h1>
-            <div className="flex bg-slate-100 p-1 rounded-lg">
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
               {tasks.map((task, idx) => (
                 <button
                   key={task.id}
                   onClick={() => setCurrentTaskIndex(idx)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTaskIndex === idx ? 'bg-white shadow-sm text-fuchsia-600' : 'text-slate-500 hover:text-slate-700 '
+                    currentTaskIndex === idx ? 'bg-white dark:bg-slate-900 shadow-sm text-fuchsia-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 '
                   }`}
                 >
                   Part {idx + 1}
@@ -232,9 +232,9 @@ export default function ReadingSessionPage() {
           <div className="flex items-center gap-6">
             
             <div className={`flex items-center gap-2 font-mono text-xl font-bold px-4 py-1.5 rounded-lg transition-colors ${
-              isWarning ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-700 '
+              isWarning ? 'bg-red-50 dark:bg-red-950 text-red-600 animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 '
             }`}>
-              <Clock className={`w-5 h-5 ${isWarning ? 'text-red-500' : 'text-slate-400 '}`} />
+              <Clock className={`w-5 h-5 ${isWarning ? 'text-red-500' : 'text-slate-400 dark:text-slate-500 '}`} />
               {timeString}
             </div>
             <Button 
@@ -250,12 +250,12 @@ export default function ReadingSessionPage() {
       </header>
 
       {/* Main Split Screen Area */}
-      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
+      <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 dark:bg-slate-800 ">
         <div className={`h-full w-full max-w-[1700px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.3fr_1fr]'} gap-6`}>
           
           {/* Left Column: Passage */}
           {(activePdfUrl || currentTask.passage_html || currentTask.image_url) && (
-            <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">
                   <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Text
@@ -272,10 +272,10 @@ export default function ReadingSessionPage() {
                 </div>
               ) : (
                 <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
-                  <div className="prose prose-sm md:prose-base max-w-none text-slate-800 ">
+                  <div className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 ">
                     {currentTask.image_url && (
                       <div className="mb-6 flex justify-center">
-                        <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                        <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
                       </div>
                     )}
                     {currentTask.passage_html && (
@@ -293,27 +293,27 @@ export default function ReadingSessionPage() {
           )}
 
           {/* Right Column: Questions */}
-          <div className="flex flex-col h-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div id="reading-questions-container" className="flex-1 overflow-y-auto p-6 lg:p-10">
               <div className="max-w-2xl mx-auto">
-                <div className="mb-8 pb-6 border-b border-slate-200 ">
-              <h2 className="text-2xl font-black text-slate-800 mb-2">Questions</h2>
-              <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
+                <div className="mb-8 pb-6 border-b border-slate-200 dark:border-slate-700 ">
+              <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 mb-2">Questions</h2>
+              <p className="text-slate-600 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
             </div>
 
             <div className="space-y-10">
               {currentTask.questions?.map((q: any) => (
-                <div key={q.id} className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-fuchsia-300 transition-colors">
+                <div key={q.id} className="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-fuchsia-300 transition-colors">
                   <div className="flex gap-4">
                     <div className="shrink-0 w-8 h-8 bg-fuchsia-100 text-fuchsia-700 rounded-full flex items-center justify-center font-bold text-sm">
                       {q.number}
                     </div>
                     <div className="flex-1">
-                      <div className="text-lg text-slate-800 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
+                      <div className="text-lg text-slate-800 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
                       
                       {q.image_url && (
                         <div className="mb-4 flex justify-center">
-                          <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                          <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
                         </div>
                       )}
                       
@@ -322,8 +322,8 @@ export default function ReadingSessionPage() {
                           {getDisplayOptions(q).map((opt: string, i: number) => (
                             <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                               answers[q.id] === opt 
-                                ? 'border-indigo-500 bg-indigo-50 shadow-sm' 
-                                : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 '
+                                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 shadow-sm' 
+                                : 'border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:bg-slate-50 dark:bg-slate-950 '
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
                                 answers[q.id] === opt ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600'
@@ -338,7 +338,7 @@ export default function ReadingSessionPage() {
                                 onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                                 className="hidden"
                               />
-                              <span className={`font-medium ${answers[q.id] === opt ? 'text-indigo-900' : 'text-slate-700 '}`}>
+                              <span className={`font-medium ${answers[q.id] === opt ? 'text-indigo-900' : 'text-slate-700 dark:text-slate-300 '}`}>
                                 <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
                               </span>
                             </label>
@@ -350,7 +350,7 @@ export default function ReadingSessionPage() {
                         <div className="mt-2">
                           <input 
                             type="text" 
-                            className="w-full max-w-sm h-12 rounded-xl border border-slate-200 px-4 font-medium text-slate-800 bg-slate-50 focus:bg-white focus:border-fuchsia-500 focus:ring-4 focus:ring-fuchsia-500/10 transition-all outline-none"
+                            className="w-full max-w-sm h-12 rounded-xl border border-slate-200 dark:border-slate-700 px-4 font-medium text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:bg-slate-900 focus:border-fuchsia-500 focus:ring-4 focus:ring-fuchsia-500/10 transition-all outline-none"
                             placeholder="Type your answer here..."
                             value={answers[q.id] || ''}
                             onChange={(e) => handleAnswerChange(q.id, e.target.value)}
@@ -363,12 +363,12 @@ export default function ReadingSessionPage() {
               ))}
             </div>
 
-            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-200 ">
+            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-200 dark:border-slate-700 ">
               <Button 
                 variant="outline" 
                 onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
                 disabled={currentTaskIndex === 0}
-                className="font-semibold text-slate-600 "
+                className="font-semibold text-slate-600 dark:text-slate-300 "
               >
                 Previous Part
               </Button>
@@ -395,12 +395,12 @@ export default function ReadingSessionPage() {
       {/* Exit Warning Modal */}
       {showExitWarning && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
               <AlertCircle className="w-8 h-8" />
             </div>
             <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Warning!</h2>
-            <p className="text-center text-slate-600 mb-8 font-medium">
+            <p className="text-center text-slate-600 dark:text-slate-300 mb-8 font-medium">
               You are trying to go back. If you exit now, your exam will be cancelled and will not be scored. Are you sure you want to exit?
             </p>
             <div className="flex flex-col gap-3">
@@ -416,7 +416,7 @@ export default function ReadingSessionPage() {
                   if (sessionToken) clearExamState(sessionToken, 'reading');
                   router.push('/exam');
                 }}
-                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
+                className="w-full text-red-600 hover:bg-red-50 dark:bg-red-950 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
               >
                 Exit Exam
               </Button>

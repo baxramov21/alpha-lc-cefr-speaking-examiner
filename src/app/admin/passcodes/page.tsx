@@ -88,36 +88,36 @@ export default function PasscodesPage() {
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200">Access Passcodes</h1>
-        <p className="text-slate-500 mt-1">Manage unique passcodes for classes and teachers.</p>
+        <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1">Manage unique passcodes for classes and teachers.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Create Form */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-            <h2 className="font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+            <h2 className="font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
               <Plus className="w-5 h-5 text-indigo-600" /> Create New Passcode
             </h2>
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">Passcode</label>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Passcode</label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   placeholder="e.g. MON1800"
-                  className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors"
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:bg-white dark:bg-slate-900 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">Programme</label>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Programme</label>
                 <select
                   value={programme}
                   onChange={(e) => setProgramme(e.target.value)}
-                  className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors appearance-none"
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:bg-white dark:bg-slate-900 transition-colors appearance-none"
                 >
                   <option value="CEFR">CEFR</option>
                   <option value="IELTS">IELTS</option>
@@ -137,8 +137,8 @@ export default function PasscodesPage() {
 
         {/* List */}
         <div className="lg:col-span-2">
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
               <Shield className="w-5 h-5 text-slate-400 dark:text-slate-500" />
               <h2 className="font-bold text-slate-800 dark:text-slate-200">Active Passcodes</h2>
             </div>
@@ -149,27 +149,27 @@ export default function PasscodesPage() {
               <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500">No passcodes found.</div>
             ) : (
               <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b border-slate-100 dark:border-slate-800">
+                <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Code</th>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Details</th>
-                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Code</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase">Details</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {passcodes.map(p => (
                     <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 dark:bg-slate-950/50">
                       <td className="px-6 py-4">
-                        <div className="font-mono font-bold text-slate-800 text-lg tracking-wider">{p.code}</div>
+                        <div className="font-mono font-bold text-slate-800 dark:text-slate-200 text-lg tracking-wider">{p.code}</div>
                         <div className="mt-1">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${p.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${p.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                             {p.is_active ? 'ACTIVE' : 'INACTIVE'}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
-                          <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100">{p.programme}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 rounded border border-indigo-100">{p.programme}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -177,7 +177,7 @@ export default function PasscodesPage() {
                           onClick={() => toggleStatus(p.id, p.is_active)}
                           variant="outline" 
                           size="sm"
-                          className={p.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200'}
+                          className={p.is_active ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:bg-amber-950 border-amber-200' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:bg-emerald-950 border-emerald-200'}
                         >
                           {p.is_active ? <PowerOff className="w-4 h-4 mr-1.5" /> : <Power className="w-4 h-4 mr-1.5" />}
                           {p.is_active ? 'Deactivate' : 'Activate'}

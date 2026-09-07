@@ -210,11 +210,11 @@ export default function ExamSetupPage() {
 
   if (isLoadingQuestions) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 fade-in">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 fade-in">
         <div className="flex flex-col items-center justify-center space-y-8 max-w-sm w-full">
           <div className="relative flex items-center justify-center w-28 h-28">
             {/* Outer rings */}
-            <div className="absolute inset-0 border-4 border-slate-100 rounded-full shadow-inner"></div>
+            <div className="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full shadow-inner"></div>
             <div className="absolute inset-0 border-4 border-teal-500 rounded-full border-t-transparent animate-spin shadow-[0_0_15px_rgba(20,184,166,0.3)]"></div>
             <div className="absolute inset-2 border-4 border-violet-500 rounded-full border-b-transparent animate-[spin_2s_linear_reverse] opacity-70"></div>
             {/* Center icon */}
@@ -223,11 +223,11 @@ export default function ExamSetupPage() {
             </div>
           </div>
           
-          <div className="text-center space-y-3 w-full bg-white p-6 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
+          <div className="text-center space-y-3 w-full bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 dark:border-slate-800 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 via-violet-500 to-amber-400 animate-gradient-x" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Preparing Exam</h2>
-            <p className="text-slate-500 text-sm font-medium">Loading and securing randomized questions...</p>
-            <div className="w-full bg-slate-100 h-2 rounded-full mt-4 overflow-hidden">
+            <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tight">Preparing Exam</h2>
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm font-medium">Loading and securing randomized questions...</p>
+            <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-4 overflow-hidden">
               <div className="bg-teal-500 h-full rounded-full w-2/3 animate-pulse"></div>
             </div>
           </div>
@@ -237,8 +237,8 @@ export default function ExamSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50  flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white  rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 ">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950  flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-900  rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 ">
         
         {/* Header Area */}
         <div className="bg-slate-900  text-white p-8 pb-10 text-center relative overflow-hidden">
@@ -262,7 +262,7 @@ export default function ExamSetupPage() {
               <div
                 key={s}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  step === s ? 'bg-white scale-125' : 'bg-white dark:bg-slate-900/40'
+                  step === s ? 'bg-white dark:bg-slate-900 scale-125' : 'bg-white dark:bg-slate-900/40'
                 }`}
               />
             ))}
@@ -283,11 +283,11 @@ export default function ExamSetupPage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-slate-900  mb-1">Part 1: Short Answer and Picture Comparison</h3>
                 </div>
-                <p className="text-slate-600  leading-relaxed mb-3">
+                <p className="text-slate-600 dark:text-slate-300  leading-relaxed mb-3">
                   Questions 1-6. You will have 5-10 seconds to prepare and 30-45 seconds to answer each question.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">5-10s prep</div>
+                  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">5-10s prep</div>
                   <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">30-45s answer</div>
                 </div>
               </div>
@@ -301,29 +301,29 @@ export default function ExamSetupPage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-slate-900  mb-1">Part 2: Topic Presentation</h3>
                 </div>
-                <p className="text-slate-600  leading-relaxed mb-3">
+                <p className="text-slate-600 dark:text-slate-300  leading-relaxed mb-3">
                   Question 7. You will have 60 seconds to prepare and 120 seconds to talk about a specific scenario.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
+                  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
                   <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s answer</div>
                 </div>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-amber-50 text-amber-600 p-3 rounded-xl mt-1">
+              <div className="bg-amber-50 dark:bg-amber-950 text-amber-600 p-3 rounded-xl mt-1">
                 <span className="font-black text-lg">P3</span>
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold text-slate-900  mb-1">Part 3: Abstract Discussion</h3>
                 </div>
-                <p className="text-slate-600  leading-relaxed mb-3">
+                <p className="text-slate-600 dark:text-slate-300  leading-relaxed mb-3">
                   Question 8. You will have 60 seconds to prepare and 120 seconds to discuss abstract concepts.
                 </p>
                 <div className="flex gap-3 text-xs">
-                  <div className="bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
+                  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 px-2.5 py-1 rounded-lg text-amber-700 font-medium">60s prep</div>
                   <div className="bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg text-teal-700 font-medium">120s answer</div>
                 </div>
               </div>
@@ -336,25 +336,25 @@ export default function ExamSetupPage() {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <button 
                       onClick={() => setExamMode('full')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'full' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'full' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:border-slate-600'}`}
                     >
                       Full Exam
                     </button>
                     <button 
                       onClick={() => setExamMode('part1')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part1' ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part1' ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:border-slate-600'}`}
                     >
                       Part 1 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part2')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part2' ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part2' ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:border-slate-600'}`}
                     >
                       Part 2 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part3')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part3' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part3' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:border-slate-600'}`}
                     >
                       Part 3 Only
                     </button>
@@ -369,17 +369,17 @@ export default function ExamSetupPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900  mb-1">Exam Conditions</h3>
-                <p className="text-slate-600  leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300  leading-relaxed">
                   Find a quiet room with minimal background noise. Speak clearly and at a natural pace. Use the preparation time to organize your thoughts. The exam will automatically proceed to the next stage when your time is up.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-10 pt-8 border-t border-slate-100 flex items-center justify-between">
+          <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <Button 
               variant="ghost" 
-              className="text-slate-500 hover:text-slate-900"
+              className="text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-900"
               onClick={() => router.push('/dashboard')}
             >
               Cancel and Return
@@ -404,12 +404,12 @@ export default function ExamSetupPage() {
               <div className="fade-in">
                 <button
                   onClick={() => setStep('overview')}
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-slate-700 mb-6 transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-slate-700 dark:text-slate-300 mb-6 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" /> Go Back
                 </button>
 
-                <h2 className="text-xl font-black text-slate-800  mb-1.5">Test Microphone</h2>
+                <h2 className="text-xl font-black text-slate-800 dark:text-slate-200  mb-1.5">Test Microphone</h2>
                 <p className="text-muted-foreground  text-sm mb-6">
                   Record a short audio sample to unlock the exam.
                 </p>
@@ -433,12 +433,12 @@ export default function ExamSetupPage() {
                 <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5">
                   <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-800  mb-2">All set!</h2>
+                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200  mb-2">All set!</h2>
                 <p className="text-muted-foreground  mb-8">
                   Your microphone is working. The exam will start when you press the button below.
                 </p>
 
-                <div className="bg-slate-50  rounded-2xl p-5 mb-8 text-left space-y-2">
+                <div className="bg-slate-50 dark:bg-slate-950  rounded-2xl p-5 mb-8 text-left space-y-2">
                   <p className="text-sm text-muted-foreground  font-medium mb-3">Exam Summary:</p>
                   {[
                     { label: 'Total Questions', value: `${EXAM_QUESTIONS.length} questions` },
@@ -448,7 +448,7 @@ export default function ExamSetupPage() {
                   ].map((item) => (
                     <div key={item.label} className="flex justify-between text-sm">
                       <span className="text-muted-foreground ">{item.label}</span>
-                      <span className="font-semibold text-slate-700 ">{item.value}</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300 ">{item.value}</span>
                     </div>
                   ))}
                 </div>

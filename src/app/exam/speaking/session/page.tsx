@@ -602,22 +602,22 @@ export default function ExamSessionPage() {
 
 
   // Part info
-  const currentPart = EXAM_PARTS.find((p) => p.part === question.part) || { label: 'Part', description: 'Speaking Exam', color: 'bg-slate-50 ', questionRange: '' };
+  const currentPart = EXAM_PARTS.find((p) => p.part === question.part) || { label: 'Part', description: 'Speaking Exam', color: 'bg-slate-50 dark:bg-slate-950 ', questionRange: '' };
   const partIndex = EXAM_PARTS.findIndex((p) => p.part === question.part);
   const progressPercent = (currentIndex / EXAM_QUESTIONS.length) * 100;
 
   if (!question || isRestoring) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
       {/* ---- Top Navigation Bar ---- */}
-      <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-20">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-sm sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Part progress indicators */}
           <div className="flex items-center gap-2">
@@ -628,13 +628,13 @@ export default function ExamSessionPage() {
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30 scale-110'
                     : partIndex > idx
                       ? 'bg-teal-100 text-teal-600 border-2 border-teal-300'
-                      : 'bg-slate-100 text-slate-400 border-2 border-slate-200 '
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-2 border-slate-200 dark:border-slate-700 '
                     }`}
                 >
                   {partIndex > idx ? '✓' : idx + 1}
                 </div>
                 {idx < EXAM_PARTS.length - 1 && (
-                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200 '}`} />
+                  <div className={`w-6 h-0.5 rounded-full ${partIndex > idx ? 'bg-teal-400' : 'bg-slate-200 dark:bg-slate-700 '}`} />
                 )}
               </div>
             ))}
@@ -643,14 +643,14 @@ export default function ExamSessionPage() {
           {/* Q counter */}
           <div className="flex items-center gap-4">
             
-            <div className="text-xs text-muted-foreground font-medium bg-slate-100 px-3 py-1.5 rounded-lg">
+            <div className="text-xs text-muted-foreground font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
               Q {currentIndex + 1} / {EXAM_QUESTIONS.length}
             </div>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-slate-100 ">
+        <div className="h-1 bg-slate-100 dark:bg-slate-800 ">
           <div
             className="h-full bg-teal-500 transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -662,13 +662,13 @@ export default function ExamSessionPage() {
       <main className="flex-1 flex items-center justify-center p-6">
         {/* Submitting Screen (Full Screen Overlay) */}
         {isSubmitting && (
-          <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center fade-in px-4">
+          <div className="absolute inset-0 z-50 bg-white dark:bg-slate-900 flex flex-col items-center justify-center fade-in px-4">
             {evalError ? (
               <div className="flex flex-col items-center">
                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 shadow-sm ring-8 ring-red-50">
                     <AlertTriangle className="w-10 h-10 text-red-600" />
                  </div>
-                 <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-center">
+                 <h2 className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight text-center">
                     Evaluation Failed
                  </h2>
                  <p className="text-lg text-red-500 mt-3 text-center max-w-md leading-relaxed">
@@ -696,21 +696,21 @@ export default function ExamSessionPage() {
                   </div>
                 </div>
                 
-                <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight text-center">
+                <h2 className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight text-center">
                   Generating Final Score...
                 </h2>
-                <p className="text-lg text-slate-500 mt-3 text-center max-w-md leading-relaxed">
+                <p className="text-lg text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-3 text-center max-w-md leading-relaxed">
                   Our AI is evaluating your vocabulary, grammar, fluency, and pronunciation.
                 </p>
                 
                 <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
-                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm">
+                  <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
                     <CheckCircle2 className="w-6 h-6 text-teal-500 shrink-0" />
-                    <span className="font-medium text-slate-700 ">Audio processing complete</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300 ">Audio processing complete</span>
                   </div>
-                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm opacity-80">
+                  <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm opacity-80">
                     <Loader2 className="w-6 h-6 text-amber-500 animate-spin shrink-0" />
-                    <span className="font-medium text-slate-700 ">Analyzing CEFR criteria...</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300 ">Analyzing CEFR criteria...</span>
                   </div>
                 </div>
               </>
@@ -751,9 +751,9 @@ export default function ExamSessionPage() {
                     variant="dark"
                   />
                   {phase === 'prep' && (
-                    <div className="flex-1 max-w-md bg-white border border-slate-200 shadow-sm rounded-full h-12 flex items-center justify-between px-6">
-                      <span className="text-slate-500 font-medium text-sm">
-                        then <strong className="text-slate-800 ml-1">Speak - {Math.floor(question.speakSeconds / 60)}:{(question.speakSeconds % 60).toString().padStart(2, '0')}</strong>
+                    <div className="flex-1 max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm rounded-full h-12 flex items-center justify-between px-6">
+                      <span className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm">
+                        then <strong className="text-slate-800 dark:text-slate-200 ml-1">Speak - {Math.floor(question.speakSeconds / 60)}:{(question.speakSeconds % 60).toString().padStart(2, '0')}</strong>
                       </span>
                       <div className="flex items-center gap-2 ml-4">
                         {allowSkip && <Button onClick={skipPrep} variant="outline" size="sm" className="h-8 rounded-full text-xs">Skip Prep</Button>}
@@ -762,10 +762,10 @@ export default function ExamSessionPage() {
                     </div>
                   )}
                   {phase === 'speak' && (
-                    <div className="flex-1 max-w-md bg-white border border-slate-200 shadow-sm rounded-full h-12 flex items-center px-6 gap-2">
+                    <div className="flex-1 max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm rounded-full h-12 flex items-center px-6 gap-2">
                       <span className="w-2 h-2 rounded-full bg-red-50 dark:bg-red-9500 animate-pulse" />
                       <span className="text-teal-700 font-bold text-sm flex-1">Recording...</span>
-                      {allowSkip && <Button onClick={advanceQuestion} variant="outline" size="sm" className="h-8 rounded-full text-xs bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Finish Exam</Button>}
+                      {allowSkip && <Button onClick={advanceQuestion} variant="outline" size="sm" className="h-8 rounded-full text-xs bg-emerald-50 dark:bg-emerald-950 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Finish Exam</Button>}
                     </div>
                   )}
                 </div>
@@ -775,7 +775,7 @@ export default function ExamSessionPage() {
               {question.tableData && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                   {/* FOR Column */}
-                  <div className="border-2 border-emerald-500 rounded-xl p-5 bg-white shadow-sm relative">
+                  <div className="border-2 border-emerald-500 rounded-xl p-5 bg-white dark:bg-slate-900 shadow-sm relative">
                     <div className="absolute -top-3 left-4 bg-emerald-50 dark:bg-emerald-9500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
                       FOR
                     </div>
@@ -783,14 +783,14 @@ export default function ExamSessionPage() {
                       {question.tableData.forPoints.map((pt, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0" />
-                          <span className="text-slate-700 text-sm leading-relaxed">{pt}</span>
+                          <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{pt}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
                   {/* AGAINST Column */}
-                  <div className="border-2 border-red-500 rounded-xl p-5 bg-white shadow-sm relative">
+                  <div className="border-2 border-red-500 rounded-xl p-5 bg-white dark:bg-slate-900 shadow-sm relative">
                     <div className="absolute -top-3 left-4 bg-red-50 dark:bg-red-9500 text-white font-bold text-xs px-3 py-1 rounded-md uppercase tracking-wide">
                       AGAINST
                     </div>
@@ -798,7 +798,7 @@ export default function ExamSessionPage() {
                       {question.tableData.againstPoints.map((pt, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-800 shrink-0" />
-                          <span className="text-slate-700 text-sm leading-relaxed">{pt}</span>
+                          <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{pt}</span>
                         </li>
                       ))}
                     </ul>
@@ -828,11 +828,11 @@ export default function ExamSessionPage() {
               </div>
 
               {/* Question card */}
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/80 p-8 mb-6 fade-in flex flex-col gap-6">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-100/80 p-8 mb-6 fade-in flex flex-col gap-6">
                 {question.part === 'part2' ? (
                   <div className="flex flex-col md:flex-row gap-6 items-stretch">
                     {question.imageUrl && (
-                      <div className="w-full md:w-5/12 relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
+                      <div className="w-full md:w-5/12 relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={question.imageUrl}
@@ -858,7 +858,7 @@ export default function ExamSessionPage() {
                           return bullets.map((bullet, idx) => (
                             <li key={idx} className="flex items-start gap-3">
                               <span className="mt-2.5 w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
-                              <span className="text-slate-800 text-[17px] leading-relaxed">{bullet}</span>
+                              <span className="text-slate-800 dark:text-slate-200 text-[17px] leading-relaxed">{bullet}</span>
                             </li>
                           ));
                         })()}
@@ -870,20 +870,20 @@ export default function ExamSessionPage() {
                     {question.part === 'part1_2' && currentIndex === examQuestions.findIndex(q => q.part === 'part1_2') ? (
                       <div className="flex flex-col md:flex-row gap-4 w-full">
                         {question.imageUrl && (
-                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={question.imageUrl} alt="Exam prompt 1" className="w-full h-auto object-contain max-h-[350px]" />
                           </div>
                         )}
                         {(question.tableData as any)?.image_url_2 && (
-                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                          <div className="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={(question.tableData as any).image_url_2} alt="Exam prompt 2" className="w-full h-auto object-contain max-h-[350px]" />
                           </div>
                         )}
                       </div>
                     ) : null}
-                    <p className="text-xl font-bold text-slate-800 leading-relaxed whitespace-pre-line text-center">
+                    <p className="text-xl font-bold text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line text-center">
                       {question.text}
                     </p>
                   </>
@@ -911,20 +911,20 @@ export default function ExamSessionPage() {
                 {/* Waveform + controls */}
                 <div className="flex-1">
                   {phase === 'prep' ? (
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col items-center justify-center gap-4 h-full min-h-[140px]">
-                      <p className="text-sm text-slate-500 text-center">Take a moment to read the question and prepare your answer.</p>
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 flex flex-col items-center justify-center gap-4 h-full min-h-[140px]">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 text-center">Take a moment to read the question and prepare your answer.</p>
                       {allowSkip && (
                         <Button
                           onClick={skipPrep}
                           variant="outline"
-                          className="border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl"
+                          className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-950 rounded-xl"
                         >
                           Skip Prep <SkipForward className="w-4 h-4 ml-2" />
                         </Button>
                       )}
                     </div>
                   ) : (
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col items-center gap-3">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-5 flex flex-col items-center gap-3">
                       {/* Live waveform */}
                       <div className="flex items-center gap-1 h-10">
                         {waveform.map((h, i) => (
@@ -950,7 +950,7 @@ export default function ExamSessionPage() {
                         <Button
                           onClick={advanceQuestion}
                           variant="outline"
-                          className="border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl"
+                          className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:bg-slate-950 rounded-xl"
                         >
                           Done <SkipForward className="w-4 h-4 ml-2" />
                         </Button>
@@ -977,7 +977,7 @@ export default function ExamSessionPage() {
                   ? 'bg-slate-800 scale-125'
                   : idx < currentIndex
                     ? 'bg-emerald-50 dark:bg-emerald-9500'
-                    : 'bg-slate-200 '
+                    : 'bg-slate-200 dark:bg-slate-700 '
                   }`}
               />
             ))}

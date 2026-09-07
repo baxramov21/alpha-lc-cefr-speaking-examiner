@@ -166,7 +166,7 @@ export default function DashboardPage() {
             <span className="text-xs font-medium text-slate-300 bg-white dark:bg-slate-900/10 px-3 py-1.5 rounded-full border border-white/10">
               EN
             </span>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 hover:text-white hover:bg-white dark:bg-slate-900/10 rounded-full transition-colors" title="Logout">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 dark:text-slate-500 hover:text-white hover:bg-white dark:bg-slate-900/10 rounded-full transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
               <div>
                 <p className="text-teal-300 text-xs font-bold tracking-wider mb-1">USER PROFILE</p>
                 <h2 className="text-3xl font-black mb-1 tracking-tight">{session.fullName}</h2>
-                <p className="text-slate-400 text-sm">{session.groupName} • {session.teacherName}</p>
+                <p className="text-slate-400 dark:text-slate-500 text-sm">{session.groupName} • {session.teacherName}</p>
               </div>
             </div>
             
@@ -257,7 +257,7 @@ export default function DashboardPage() {
               </div>
               <Button 
                 onClick={handleStartFullExam}
-                className="bg-white text-teal-700 hover:bg-slate-50 font-bold h-14 px-8 rounded-xl shadow-md text-lg whitespace-nowrap"
+                className="bg-white dark:bg-slate-900 text-teal-700 hover:bg-slate-50 dark:bg-slate-950 font-bold h-14 px-8 rounded-xl shadow-md text-lg whitespace-nowrap"
               >
                 Start Exam
                 <ChevronRight className="w-5 h-5 ml-2" />
@@ -276,27 +276,27 @@ export default function DashboardPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Speaking Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Mic className="w-6 h-6" />
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">RATING</p>
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{bestSpeakingBand}</p>
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Speaking</h4>
-              <p className="text-sm text-slate-500 mb-6">Oral communication</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Speaking</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Oral communication</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 mb-4">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestSpeakingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{speakingAttempts} attempts</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{speakingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/speaking/setup')}
                   variant="ghost" 
@@ -308,23 +308,23 @@ export default function DashboardPage() {
             </div>
 
             {/* Writing Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-purple-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <PenTool className="w-6 h-6" />
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Writing</h4>
-              <p className="text-sm text-slate-500 mb-6">Written expression</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Writing</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Written expression</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 mb-4">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestWritingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{writingAttempts} attempts</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{writingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/writing/setup')}
                   variant="ghost" 
@@ -336,31 +336,31 @@ export default function DashboardPage() {
             </div>
 
             {/* Reading Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-50 dark:bg-emerald-9500" />
               <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">RATING</p>
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{bestReadingBand}</p>
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Reading</h4>
-              <p className="text-sm text-slate-500 mb-6">Comprehension</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Reading</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Comprehension</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 mb-4">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestReadingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{readingAttempts} attempts</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{readingAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/reading/setup')}
                   variant="ghost" 
-                  className="text-emerald-600 font-bold hover:bg-emerald-50 hover:text-emerald-700 p-0 h-auto"
+                  className="text-emerald-600 font-bold hover:bg-emerald-50 dark:bg-emerald-950 hover:text-emerald-700 p-0 h-auto"
                 >
                   Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -368,27 +368,27 @@ export default function DashboardPage() {
             </div>
 
             {/* Listening Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-amber-50 dark:bg-amber-9500" />
               <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-950 text-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Headphones className="w-6 h-6" />
                 </div>
               </div>
-              <h4 className="text-lg font-bold text-slate-800 mb-1">Listening</h4>
-              <p className="text-sm text-slate-500 mb-6">Audio comprehension</p>
+              <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-1">Listening</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-6">Audio comprehension</p>
               
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
+              <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4 mb-4">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
                 <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestListeningScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-medium">{listeningAttempts} attempts</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">{listeningAttempts} attempts</span>
                 <Button 
                   onClick={() => handleStartSingleExam('/exam/listening/setup')}
                   variant="ghost" 
-                  className="text-amber-600 font-bold hover:bg-amber-50 hover:text-amber-700 p-0 h-auto"
+                  className="text-amber-600 font-bold hover:bg-amber-50 dark:bg-amber-950 hover:text-amber-700 p-0 h-auto"
                 >
                   Enter <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -409,56 +409,56 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="flex border-b border-slate-200 px-2 pt-2 overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex border-b border-slate-200 dark:border-slate-700 px-2 pt-2 overflow-x-auto">
               <button 
                 onClick={() => setActiveTab('speaking')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'speaking' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <Mic className="w-4 h-4" /> Speaking <span className={`${activeTab === 'speaking' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{speakingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'speaking' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
+                <Mic className="w-4 h-4" /> Speaking <span className={`${activeTab === 'speaking' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{speakingAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('writing')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'writing' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <PenTool className="w-4 h-4" /> Writing <span className={`${activeTab === 'writing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{writingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'writing' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
+                <PenTool className="w-4 h-4" /> Writing <span className={`${activeTab === 'writing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{writingAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('listening')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'listening' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <Headphones className="w-4 h-4" /> Listening <span className={`${activeTab === 'listening' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{listeningAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'listening' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
+                <Headphones className="w-4 h-4" /> Listening <span className={`${activeTab === 'listening' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{listeningAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('reading')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'reading' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <BookOpen className="w-4 h-4" /> Reading <span className={`${activeTab === 'reading' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{readingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'reading' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
+                <BookOpen className="w-4 h-4" /> Reading <span className={`${activeTab === 'reading' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{readingAttempts}</span>
               </button>
             </div>
 
             <div className="p-6">
               {filteredSubmissions.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mx-auto mb-4">
                     {activeTab === 'speaking' && <Mic className="w-8 h-8 text-slate-300" />}
                     {activeTab === 'writing' && <PenTool className="w-8 h-8 text-slate-300" />}
                     {activeTab === 'listening' && <Headphones className="w-8 h-8 text-slate-300" />}
                     {activeTab === 'reading' && <BookOpen className="w-8 h-8 text-slate-300" />}
                   </div>
-                  <h4 className="text-slate-800 font-bold mb-1">No exams yet</h4>
-                  <p className="text-slate-500 text-sm">You haven't taken any {activeTab} exams yet.</p>
+                  <h4 className="text-slate-800 dark:text-slate-200 font-bold mb-1">No exams yet</h4>
+                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm">You haven't taken any {activeTab} exams yet.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-slate-800">
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">Date & Time</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Language</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
-                        <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-4">Result</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-4">Date & Time</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Language</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</th>
+                        <th className="pb-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right pr-4">Result</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredSubmissions.map((sub) => (
-                        <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                        <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 dark:bg-slate-950 transition-colors">
                           <td className="py-4 pl-4 text-sm font-medium text-slate-700 dark:text-slate-300">
                             {new Date(sub.created_at).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '')}
                           </td>
@@ -470,7 +470,7 @@ export default function DashboardPage() {
                           </td>
                           <td className="py-4 pr-4 text-right">
                             <span className="inline-flex items-center gap-1.5">
-                              <span className="font-black text-slate-800 text-lg">{sub.overall_score}</span>
+                              <span className="font-black text-slate-800 dark:text-slate-200 text-lg">{sub.overall_score}</span>
                               <span className="text-xs font-bold text-slate-400 dark:text-slate-500">({sub.overall_band})</span>
                             </span>
                           </td>

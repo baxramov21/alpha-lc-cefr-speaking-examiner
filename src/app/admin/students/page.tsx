@@ -81,7 +81,7 @@ export default function StudentsPage() {
   return (
     <div className="p-8 space-y-8 max-w-6xl mx-auto h-[calc(100vh-64px)] flex flex-col">
       <div>
-        <h1 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+        <h1 className="text-2xl font-black text-slate-800 dark:text-slate-200 flex items-center gap-2">
           <Star className="w-6 h-6 text-amber-500 fill-amber-500" /> Saved Students Analytics
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
@@ -95,7 +95,7 @@ export default function StudentsPage() {
           className={`px-6 py-3 font-bold transition-all relative ${
             skillTab === 'speaking' 
               ? 'text-teal-600' 
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+              : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:bg-slate-950 rounded-t-xl'
           }`}
         >
           Speaking Analytics
@@ -108,7 +108,7 @@ export default function StudentsPage() {
           className={`px-6 py-3 font-bold transition-all relative ${
             skillTab === 'writing' 
               ? 'text-emerald-600' 
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+              : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:bg-slate-950 rounded-t-xl'
           }`}
         >
           Writing Analytics
@@ -121,7 +121,7 @@ export default function StudentsPage() {
           className={`px-6 py-3 font-bold transition-all relative ${
             skillTab === 'listening' 
               ? 'text-indigo-600' 
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'
+              : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:bg-slate-950 rounded-t-xl'
           }`}
         >
           Listening Analytics
@@ -133,9 +133,9 @@ export default function StudentsPage() {
 
       <div className="flex flex-1 gap-8 min-h-0">
         {/* Left sidebar: Student List */}
-        <div className="w-1/3 flex flex-col bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="w-1/3 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-50 bg-slate-50 dark:bg-slate-950/50">
-            <h3 className="font-bold text-slate-800 uppercase text-xs tracking-wider">Top Performers</h3>
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 uppercase text-xs tracking-wider">Top Performers</h3>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             {studentsList.length === 0 ? (
@@ -147,13 +147,13 @@ export default function StudentsPage() {
                   onClick={() => setSelectedStudent(st.name)}
                   className={`w-full text-left p-4 rounded-2xl transition-all border flex items-center justify-between ${
                     selectedStudent === st.name 
-                      ? 'bg-amber-50 border-amber-200 shadow-sm' 
-                      : 'bg-white border-transparent hover:border-slate-100 hover:bg-slate-50 dark:bg-slate-950'
+                      ? 'bg-amber-50 dark:bg-amber-950 border-amber-200 shadow-sm' 
+                      : 'bg-white dark:bg-slate-900 border-transparent hover:border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-950'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
-                      selectedStudent === st.name ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-600 dark:text-slate-300'
+                      selectedStudent === st.name ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                     }`}>
                       {st.name.charAt(0)}
                     </div>
@@ -178,14 +178,14 @@ export default function StudentsPage() {
             <>
               {/* Header Stats */}
               <div className="flex gap-4">
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1">
-                  <div className="flex items-center gap-3 text-slate-500 mb-2">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1">
+                  <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 dark:text-slate-500 mb-2">
                     <User className="w-5 h-5" />
                     <span className="text-sm font-semibold uppercase tracking-wider">Student Name</span>
                   </div>
                   <div className="text-2xl font-black text-slate-800 dark:text-slate-200">{selectedStudent}</div>
                 </div>
-                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1">
                   <div className="flex items-center gap-3 text-amber-500 mb-2">
                     <Award className="w-5 h-5" />
                     <span className="text-sm font-semibold uppercase tracking-wider">Best Score</span>
@@ -197,8 +197,8 @@ export default function StudentsPage() {
               </div>
 
               {/* Chart */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1 flex flex-col min-h-[300px]">
-                <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex-1 flex flex-col min-h-[300px]">
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-teal-500" /> Performance Growth Over Time
                 </h3>
                 <div className="flex-1 w-full h-full">
@@ -231,14 +231,14 @@ export default function StudentsPage() {
               </div>
 
               {/* History List */}
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex-shrink-0 max-h-[30%] flex flex-col">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden flex-shrink-0 max-h-[30%] flex flex-col">
                 <div className="p-4 border-b border-slate-50 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Attempt History</h3>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-200 text-xs uppercase tracking-wider">Attempt History</h3>
                 </div>
                 <div className="overflow-y-auto p-4 space-y-2">
                   {activeStudentData.slice().reverse().map((sub, idx) => (
-                    <div key={sub.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                    <div key={sub.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-4">
                         <div className="text-xl font-black text-teal-600 w-12 text-center">{sub.overall_score}</div>
                         <div>
@@ -246,7 +246,7 @@ export default function StudentsPage() {
                           <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">CEFR: {sub.overall_band}</div>
                         </div>
                       </div>
-                      <Link href={`/admin/submissions/${sub.id}`} className="p-2 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">
+                      <Link href={`/admin/submissions/${sub.id}`} className="p-2 hover:bg-slate-200 dark:bg-slate-700 rounded-lg text-slate-400 dark:text-slate-500 transition-colors">
                         <ChevronRight className="w-5 h-5" />
                       </Link>
                     </div>
@@ -255,7 +255,7 @@ export default function StudentsPage() {
               </div>
             </>
           ) : (
-            <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-medium">
+            <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-3xl text-slate-400 dark:text-slate-500 font-medium">
               Select a student to view analytics
             </div>
           )}

@@ -134,7 +134,7 @@ export default function StudentLoginPage() {
             <span className="font-light text-slate-300">Exam Platform</span>
           </h1>
           
-          <p className="text-slate-400 text-lg leading-relaxed mb-12">
+          <p className="text-slate-400 dark:text-slate-500 text-lg leading-relaxed mb-12">
             AI-powered CEFR examination.<br />
             Fast, accurate, and detailed results.
           </p>
@@ -162,7 +162,7 @@ export default function StudentLoginPage() {
       </div>
 
       {/* Right: Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 relative z-10">
+      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950 relative z-10">
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
           <div className="flex items-center gap-4 mb-10 lg:hidden justify-center">
@@ -171,14 +171,14 @@ export default function StudentLoginPage() {
             </div>
             <div>
               <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500 text-2xl leading-none tracking-tight">Alpha LC</p>
-              <p className="text-sm text-slate-500 mt-1 font-medium">Exam Platform</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1 font-medium">Exam Platform</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
             <div className="mb-8 relative z-10">
-              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Login</h2>
-              <p className="text-slate-500 text-sm">
+              <h2 className="text-3xl font-black text-slate-800 dark:text-slate-200 tracking-tight mb-2">Login</h2>
+              <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm">
                 Enter your details to start the exam.
               </p>
             </div>
@@ -278,7 +278,7 @@ export default function StudentLoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPasscode(!showPasscode)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700 dark:text-slate-300 transition-colors"
                   >
                     {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -297,7 +297,7 @@ export default function StudentLoginPage() {
                   <div className="relative">
                     <select
                       id="grammarLevel"
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:bg-slate-900 focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300"
                       {...register('grammarLevel', { required: 'Please select a level' })}
                     >
                       <option value="">Choose a level...</option>
@@ -314,7 +314,7 @@ export default function StudentLoginPage() {
 
               {/* Auth error */}
               {authError && (
-                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600 flex items-start gap-3">
+                <div className="bg-red-50 dark:bg-red-950 border border-red-100 rounded-xl p-4 text-sm text-red-600 flex items-start gap-3">
                   <span className="mt-0.5 text-lg">⚠️</span>
                   <span className="leading-snug">{authError}</span>
                 </div>
@@ -351,8 +351,8 @@ export default function StudentLoginPage() {
                 Admin Panel →
               </a>
             </p>
-            <div className="text-xs text-slate-400 font-medium tracking-wide">
-              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-800 transition-colors">@baxramovv.21</a>
+            <div className="text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide">
+              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200 transition-colors">@baxramovv.21</a>
             </div>
           </div>
         </div>

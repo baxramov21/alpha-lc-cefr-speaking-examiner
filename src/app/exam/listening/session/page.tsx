@@ -303,19 +303,19 @@ export default function ListeningSessionPage() {
   const hasImage = currentTask?.passage_html?.includes('<img') || currentTask?.image_url;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
       {/* Top Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm shrink-0">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="font-bold text-slate-800 text-lg">Listening Exam</h1>
-            <div className="flex bg-slate-100 p-1 rounded-lg">
+            <h1 className="font-bold text-slate-800 dark:text-slate-200 text-lg">Listening Exam</h1>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
               {tasks.map((task, idx) => (
                 <button
                   key={task.id}
                   onClick={() => setCurrentTaskIndex(idx)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTaskIndex === idx ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
+                    currentTaskIndex === idx ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 '
                   }`}
                 >
                   Part {idx + 1}
@@ -326,7 +326,7 @@ export default function ListeningSessionPage() {
           
           <div className="flex items-center gap-6">
             
-            <div className="flex items-center gap-2 font-mono text-lg font-bold text-slate-700 bg-slate-100 px-4 py-1.5 rounded-lg">
+            <div className="flex items-center gap-2 font-mono text-lg font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-lg">
               <Shield className="w-5 h-5 text-teal-500" />
               Proctored
             </div>
@@ -335,11 +335,11 @@ export default function ListeningSessionPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className={`flex-1 bg-slate-100 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}>
+      <main className={`flex-1 bg-slate-100 dark:bg-slate-800 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}>
         <div className={`w-full mx-auto ${hasImage ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
           {/* Top Block: Audio & Passage */}
-          <div className={`flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
+          <div className={`flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
             
             {/* Audio Player Card (Sticky at top) */}
             <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800 sticky top-0 z-20">
@@ -352,7 +352,7 @@ export default function ListeningSessionPage() {
                   </div>
                   <div>
                     <h2 className="text-white font-bold text-lg">{tasks[audioTaskIndex]?.partLabel || 'Audio'}</h2>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-slate-400 dark:text-slate-500 text-sm">
                       {phase === 'prep' && "Preparation time. Please read the questions."}
                       {phase === 'initial_play' && `Playing audio (${currentPlayCount} of ${maxPlays})...`}
                       {phase === 'second_play' && `Playing audio (${currentPlayCount} of ${maxPlays})...`}
@@ -363,7 +363,7 @@ export default function ListeningSessionPage() {
                 
                 <div className="text-right flex items-center gap-4">
                   {audioBlocked && (
-                    <div className="flex flex-col items-center justify-center p-6 bg-red-50 border border-red-200 rounded-2xl mb-8 break-all text-center">
+                    <div className="flex flex-col items-center justify-center p-6 bg-red-50 dark:bg-red-950 border border-red-200 rounded-2xl mb-8 break-all text-center">
                       <p className="text-red-700 font-medium mb-4">Your browser blocked audio autoplay.</p>
                       <p className="text-xs text-red-400 mb-4">
                         DEBUG URL: {tasks[audioTaskIndex]?.audioUrls?.[audioIndex]}
@@ -398,7 +398,7 @@ export default function ListeningSessionPage() {
 
             {/* Passage Content */}
             {currentTask.pdf_url ? (
-              <div className={`w-full relative border-t border-slate-200 ${hasImage ? 'flex-1' : 'h-[600px]'}`}>
+              <div className={`w-full relative border-t border-slate-200 dark:border-slate-700 ${hasImage ? 'flex-1' : 'h-[600px]'}`}>
                 <iframe 
                   src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
                   className="absolute inset-0 w-full h-full border-0"
@@ -407,18 +407,18 @@ export default function ListeningSessionPage() {
               </div>
             ) : (
               <div id="listening-text-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto relative' : ''}`}>
-                <div className="mb-6 pb-6 border-b border-slate-100 ">
-                  <h2 className="text-2xl font-black text-slate-800 mb-2">{currentTask.partLabel} Context</h2>
-                  <p className="text-slate-600 font-medium">{currentTask.instructions}</p>
+                <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800 ">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 mb-2">{currentTask.partLabel} Context</h2>
+                  <p className="text-slate-600 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
                 </div>
                 {currentTask.image_url && (
                   <div className="mb-6 flex justify-center">
-                    <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                    <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
                   </div>
                 )}
                 {currentTask.passage_html && (
                   <div 
-                    className="prose prose-sm md:prose-base max-w-none text-slate-800 "
+                    className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 "
                     dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
                   />
                 )}
@@ -427,10 +427,10 @@ export default function ListeningSessionPage() {
           </div>
 
           {/* Bottom Block: Questions */}
-          <div className={`flex flex-col bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
-            <div className="bg-slate-50 p-6 shrink-0 border-b border-slate-200 ">
-              <h2 className="text-xl font-bold text-slate-800 ">Questions</h2>
-              <p className="text-sm text-slate-500  ">Answer all questions based on the audio.</p>
+          <div className={`flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
+            <div className="bg-slate-50 dark:bg-slate-950 p-6 shrink-0 border-b border-slate-200 dark:border-slate-700 ">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 ">Questions</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500  ">Answer all questions based on the audio.</p>
             </div>
             
             <div id="listening-questions-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto' : ''}`}>
@@ -438,15 +438,15 @@ export default function ListeningSessionPage() {
                 {currentTask.questions.map((q) => (
                   <div key={q.id} className="group">
                     <div className="flex gap-4">
-                      <div className="shrink-0 w-8 h-8 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-sm">
+                      <div className="shrink-0 w-8 h-8 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center font-bold text-sm">
                         {q.number}
                       </div>
                       <div className="flex-1">
-                        <div className="text-lg text-slate-800 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
+                        <div className="text-lg text-slate-800 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
                         
                         {q.image_url && (
                           <div className="mb-4 flex justify-center">
-                            <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 shadow-sm" />
+                            <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
                           </div>
                         )}
                         
@@ -456,7 +456,7 @@ export default function ListeningSessionPage() {
                               <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
                                 answers[q.id] === opt 
                                   ? 'border-teal-500 bg-teal-50 shadow-sm' 
-                                  : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50 '
+                                  : 'border-slate-200 dark:border-slate-700 hover:border-teal-300 hover:bg-slate-50 dark:bg-slate-950 '
                               }`}>
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
                                   answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300 dark:border-slate-600'
@@ -471,7 +471,7 @@ export default function ListeningSessionPage() {
                                   onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                                   className="hidden"
                                 />
-                                <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900' : 'text-slate-700 '}`}>
+                                <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900' : 'text-slate-700 dark:text-slate-300 '}`}>
                                   <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
                                 </span>
                               </label>
@@ -485,7 +485,7 @@ export default function ListeningSessionPage() {
                             value={answers[q.id] || ''}
                             onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                             placeholder="Type your answer here..."
-                            className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium text-slate-800 "
+                            className="w-full max-w-md px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all font-medium text-slate-800 dark:text-slate-200 "
                           />
                         )}
                       </div>
@@ -494,7 +494,7 @@ export default function ListeningSessionPage() {
                 ))}
                 
                 {currentTask.questions.length === 0 && (
-                  <div className="text-center text-slate-500 py-12">
+                  <div className="text-center text-slate-500 dark:text-slate-400 dark:text-slate-500 py-12">
                     No questions found for this part.
                   </div>
                 )}
@@ -505,20 +505,20 @@ export default function ListeningSessionPage() {
       </main>
 
       {/* Action Bar (Fixed at bottom of screen) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 lg:p-6 border-t border-slate-200 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 p-4 lg:p-6 border-t border-slate-200 dark:border-slate-700 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <Button 
                 variant="outline" 
                 onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
                 disabled={currentTaskIndex === 0}
-                className="font-semibold text-slate-600 h-11 px-6 rounded-xl"
+                className="font-semibold text-slate-600 dark:text-slate-300 h-11 px-6 rounded-xl"
               >
                 Previous Part
               </Button>
               
               <div className="flex items-center">
                 {(!allowSkip && phase === 'initial_play') && (
-                  <p className="text-slate-500 text-sm font-medium mr-4 hidden md:block">
+                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm font-medium mr-4 hidden md:block">
                     Audio must finish before continuing.
                   </p>
                 )}
@@ -556,12 +556,12 @@ export default function ListeningSessionPage() {
       {/* Exit Warning Modal */}
       {showExitWarning && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
               <Shield className="w-8 h-8" />
             </div>
             <h2 className="text-2xl font-black text-center text-slate-900 mb-4">Warning!</h2>
-            <p className="text-center text-slate-600 mb-8 font-medium">
+            <p className="text-center text-slate-600 dark:text-slate-300 mb-8 font-medium">
               You are trying to go back. If you exit now, your exam will be cancelled and will not be scored. Are you sure you want to exit?
             </p>
             <div className="flex flex-col gap-3">
@@ -577,7 +577,7 @@ export default function ListeningSessionPage() {
                   if (sessionToken) clearExamState(sessionToken, 'listening');
                   router.push('/exam');
                 }}
-                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
+                className="w-full text-red-600 hover:bg-red-50 dark:bg-red-950 hover:text-red-700 border-red-200 h-12 rounded-xl font-bold"
               >
                 Exit Exam
               </Button>
