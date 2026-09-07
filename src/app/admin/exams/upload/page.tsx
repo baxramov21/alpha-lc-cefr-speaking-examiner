@@ -278,7 +278,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </pre>
               <button 
                 onClick={handleCopyPrompt}
-                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-50 dark:bg-indigo-9500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
+                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
               >
                 <Copy className="w-4 h-4" /> Copy Prompt
               </button>
@@ -320,11 +320,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {hostedImageUrl && (
         <div className="mb-8 p-4 bg-white border border-slate-200 rounded-xl flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
               <img src={hostedImageUrl} alt="Hosted" className="w-full h-full object-cover" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200">Image URL Generated</p>
+              <p className="text-sm font-bold text-slate-800">Image URL Generated</p>
               <p className="text-xs font-mono text-slate-500 max-w-md truncate">{hostedImageUrl}</p>
             </div>
           </div>
@@ -347,7 +347,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             className={`px-6 py-2 rounded-lg font-bold transition-all ${
               programme === 'CEFR' 
                 ? 'bg-white text-indigo-700 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             CEFR
@@ -357,7 +357,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             className={`px-6 py-2 rounded-lg font-bold transition-all ${
               programme === 'IELTS' 
                 ? 'bg-white text-indigo-700 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             IELTS
@@ -372,7 +372,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-6 py-3 rounded-xl font-bold transition-all ${
             examMode === 'reading' 
               ? 'bg-fuchsia-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-950'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
           Reading Exam
@@ -382,7 +382,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
             examMode === 'listening' 
               ? 'bg-teal-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-slate-950'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
           <Headphones className="w-5 h-5" />
@@ -407,7 +407,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="w-full">
             <h3 className="font-semibold text-red-900">{errorMsg}</h3>
             {validationErrors.length > 0 && (
-              <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-red-100 font-mono">
+              <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1 bg-white/50 p-3 rounded-lg border border-red-100 font-mono">
                 {validationErrors.map((err, i) => (
                   <li key={i}>
                     <span className="font-bold">{err.path.join('.')}</span>: {err.message}
@@ -440,7 +440,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
                 <UploadCloud className="w-5 h-5 text-teal-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select Audio Files</p>
+              <p className="text-sm font-semibold text-slate-700">Select Audio Files</p>
               
               {audioFiles.length > 0 && (
                 <div className="mt-4 flex flex-col gap-2 w-full max-w-xs">
@@ -471,7 +471,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-4 group-hover:scale-110 transition-transform">
             <UploadCloud className="w-6 h-6 text-indigo-500" />
           </div>
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Click to upload or drag and drop</p>
+          <p className="text-sm font-semibold text-slate-700">Click to upload or drag and drop</p>
           <p className="text-xs text-slate-500 mt-1">Only .json format is supported</p>
           
           {file && (
@@ -489,7 +489,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">Review the extracted content before submitting.</p>
+                <p className="text-sm text-slate-500">Review the extracted content before submitting.</p>
               </div>
               <button 
                 onClick={handleUpload}
@@ -518,9 +518,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 <h4 className="text-sm font-semibold text-slate-700 mb-4">Extracted Questions ({previewData.parts?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0})</h4>
                 <div className="space-y-3 h-96 overflow-y-auto pr-2">
                   {previewData.parts?.map((p: any) => p.questions || []).flat().map((q: any, i: number) => (
-                    <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500">Q{q.question_number}</span>
+                        <span className="text-xs font-bold text-slate-400">Q{q.question_number}</span>
                         <span className="text-[10px] font-semibold tracking-wider uppercase bg-slate-100 text-slate-500 px-2 py-1 rounded">{q.type}</span>
                       </div>
                       <p className="text-sm font-medium text-slate-800 mb-3">{q.question_text}</p>
@@ -529,7 +529,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                           {q.options.map((opt: string, j: number) => (
                             <div key={j} className="text-xs flex gap-2">
                               <span className="text-slate-400 font-mono">{String.fromCharCode(65 + j)}.</span>
-                              <span className="text-slate-600 dark:text-slate-300">{opt}</span>
+                              <span className="text-slate-600">{opt}</span>
                             </div>
                           ))}
                         </div>

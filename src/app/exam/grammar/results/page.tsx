@@ -22,10 +22,10 @@ export default function GrammarResultsPage() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-24">
-      <header className="bg-white border-b border-slate-200 dark:border-slate-700">
+      <header className="bg-white border-b border-slate-200">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500" />
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="font-bold text-slate-800 dark:text-slate-200">Test Results</h1>
+          <h1 className="font-bold text-slate-800">Test Results</h1>
           <Button variant="ghost" onClick={() => router.push('/dashboard/grammar')} className="text-slate-500 font-medium">
             Exit to Dashboard
           </Button>
@@ -46,8 +46,8 @@ export default function GrammarResultsPage() {
             <div className="text-7xl font-black text-slate-800 tracking-tighter mb-4">
               {result.percentage}%
             </div>
-            <p className="text-lg font-medium text-slate-600 dark:text-slate-300">
-              You scored <span className="font-bold text-slate-800 dark:text-slate-200">{result.totalScore}</span> out of <span className="font-bold text-slate-800 dark:text-slate-200">{result.maxScore}</span> questions correct.
+            <p className="text-lg font-medium text-slate-600">
+              You scored <span className="font-bold text-slate-800">{result.totalScore}</span> out of <span className="font-bold text-slate-800">{result.maxScore}</span> questions correct.
             </p>
           </div>
         </section>
@@ -69,7 +69,7 @@ export default function GrammarResultsPage() {
                     />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Your Answer</p>
                         <div className="flex items-center gap-2">
                           {qr.is_correct ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <XCircle className="w-5 h-5 text-rose-500 shrink-0" />}

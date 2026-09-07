@@ -138,7 +138,7 @@ export const EXAM_PARTS = [
     questionRange: 'Q8',
     prepTime: '60s',
     speakTime: '120s',
-    color: 'bg-amber-50 dark:bg-amber-9500',
+    color: 'bg-amber-500',
   },
 ];
 

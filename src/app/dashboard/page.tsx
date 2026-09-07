@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { LogOut, BookOpen, Clock, Calendar, ChevronRight, Mic, CheckCircle2, TrendingUp, HelpCircle, PenTool, Headphones, Award, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Submission {
   id: string;
@@ -98,7 +97,7 @@ export default function DashboardPage() {
 
   if (!session || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
       </div>
     );
@@ -162,11 +161,11 @@ export default function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <span className="text-xs font-medium text-slate-300 bg-white dark:bg-slate-900/10 px-3 py-1.5 rounded-full border border-white/10">
+            
+            <span className="text-xs font-medium text-slate-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
               EN
             </span>
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 hover:text-white hover:bg-white dark:bg-slate-900/10 rounded-full transition-colors" title="Logout">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
@@ -183,7 +182,7 @@ export default function DashboardPage() {
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-white dark:bg-slate-900/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-inner">
+              <div className="w-20 h-20 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-inner">
                 {session.fullName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -193,10 +192,10 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white dark:bg-slate-900/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3">
+            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3">
               <Award className="w-8 h-8 text-amber-400" />
               <div>
-                <p className="text-xs font-bold text-slate-400 dark:text-slate-500">ACTIVE STATUS</p>
+                <p className="text-xs font-bold text-slate-400">ACTIVE STATUS</p>
                 <p className="font-bold text-white">Multi-level AI Evaluation</p>
               </div>
             </div>
@@ -204,8 +203,8 @@ export default function DashboardPage() {
 
           {/* Stats Row */}
           <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900/10 flex items-center justify-center shrink-0">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                 <BookOpen className="w-5 h-5 text-blue-100" />
               </div>
               <div>
@@ -214,8 +213,8 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900/10 flex items-center justify-center shrink-0">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                 <Mic className="w-5 h-5 text-blue-100" />
               </div>
               <div>
@@ -224,8 +223,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900/10 flex items-center justify-center shrink-0">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                 <PenTool className="w-5 h-5 text-blue-100" />
               </div>
               <div>
@@ -234,8 +233,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900/10 flex items-center justify-center shrink-0">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                 <Headphones className="w-5 h-5 text-blue-100" />
               </div>
               <div>
@@ -263,7 +262,7 @@ export default function DashboardPage() {
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white dark:bg-slate-900/10 rounded-full blur-2xl" />
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           </section>
         )}
 
@@ -271,7 +270,7 @@ export default function DashboardPage() {
         <section>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Skill Tests</h3>
+            <h3 className="text-xl font-bold text-slate-800">Skill Tests</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -284,15 +283,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{bestSpeakingBand}</p>
+                  <p className="text-sm font-semibold text-slate-700">{bestSpeakingBand}</p>
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Speaking</h4>
               <p className="text-sm text-slate-500 mb-6">Oral communication</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestSpeakingScore ?? '--'}</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
+                <span className="text-sm font-bold text-slate-800">{bestSpeakingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
@@ -319,8 +318,8 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500 mb-6">Written expression</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestWritingScore ?? '--'}</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
+                <span className="text-sm font-bold text-slate-800">{bestWritingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
@@ -337,22 +336,22 @@ export default function DashboardPage() {
 
             {/* Reading Card */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-50 dark:bg-emerald-9500" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RATING</p>
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{bestReadingBand}</p>
+                  <p className="text-sm font-semibold text-slate-700">{bestReadingBand}</p>
                 </div>
               </div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Reading</h4>
               <p className="text-sm text-slate-500 mb-6">Comprehension</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestReadingScore ?? '--'}</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
+                <span className="text-sm font-bold text-slate-800">{bestReadingScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
@@ -369,7 +368,7 @@ export default function DashboardPage() {
 
             {/* Listening Card */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-amber-50 dark:bg-amber-9500" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-amber-500" />
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Headphones className="w-6 h-6" />
@@ -379,8 +378,8 @@ export default function DashboardPage() {
               <p className="text-sm text-slate-500 mb-6">Audio comprehension</p>
               
               <div className="flex items-center justify-between border-t border-slate-100 pt-4 mb-4">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500">BEST SCORE</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{bestListeningScore ?? '--'}</span>
+                <span className="text-xs font-semibold text-slate-500">BEST SCORE</span>
+                <span className="text-sm font-bold text-slate-800">{bestListeningScore ?? '--'}</span>
               </div>
               
               <div className="flex items-center justify-between">
@@ -402,7 +401,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">My Exams</h3>
+              <h3 className="text-xl font-bold text-slate-800">My Exams</h3>
             </div>
             <span className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full">
               TOTAL: {submissions.length}
@@ -413,23 +412,23 @@ export default function DashboardPage() {
             <div className="flex border-b border-slate-200 px-2 pt-2 overflow-x-auto">
               <button 
                 onClick={() => setActiveTab('speaking')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'speaking' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <Mic className="w-4 h-4" /> Speaking <span className={`${activeTab === 'speaking' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{speakingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'speaking' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Mic className="w-4 h-4" /> Speaking <span className={`${activeTab === 'speaking' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{speakingAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('writing')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'writing' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <PenTool className="w-4 h-4" /> Writing <span className={`${activeTab === 'writing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{writingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'writing' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <PenTool className="w-4 h-4" /> Writing <span className={`${activeTab === 'writing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{writingAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('listening')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'listening' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <Headphones className="w-4 h-4" /> Listening <span className={`${activeTab === 'listening' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{listeningAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'listening' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <Headphones className="w-4 h-4" /> Listening <span className={`${activeTab === 'listening' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{listeningAttempts}</span>
               </button>
               <button 
                 onClick={() => setActiveTab('reading')}
-                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'reading' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}>
-                <BookOpen className="w-4 h-4" /> Reading <span className={`${activeTab === 'reading' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 dark:text-slate-300'} px-2 py-0.5 rounded-full text-xs`}>{readingAttempts}</span>
+                className={`px-6 py-3 border-b-2 font-bold text-sm flex items-center gap-2 whitespace-nowrap ${activeTab === 'reading' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                <BookOpen className="w-4 h-4" /> Reading <span className={`${activeTab === 'reading' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} px-2 py-0.5 rounded-full text-xs`}>{readingAttempts}</span>
               </button>
             </div>
 
@@ -449,7 +448,7 @@ export default function DashboardPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 dark:border-slate-800">
+                      <tr className="border-b border-slate-100">
                         <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-4">Date & Time</th>
                         <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Language</th>
                         <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
@@ -459,10 +458,10 @@ export default function DashboardPage() {
                     <tbody>
                       {filteredSubmissions.map((sub) => (
                         <tr key={sub.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
-                          <td className="py-4 pl-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <td className="py-4 pl-4 text-sm font-medium text-slate-700">
                             {new Date(sub.created_at).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '')}
                           </td>
-                          <td className="py-4 text-sm font-medium text-slate-700 dark:text-slate-300">EN</td>
+                          <td className="py-4 text-sm font-medium text-slate-700">EN</td>
                           <td className="py-4">
                             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
                               Completed
@@ -471,7 +470,7 @@ export default function DashboardPage() {
                           <td className="py-4 pr-4 text-right">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="font-black text-slate-800 text-lg">{sub.overall_score}</span>
-                              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">({sub.overall_band})</span>
+                              <span className="text-xs font-bold text-slate-400">({sub.overall_band})</span>
                             </span>
                           </td>
                         </tr>

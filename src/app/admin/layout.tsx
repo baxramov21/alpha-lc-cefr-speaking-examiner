@@ -13,10 +13,7 @@ import {
   Users,
   Database,
   ChevronRight,
-  Sun,
-  Moon,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -36,11 +33,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const [adminEmail, setAdminEmail] = useState('');
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Assuming logged in since middleware protects this route
     // We could decode the JWT on the client, but for simplicity, we use the fallback
     setAdminEmail('admin@lcalpha.uz');
@@ -60,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950" suppressHydrationWarning>
+    <div className="flex min-h-screen bg-slate-50" suppressHydrationWarning>
       {/* ---- Sidebar ---- */}
       <aside className="w-60 bg-slate-900 flex flex-col fixed inset-y-0 left-0 z-30 shadow-xl">
         {/* Brand */}
@@ -109,20 +103,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <p className="text-xs text-slate-400 truncate">{adminEmail}</p>
             <p className="text-xs font-semibold text-slate-200 mt-0.5">Administrator</p>
           </div>
-          <div className="flex items-center gap-2 mb-3">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </button>
-            )}
-          </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-red-50 dark:bg-red-9500/10 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
             id="admin-logout-btn"
           >
             <LogOut className="w-4 h-4" />

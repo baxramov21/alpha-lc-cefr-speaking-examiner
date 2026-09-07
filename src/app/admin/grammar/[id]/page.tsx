@@ -139,7 +139,7 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Top Navigation / Actions */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => router.push('/admin/grammar')} className="text-slate-400 hover:text-indigo-600 transition-colors">
@@ -166,7 +166,7 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
         
         {/* Exam Settings */}
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
+        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
           <h2 className="text-xl font-black text-slate-800 mb-6">Exam Details</h2>
           <div className="grid grid-cols-2 gap-6">
             <div>
@@ -194,7 +194,7 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
         {/* Questions List */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200">Questions ({exam.questions.length})</h2>
+            <h2 className="text-2xl font-black text-slate-800">Questions ({exam.questions.length})</h2>
             <Button onClick={addQuestion} variant="outline" className="bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold">
               <Plus className="w-4 h-4 mr-2" /> Add Question
             </Button>
@@ -248,12 +248,12 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
               </div>
 
               {q.type === 'MULTIPLE_CHOICE' && (
-                <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <label className="block text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Options</label>
                   <div className="space-y-2 mb-3">
                     {q.options?.map((opt: string, oIdx: number) => (
                       <div key={oIdx} className="flex gap-2 items-center">
-                        <div className="w-6 text-center text-xs font-bold text-slate-400 dark:text-slate-500">
+                        <div className="w-6 text-center text-xs font-bold text-slate-400">
                           {String.fromCharCode(65 + oIdx)}
                         </div>
                         <input

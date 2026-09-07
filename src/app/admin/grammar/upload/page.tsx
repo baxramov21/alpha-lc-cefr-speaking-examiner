@@ -572,7 +572,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('grammar_json'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_json' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'grammar_json' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           Grammar (JSON Mode)
@@ -580,7 +580,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_pdf' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'grammar_pdf' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           Grammar (PDF Mode)
@@ -588,7 +588,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('reading'); setPreviewData(null); setJsonFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'reading' ? 'bg-white shadow-sm text-fuchsia-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'reading' ? 'bg-white shadow-sm text-fuchsia-700' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           Reading (PDF Mode)
@@ -596,7 +596,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('listening'); setPreviewData(null); setJsonFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all flex items-center gap-2 ${
-            examMode === 'listening' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'listening' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           Listening (PDF Mode)
@@ -686,7 +686,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </pre>
               <button 
                 onClick={handleCopyPrompt}
-                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-50 dark:bg-indigo-9500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
+                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
               >
                 <Copy className="w-4 h-4" /> Copy Prompt
               </button>
@@ -711,7 +711,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="w-full">
             <h3 className="font-semibold text-red-900">{errorMsg}</h3>
             {validationErrors.length > 0 && (
-              <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-red-100 font-mono">
+              <ul className="mt-2 text-sm text-red-700 list-disc list-inside space-y-1 bg-white/50 p-3 rounded-lg border border-red-100 font-mono">
                 {validationErrors.map((err, i) => (
                   <li key={i}>
                     <span className="font-bold">{err.path.join('.')}</span>: {err.message}
@@ -732,7 +732,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
               <FileJson className="w-5 h-5 text-indigo-500" />
             </div>
-            {jsonFile ? <p className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded truncate w-full">{jsonFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select JSON</p>}
+            {jsonFile ? <p className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded truncate w-full">{jsonFile.name}</p> : <p className="text-sm font-semibold text-slate-700">Select JSON</p>}
           </div>
         </div>
 
@@ -744,7 +744,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
                 <FileText className="w-5 h-5 text-fuchsia-500" />
               </div>
-              {pdfFile ? <p className="text-xs font-bold text-fuchsia-700 bg-fuchsia-50 px-2 py-1 rounded truncate w-full">{pdfFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select PDF</p>}
+              {pdfFile ? <p className="text-xs font-bold text-fuchsia-700 bg-fuchsia-50 px-2 py-1 rounded truncate w-full">{pdfFile.name}</p> : <p className="text-sm font-semibold text-slate-700">Select PDF</p>}
             </div>
           </div>
         )}
@@ -757,7 +757,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
                 <Headphones className="w-5 h-5 text-teal-500" />
               </div>
-              {audioFile ? <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full">{audioFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select Audio</p>}
+              {audioFile ? <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full">{audioFile.name}</p> : <p className="text-sm font-semibold text-slate-700">Select Audio</p>}
             </div>
           </div>
         )}
@@ -768,7 +768,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">Review the extracted content before submitting.</p>
+              <p className="text-sm text-slate-500">Review the extracted content before submitting.</p>
             </div>
             <button 
               onClick={handleUpload}
@@ -779,7 +779,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               Submit
             </button>
           </div>
-          <div className="bg-slate-50 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700">
+          <div className="bg-slate-50 p-4 rounded-xl font-mono text-sm border border-slate-200">
              <h4 className="font-bold text-slate-700 mb-2">{previewData.title}</h4>
              <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
           </div>

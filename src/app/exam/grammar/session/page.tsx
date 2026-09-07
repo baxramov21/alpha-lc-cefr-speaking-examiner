@@ -126,7 +126,7 @@ function GrammarSessionContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
       </div>
     );
@@ -161,12 +161,12 @@ function GrammarSessionContent() {
           </div>
           
           <div className="flex items-center gap-6">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-colors ${isTimeLow ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-slate-100 text-slate-600 dark:text-slate-300'}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-colors ${isTimeLow ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
               <Clock className="w-4 h-4" />
               {formatTime(timeRemaining)}
             </div>
             
-            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-500">
+            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500">
               <span className="text-indigo-600 font-bold">{answeredCount}</span> / {questions.length} answered
             </div>
           </div>
@@ -179,7 +179,7 @@ function GrammarSessionContent() {
           <div className="w-1/2 h-full border-r border-slate-200 bg-slate-100 p-4">
             <iframe 
               src={`${exam.pdf_url}#toolbar=0&navpanes=0`}
-              className="w-full h-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
+              className="w-full h-full rounded-xl shadow-sm border border-slate-200"
             />
           </div>
 
@@ -207,12 +207,12 @@ function GrammarSessionContent() {
                           return (
                             <label 
                               key={oIdx} 
-                              className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50 dark:bg-slate-950'}`}
+                              className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
                             >
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600'}`}>
-                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-50 dark:bg-indigo-9500" />}
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                                {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                               </div>
-                              <span className="text-slate-700 dark:text-slate-300">{opt}</span>
+                              <span className="text-slate-700">{opt}</span>
                             </label>
                           );
                         })}
@@ -255,12 +255,12 @@ function GrammarSessionContent() {
                         return (
                           <label 
                             key={oIdx} 
-                            className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50 dark:bg-slate-950'}`}
+                            className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
                           >
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600'}`}>
-                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-50 dark:bg-indigo-9500" />}
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                             </div>
-                            <span className="text-slate-700 dark:text-slate-300">{opt}</span>
+                            <span className="text-slate-700">{opt}</span>
                           </label>
                         );
                       })}
@@ -286,7 +286,7 @@ function GrammarSessionContent() {
       {/* Bottom Action Bar */}
       <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-500">
+          <div className="text-sm font-medium text-slate-500">
             Progress: {Math.round((answeredCount / questions.length) * 100)}%
           </div>
           <Button 
@@ -312,7 +312,7 @@ function GrammarSessionContent() {
 export default function GrammarSessionPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
       </div>
     }>

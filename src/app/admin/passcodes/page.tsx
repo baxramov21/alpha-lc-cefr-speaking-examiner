@@ -87,7 +87,7 @@ export default function PasscodesPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-slate-800 dark:text-slate-200">Access Passcodes</h1>
+        <h1 className="text-3xl font-black tracking-tight text-slate-800">Access Passcodes</h1>
         <p className="text-slate-500 mt-1">Manage unique passcodes for classes and teachers.</p>
       </div>
 
@@ -139,17 +139,17 @@ export default function PasscodesPage() {
         <div className="lg:col-span-2">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-              <h2 className="font-bold text-slate-800 dark:text-slate-200">Active Passcodes</h2>
+              <Shield className="w-5 h-5 text-slate-400" />
+              <h2 className="font-bold text-slate-800">Active Passcodes</h2>
             </div>
             
             {isLoading ? (
-              <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500"><Loader2 className="w-8 h-8 animate-spin mx-auto" /></div>
+              <div className="p-12 text-center text-slate-500"><Loader2 className="w-8 h-8 animate-spin mx-auto" /></div>
             ) : passcodes.length === 0 ? (
-              <div className="p-12 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500">No passcodes found.</div>
+              <div className="p-12 text-center text-slate-500">No passcodes found.</div>
             ) : (
               <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b border-slate-100 dark:border-slate-800">
+                <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Code</th>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Details</th>
@@ -158,11 +158,11 @@ export default function PasscodesPage() {
                 </thead>
                 <tbody>
                   {passcodes.map(p => (
-                    <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 dark:bg-slate-950/50">
+                    <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50/50">
                       <td className="px-6 py-4">
                         <div className="font-mono font-bold text-slate-800 text-lg tracking-wider">{p.code}</div>
                         <div className="mt-1">
-                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${p.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${p.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'}`}>
                             {p.is_active ? 'ACTIVE' : 'INACTIVE'}
                           </span>
                         </div>

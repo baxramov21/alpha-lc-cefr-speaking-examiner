@@ -230,7 +230,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="p-8 space-y-8 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-800 dark:text-slate-200">Settings</h1>
+        <h1 className="text-2xl font-black text-slate-800">Settings</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Manage student passcodes and administrator credentials.
         </p>
@@ -238,14 +238,14 @@ export default function AdminSettingsPage() {
 
       {/* Exam Configuration Card */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 lg:p-8 relative overflow-hidden group mb-8">
-        <div className="absolute top-0 left-0 w-full h-1 bg-amber-50 dark:bg-amber-9500" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-amber-500" />
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Exam Configuration</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">Configure timings and repetitions</p>
+            <h2 className="text-xl font-bold text-slate-800">Exam Configuration</h2>
+            <p className="text-sm text-slate-500">Configure timings and repetitions</p>
           </div>
         </div>
 
@@ -303,11 +303,11 @@ export default function AdminSettingsPage() {
           </div>
         </div>
         
-        <div className="mb-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="mb-8 pt-6 border-t border-slate-100">
           <div className="flex items-center justify-between mb-4">
             <div>
               <Label className="text-slate-800 font-bold text-lg">Full Exam Sequence</Label>
-              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">Allow students to take all modules in one continuous flow.</p>
+              <p className="text-sm text-slate-500">Allow students to take all modules in one continuous flow.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" className="sr-only peer" checked={fullExamModeEnabled} onChange={(e) => setFullExamModeEnabled(e.target.checked)} />
@@ -353,7 +353,7 @@ export default function AdminSettingsPage() {
 
               {/* Missing modules */}
               {['speaking', 'listening', 'reading', 'writing'].filter(m => !fullExamSequence.includes(m)).length > 0 && (
-                <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="pt-4 mt-4 border-t border-slate-200">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Add Module</p>
                   <div className="flex flex-wrap items-center gap-2">
                     {['speaking', 'listening', 'reading', 'writing']
@@ -380,7 +380,7 @@ export default function AdminSettingsPage() {
             onClick={handleSaveModelConfig}
             disabled={modelStatus === 'loading'}
             size="sm"
-            className="bg-amber-50 dark:bg-amber-9500 hover:bg-amber-600 text-white rounded-xl gap-2 shadow-lg shadow-amber-500/20"
+            className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl gap-2 shadow-lg shadow-amber-500/20"
           >
             {modelStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save Configuration
@@ -396,7 +396,7 @@ export default function AdminSettingsPage() {
               <Key className="w-4 h-4 text-teal-600" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-800 dark:text-slate-200">Student Access Settings</h2>
+              <h2 className="font-bold text-slate-800">Student Access Settings</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Manage general exam capabilities for students
               </p>
@@ -430,7 +430,7 @@ export default function AdminSettingsPage() {
                   }`}
                 />
               </button>
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+              <span className="text-sm font-medium text-slate-600">
                 {allowSkip ? 'Enabled (Students can skip prep/questions)' : 'Disabled (Forced to wait)'}
               </span>
             </div>
@@ -446,7 +446,7 @@ export default function AdminSettingsPage() {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             </div>
             <div>
-              <h2 className="font-bold text-slate-800 dark:text-slate-200">Telegram Audio Dispatching</h2>
+              <h2 className="font-bold text-slate-800">Telegram Audio Dispatching</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Automatically send speaking audio recordings to a Telegram chat.
               </p>
@@ -472,10 +472,10 @@ export default function AdminSettingsPage() {
                 placeholder="123456789:ABCdefGHIjkl..."
                 value={telegramBotToken}
                 onChange={(e) => setTelegramBotToken(e.target.value)}
-                className="rounded-xl border-slate-200 h-12 text-slate-700 bg-slate-50 focus:bg-white dark:bg-slate-900"
+                className="rounded-xl border-slate-200 h-12 text-slate-700 bg-slate-50 focus:bg-white"
               />
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">The token from BotFather.</p>
+            <p className="text-xs text-slate-500">The token from BotFather.</p>
           </div>
 
           <div className="space-y-3">
@@ -486,10 +486,10 @@ export default function AdminSettingsPage() {
                 placeholder="-1001234567890"
                 value={telegramChatId}
                 onChange={(e) => setTelegramChatId(e.target.value)}
-                className="rounded-xl border-slate-200 h-12 text-slate-700 bg-slate-50 focus:bg-white dark:bg-slate-900"
+                className="rounded-xl border-slate-200 h-12 text-slate-700 bg-slate-50 focus:bg-white"
               />
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500">The channel, group, or user ID.</p>
+            <p className="text-xs text-slate-500">The channel, group, or user ID.</p>
           </div>
         </div>
       </div>
@@ -501,13 +501,13 @@ export default function AdminSettingsPage() {
             <Lock className="w-4 h-4 text-violet-600" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-800 dark:text-slate-200">Admin Password</h2>
+            <h2 className="font-bold text-slate-800">Admin Password</h2>
             <p className="text-xs text-muted-foreground">Change your administrator login password</p>
           </div>
         </div>
         <div className="space-y-4 max-w-sm">
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-300">Current Password</Label>
+            <Label className="text-xs text-slate-600">Current Password</Label>
             <Input
               type="password"
               value={currentPassword}
@@ -516,7 +516,7 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-300">New Password</Label>
+            <Label className="text-xs text-slate-600">New Password</Label>
             <Input
               type="password"
               value={newPassword}
@@ -525,7 +525,7 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-300">Confirm New Password</Label>
+            <Label className="text-xs text-slate-600">Confirm New Password</Label>
             <Input
               type="password"
               value={confirmPassword}
@@ -543,7 +543,7 @@ export default function AdminSettingsPage() {
             disabled={passwordStatus === 'loading'}
             className={`gap-2 rounded-xl h-11 px-6 transition-all ${
               passwordStatus === 'success'
-                ? 'bg-emerald-50 dark:bg-emerald-9500 hover:bg-emerald-600 text-white'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
                 : 'bg-violet-600 hover:bg-violet-700 text-white'
             }`}
           >
@@ -560,17 +560,17 @@ export default function AdminSettingsPage() {
             <Brain className="w-4 h-4 text-blue-600" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-800 dark:text-slate-200">AI Model Configuration</h2>
+            <h2 className="font-bold text-slate-800">AI Model Configuration</h2>
             <p className="text-xs text-muted-foreground">Select active Gemini models for evaluation</p>
           </div>
         </div>
         <div className="space-y-4 max-w-md">
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-300">Part Evaluator (Audio parts, high volume)</Label>
+            <Label className="text-xs text-slate-600">Part Evaluator (Audio parts, high volume)</Label>
             <select
               value={partModel}
               onChange={(e) => setPartModel(e.target.value)}
-              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white dark:bg-slate-900"
+              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white"
             >
               <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
               <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
@@ -578,11 +578,11 @@ export default function AdminSettingsPage() {
           </div>
           
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-600 dark:text-slate-300">Final Evaluator (Aggregation & Writing)</Label>
+            <Label className="text-xs text-slate-600">Final Evaluator (Aggregation & Writing)</Label>
             <select
               value={finalModel}
               onChange={(e) => setFinalModel(e.target.value)}
-              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white dark:bg-slate-900"
+              className="w-full h-10 rounded-xl text-sm border border-slate-200 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white"
             >
               <option value="gemini-3.5-flash">gemini-3.5-flash</option>
               <option value="gemini-2.5-flash">gemini-2.5-flash</option>
@@ -594,7 +594,7 @@ export default function AdminSettingsPage() {
             disabled={modelStatus === 'loading'}
             className={`gap-2 rounded-xl h-11 px-6 transition-all mt-2 ${
               modelStatus === 'success'
-                ? 'bg-emerald-50 dark:bg-emerald-9500 hover:bg-emerald-600 text-white'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
             }`}
           >

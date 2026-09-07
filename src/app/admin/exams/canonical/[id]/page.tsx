@@ -180,7 +180,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
          currentHtml = currentHtml.replace('[UPLOAD_MAP_IMAGE_HERE]', url);
       } else {
          // Just append it at the beginning if they lost the placeholder
-         currentHtml = `<img src="${url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200 dark:border-slate-700" alt="Part Diagram" />\n` + currentHtml;
+         currentHtml = `<img src="${url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200" alt="Part Diagram" />\n` + currentHtml;
       }
       
       newParts[pIdx].passage_html = currentHtml;
@@ -218,7 +218,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-black text-slate-800 dark:text-slate-200">Edit Exam</h1>
+            <h1 className="text-3xl font-black text-slate-800">Edit Exam</h1>
             <p className="text-slate-500 font-medium text-sm mt-1">{exam.id}</p>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Exam Type</label>
-              <select value={exam.exam_type} onChange={e => updateField('exam_type', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900">
+              <select value={exam.exam_type} onChange={e => updateField('exam_type', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white">
                 <option value="CEFR_READING">CEFR_READING</option>
                 <option value="CEFR_LISTENING">CEFR_LISTENING</option>
               </select>
@@ -260,7 +260,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
 
         {/* Parts */}
         <div className="flex items-center justify-between mb-4 mt-12">
-          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200">Parts ({exam.parts.length})</h2>
+          <h2 className="text-2xl font-black text-slate-800">Parts ({exam.parts.length})</h2>
           <Button onClick={addPart} className="bg-slate-900 text-white hover:bg-slate-800">
             <Plus className="w-4 h-4 mr-2" /> Add Part
           </Button>
@@ -271,15 +271,15 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
           return (
             <div key={pIdx} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
               <div 
-                className={`p-4 flex items-center justify-between cursor-pointer ${isExpanded ? 'bg-slate-50 border-b border-slate-200 dark:border-slate-700' : ''}`}
+                className={`p-4 flex items-center justify-between cursor-pointer ${isExpanded ? 'bg-slate-50 border-b border-slate-200' : ''}`}
                 onClick={() => setExpandedPart(isExpanded ? null : pIdx)}
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500" /> : <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-500" />}
-                  <span className="font-bold text-lg text-slate-800 dark:text-slate-200">Part {part.part_number}: {part.title}</span>
+                  {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                  <span className="font-bold text-lg text-slate-800">Part {part.part_number}: {part.title}</span>
                   <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full">{part.questions?.length || 0} Questions</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removePart(pIdx); }} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:bg-red-950">
+                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removePart(pIdx); }} className="text-red-500 hover:text-red-600 hover:bg-red-50">
                   <Trash2 className="w-4 h-4 mr-2" /> Delete Part
                 </Button>
               </div>
@@ -309,7 +309,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                           </div>
                         ))}
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => updatePart(pIdx, 'audio_urls', [...(part.audio_urls || []), ''])} className="w-full border-dashed text-slate-500 dark:text-slate-400 dark:text-slate-500"><Plus className="w-4 h-4 mr-2" /> Add Audio URL</Button>
+                      <Button variant="outline" size="sm" onClick={() => updatePart(pIdx, 'audio_urls', [...(part.audio_urls || []), ''])} className="w-full border-dashed text-slate-500"><Plus className="w-4 h-4 mr-2" /> Add Audio URL</Button>
                     </div>
                   )}
 
@@ -341,7 +341,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                       <textarea 
                         value={part.passage_html} 
                         onChange={e => updatePart(pIdx, 'passage_html', e.target.value)} 
-                        className="w-full h-40 p-4 rounded-xl border border-amber-300 focus:border-amber-500 outline-none font-mono text-sm resize-y bg-white dark:bg-slate-900" 
+                        className="w-full h-40 p-4 rounded-xl border border-amber-300 focus:border-amber-500 outline-none font-mono text-sm resize-y bg-white" 
                         placeholder="<p>Passage HTML...</p>" 
                       />
                     </div>
@@ -349,7 +349,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
 
                   <div>
                     <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
-                      <h3 className="font-bold text-slate-800 dark:text-slate-200">Questions</h3>
+                      <h3 className="font-bold text-slate-800">Questions</h3>
                       <Button size="sm" onClick={() => addQuestion(pIdx)} variant="outline"><Plus className="w-4 h-4 mr-2" /> Add Question</Button>
                     </div>
                     <div className="space-y-4">
@@ -361,7 +361,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                             <div className="flex-1 space-y-3">
                               <div className="flex gap-3">
                                 <input type="number" value={q.question_number} onChange={e => updateQuestion(pIdx, qIdx, 'question_number', parseInt(e.target.value))} className="w-20 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm" placeholder="No." />
-                                <select value={q.type} onChange={e => updateQuestion(pIdx, qIdx, 'type', e.target.value)} className="w-40 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm bg-white dark:bg-slate-900">
+                                <select value={q.type} onChange={e => updateQuestion(pIdx, qIdx, 'type', e.target.value)} className="w-40 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm bg-white">
                                   <option value="MULTIPLE_CHOICE">Multiple Choice</option>
                                   <option value="FILL_IN">Fill In</option>
                                   <option value="MATCHING">Matching</option>

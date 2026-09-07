@@ -91,7 +91,7 @@ export default function SubmissionsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-slate-200">Submissions</h1>
+          <h1 className="text-2xl font-black text-slate-800">Submissions</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {submissions.length} total submissions
           </p>
@@ -108,27 +108,27 @@ export default function SubmissionsPage() {
       </div>
 
       {/* Programme Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center gap-2 border-b border-slate-200">
         <button
           onClick={() => { setProgramme('CEFR'); setSkillFilter('speaking'); }}
           className={`px-6 py-3 font-bold transition-all relative ${programme === 'CEFR' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
           CEFR
-          {programme === 'CEFR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-50 dark:bg-indigo-9500 rounded-t-full" />}
+          {programme === 'CEFR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 rounded-t-full" />}
         </button>
         <button
           onClick={() => { setProgramme('IELTS'); setSkillFilter('speaking'); }}
           className={`px-6 py-3 font-bold transition-all relative ${programme === 'IELTS' ? 'text-emerald-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
           IELTS
-          {programme === 'IELTS' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-50 dark:bg-emerald-9500 rounded-t-full" />}
+          {programme === 'IELTS' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />}
         </button>
         <button
           onClick={() => setProgramme('GRAMMAR')}
           className={`px-6 py-3 font-bold transition-all relative ${programme === 'GRAMMAR' ? 'text-amber-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
           Grammar
-          {programme === 'GRAMMAR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-50 dark:bg-amber-9500 rounded-t-full" />}
+          {programme === 'GRAMMAR' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
         </button>
       </div>
 
@@ -137,25 +137,25 @@ export default function SubmissionsPage() {
         <div className="flex items-center gap-2 mb-4">
           <button
             onClick={() => setSkillFilter('speaking')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'speaking' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'speaking' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
           >
             Speaking
           </button>
           <button
             onClick={() => setSkillFilter('writing')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'writing' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'writing' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
           >
             Writing
           </button>
           <button
             onClick={() => setSkillFilter('listening')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
           >
             Listening
           </button>
           <button
             onClick={() => setSkillFilter('reading')}
-            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-700'}`}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
           >
             Reading
           </button>
@@ -170,7 +170,7 @@ export default function SubmissionsPage() {
             placeholder="Search by name, group, or teacher…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 rounded-xl border-slate-200 dark:border-slate-700"
+            className="pl-9 h-10 rounded-xl border-slate-200"
             id="search-submissions"
           />
         </div>
@@ -184,7 +184,7 @@ export default function SubmissionsPage() {
               className={`rounded-lg capitalize h-10 ${
                 statusFilter === s
                   ? 'bg-teal-500 hover:bg-teal-600 text-white'
-                  : 'border-slate-200 text-slate-600 dark:text-slate-300'
+                  : 'border-slate-200 text-slate-600'
               }`}
             >
               {s}
@@ -198,7 +198,7 @@ export default function SubmissionsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 dark:bg-slate-950/60">
+              <tr className="border-b border-slate-100 bg-slate-50/60">
                 <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Student</th>
                 <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Group</th>
                 <th className="text-left px-4 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Teacher</th>
@@ -223,14 +223,14 @@ export default function SubmissionsPage() {
                   <tr
                     key={sub.id}
                     onClick={() => router.push(`/admin/submissions/${sub.id}`)}
-                    className="hover:bg-slate-50 dark:bg-slate-950/60 transition-colors group cursor-pointer"
+                    className="hover:bg-slate-50/60 transition-colors group cursor-pointer"
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm flex-shrink-0">
                           {sub.studentName.charAt(0)}
                         </div>
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{sub.studentName}</span>
+                        <span className="font-semibold text-slate-700">{sub.studentName}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4 text-slate-600 text-sm">{sub.groupName}</td>

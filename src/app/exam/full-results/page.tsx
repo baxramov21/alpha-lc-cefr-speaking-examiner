@@ -77,7 +77,7 @@ export default function FullExamResultsPage() {
 
   if (!session || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
       </div>
     );
@@ -130,7 +130,7 @@ export default function FullExamResultsPage() {
           </div>
           <h1 className="text-4xl font-black text-slate-800 tracking-tight">Full Exam Results</h1>
           <p className="text-lg text-slate-500 max-w-xl mx-auto">
-            Congratulations, <span className="font-bold text-slate-700 dark:text-slate-300">{session.fullName}</span>! You have successfully completed all sections. Below are your overall results.
+            Congratulations, <span className="font-bold text-slate-700">{session.fullName}</span>! You have successfully completed all sections. Below are your overall results.
           </p>
         </div>
 
@@ -160,14 +160,14 @@ export default function FullExamResultsPage() {
           {examTypes.map((type) => {
             const sub = submissions[type];
             const Icon = ICONS[type] || HelpCircle;
-            const colorClass = COLORS[type] || 'bg-slate-100 text-slate-600 dark:text-slate-300';
+            const colorClass = COLORS[type] || 'bg-slate-100 text-slate-600';
             
             return (
               <div key={type} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                 {!sub && (
-                  <div className="absolute inset-0 bg-white dark:bg-slate-900/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center border border-dashed border-slate-300 rounded-2xl">
+                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center border border-dashed border-slate-300 rounded-2xl">
                     <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Incomplete</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">No result found for {type}</p>
+                    <p className="text-xs text-slate-400">No result found for {type}</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between mb-6">
@@ -182,7 +182,7 @@ export default function FullExamResultsPage() {
                       variant="outline" 
                       size="sm"
                       onClick={() => router.push(`/exam/${type}/results`)}
-                      className="text-slate-500 hover:text-slate-800 dark:text-slate-200"
+                      className="text-slate-500 hover:text-slate-800"
                     >
                       Details <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
@@ -192,11 +192,11 @@ export default function FullExamResultsPage() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Level</p>
-                    <p className="text-3xl font-black text-slate-700 dark:text-slate-300">{sub?.overall_band || '-'}</p>
+                    <p className="text-3xl font-black text-slate-700">{sub?.overall_band || '-'}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Score</p>
-                    <p className="text-2xl font-bold text-slate-600 dark:text-slate-300">{sub?.overall_score || 0}%</p>
+                    <p className="text-2xl font-bold text-slate-600">{sub?.overall_score || 0}%</p>
                   </div>
                 </div>
               </div>

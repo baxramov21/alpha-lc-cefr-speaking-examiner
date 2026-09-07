@@ -218,7 +218,7 @@ export default function ExamSetupPage() {
             <div className="absolute inset-0 border-4 border-teal-500 rounded-full border-t-transparent animate-spin shadow-[0_0_15px_rgba(20,184,166,0.3)]"></div>
             <div className="absolute inset-2 border-4 border-violet-500 rounded-full border-b-transparent animate-[spin_2s_linear_reverse] opacity-70"></div>
             {/* Center icon */}
-            <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-slate-900/50 backdrop-blur-sm rounded-full m-3">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm rounded-full m-3">
               <Shield className="w-10 h-10 text-teal-600 animate-pulse drop-shadow-md" />
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function ExamSetupPage() {
             <Mic size={180} />
           </div>
           
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white dark:bg-slate-900/10 backdrop-blur-md mb-6 ring-1 ring-white/20 relative z-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md mb-6 ring-1 ring-white/20 relative z-10">
             <Mic className="w-8 h-8 text-teal-300" />
           </div>
           <h1 className="text-3xl font-bold mb-2 tracking-tight relative z-10">Speaking Exam</h1>
@@ -262,7 +262,7 @@ export default function ExamSetupPage() {
               <div
                 key={s}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  step === s ? 'bg-white scale-125' : 'bg-white dark:bg-slate-900/40'
+                  step === s ? 'bg-white scale-125' : 'bg-white/40'
                 }`}
               />
             ))}
@@ -330,31 +330,31 @@ export default function ExamSetupPage() {
             </div>
             
             {!isFullExam && (
-              <div className="flex items-start gap-4 mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-start gap-4 mt-8 pt-8 border-t border-slate-100">
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-slate-900 mb-3">Select Exam Mode</h3>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <button 
                       onClick={() => setExamMode('full')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'full' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'full' ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
                       Full Exam
                     </button>
                     <button 
                       onClick={() => setExamMode('part1')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part1' ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part1' ? 'bg-teal-600 border-teal-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
                       Part 1 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part2')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part2' ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part2' ? 'bg-violet-600 border-violet-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
                       Part 2 Only
                     </button>
                     <button 
                       onClick={() => setExamMode('part3')}
-                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part3' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:border-slate-600'}`}
+                      className={`p-3 rounded-xl border text-sm font-semibold transition-all ${examMode === 'part3' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                     >
                       Part 3 Only
                     </button>
@@ -363,7 +363,7 @@ export default function ExamSetupPage() {
               </div>
             )}
             
-            <div className="flex items-start gap-4 mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-start gap-4 mt-8 pt-8 border-t border-slate-100">
               <div className="bg-blue-50 text-blue-600 p-3 rounded-xl mt-1">
                 <Shield className="w-6 h-6" />
               </div>
