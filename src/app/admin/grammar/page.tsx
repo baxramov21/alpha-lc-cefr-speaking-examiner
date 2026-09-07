@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2, Link2 } from 'lucide-react';
+import { Plus, Database, Power, PowerOff, Loader2, RefreshCw, Edit2, Layers, CheckCircle2, Link2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type TabType = 'grammar' | 'reading' | 'listening' | 'triples';
@@ -68,6 +68,25 @@ export default function AdminGrammarExamsPage() {
       if (res.ok) fetchExams();
     } catch (err) {
       console.error('Failed to toggle status', err);
+    }
+  };
+
+  const handleDeleteExam = async (id: string, isCanonical: boolean) => {
+    if (!confirm('Are you sure you want to delete this exam? This action cannot be undone.')) return;
+    try {
+      const endpoint = isCanonical 
+        ? `/api/admin/exams/canonical/${id}`
+        : `/api/admin/grammar/exams/${id}`;
+        
+      const res = await fetch(endpoint, { method: 'DELETE' });
+      if (res.ok) {
+        fetchExams();
+      } else {
+        alert('Failed to delete exam');
+      }
+    } catch (err) {
+      console.error('Failed to delete exam', err);
+      alert('An error occurred while deleting.');
     }
   };
 
@@ -382,18 +401,16 @@ export default function AdminGrammarExamsPage() {
                       </td>
                       <td className="py-4 pr-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {activeTab !== 'grammar' && (
-                            <Link href={`/admin/exams/canonical/${exam.id}`}>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                              >
-                                <Edit2 className="w-4 h-4 mr-1.5" />
-                                Edit
-                              </Button>
-                            </Link>
-                          )}
+                          <Link href={activeTab === 'grammar' ? `/admin/grammar/${exam.id}` : `/admin/exams/canonical/${exam.id}`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            >
+                              <Edit2 className="w-4 h-4 mr-1.5" />
+                              Edit
+                            </Button>
+                          </Link>
                           <Button 
                             onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
                             variant="outline" 
@@ -402,6 +419,14 @@ export default function AdminGrammarExamsPage() {
                           >
                             {exam.is_active ? <PowerOff className="w-4 h-4 mr-1.5" /> : <Power className="w-4 h-4 mr-1.5" />}
                             {exam.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
+                          <Button 
+                            onClick={() => handleDeleteExam(exam.id, activeTab !== 'grammar')}
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 border-red-200 h-9 w-9 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </td>
