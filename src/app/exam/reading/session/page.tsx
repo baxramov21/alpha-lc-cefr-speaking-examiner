@@ -251,7 +251,7 @@ export default function ReadingSessionPage() {
 
       {/* Main Split Screen Area */}
       <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 ">
-        <div className={`h-full w-full max-w-[1400px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-2'} gap-6`}>
+        <div className={`h-full w-full max-w-[1700px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.3fr_1fr]'} gap-6`}>
           
           {/* Left Column: Passage */}
           {(activePdfUrl || currentTask.passage_html || currentTask.image_url) && (
