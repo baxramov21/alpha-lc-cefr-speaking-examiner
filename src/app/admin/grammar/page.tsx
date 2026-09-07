@@ -337,7 +337,7 @@ export default function AdminGrammarExamsPage() {
                           <div className="flex gap-2 items-center">
                             <input 
                               type="text"
-                              value={editingTitle.title} 
+                              value={editingTitle?.title || ''} 
                               onChange={(e) => setEditingTitle(prev => prev ? {...prev, title: e.target.value} : null)}
                               className="border-slate-200 rounded px-2 py-1 text-sm bg-white w-48"
                             />
