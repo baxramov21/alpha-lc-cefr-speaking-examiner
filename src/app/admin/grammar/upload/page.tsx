@@ -142,6 +142,52 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     alert('Prompt copied to clipboard! Paste this into Claude.');
   };
 
+  const handleDownloadExtractedPdf = async () => {
+    if (!pdfFile || !pageRange) {
+      alert("Please select a PDF file and specify a valid page range (e.g. 12-14)");
+      return;
+    }
+    
+    try {
+      const [start, end] = pageRange.split('-').map(Number);
+      if (isNaN(start) || isNaN(end) || start <= 0 || end < start) {
+        alert("Invalid page range format. Please use format like '12-14'");
+        return;
+      }
+      
+      const pdfBytes = await pdfFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      const newPdf = await PDFDocument.create();
+      
+      const indices = [];
+      for (let i = start - 1; i < end; i++) indices.push(i);
+      
+      const validIndices = indices.filter(i => i < pdfDoc.getPageCount());
+      if (validIndices.length === 0) {
+        alert("Page range exceeds the document length!");
+        return;
+      }
+      
+      const copiedPages = await newPdf.copyPages(pdfDoc, validIndices);
+      copiedPages.forEach((page) => newPdf.addPage(page));
+      
+      const newPdfBytes = await newPdf.save();
+      const blob = new Blob([newPdfBytes as any], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+    } catch (err: any) {
+      alert("Error extracting PDF: " + err.message);
+    }
+  };
+
   const handleJsonChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
@@ -563,14 +609,25 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         {(examMode === 'grammar_pdf' || examMode === 'reading' || examMode === 'listening') && (
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">PDF Page Range (Optional)</label>
-            <input
-              type="text"
-              placeholder="e.g. 12-14"
-              value={pageRange}
-              onChange={(e) => setPageRange(e.target.value)}
-              className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-            />
-            <p className="text-xs text-slate-500 mt-2">Extracts only these pages from a large PDF book.</p>
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder="e.g. 12-14"
+                value={pageRange}
+                onChange={(e) => setPageRange(e.target.value)}
+                className="w-full md:w-32 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+              />
+              <Button 
+                onClick={handleDownloadExtractedPdf}
+                disabled={!pdfFile || !pageRange}
+                type="button"
+                variant="outline"
+                className="bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-10 px-4 rounded-xl font-medium"
+              >
+                Download Extracted PDF
+              </Button>
+            </div>
+            <p className="text-xs text-slate-500 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
           </div>
         )}
       </div>
