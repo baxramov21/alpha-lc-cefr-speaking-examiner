@@ -32,9 +32,9 @@ export default function ReadingResultsPage() {
   if (!result) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           
           {/* Header */}
           <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
@@ -60,15 +60,15 @@ export default function ReadingResultsPage() {
           {/* Results Summary */}
           <div className="p-8 lg:p-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-6 rounded-2xl text-center">
-                <div className="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Total Score</div>
+              <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-center">
+                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Total Score</div>
                 <div className="text-4xl font-black text-slate-800 dark:text-slate-200">{result.total_score} <span className="text-xl text-slate-400 dark:text-slate-500">/ {result.max_score}</span></div>
               </div>
               <div className="bg-fuchsia-50 border border-fuchsia-100 p-6 rounded-2xl text-center">
                 <div className="text-sm font-bold text-fuchsia-600 uppercase tracking-wider mb-2">CEFR Level</div>
                 <div className="text-4xl font-black text-fuchsia-700">{result.cefr_level}</div>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-6 rounded-2xl flex flex-col justify-center">
+              <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl flex flex-col justify-center">
                 <div className="flex items-center justify-between mb-2">
                   <div className="text-sm font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500">Correct</div>
                   <div className="font-bold text-green-600 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> {result.correct_answers}</div>
@@ -81,11 +81,11 @@ export default function ReadingResultsPage() {
             </div>
 
             {/* Answer Breakdown */}
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6">Detailed Breakdown</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-6">Detailed Breakdown</h2>
             <div className="space-y-8">
               {tasks.map((task) => (
-                <div key={task.id} className="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-50 dark:bg-slate-950 px-6 py-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-slate-200">
+                <div key={task.id} className="border border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 font-bold text-slate-800 dark:text-slate-200">
                     {task.partLabel}
                   </div>
                   <div className="divide-y divide-slate-100">
@@ -104,17 +104,17 @@ export default function ReadingResultsPage() {
                       };
 
                       return (
-                        <div key={q.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 dark:bg-slate-950 transition-colors">
+                        <div key={q.id} className="p-6 flex items-start gap-4 hover:bg-slate-50 transition-colors">
                           <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                             res.is_correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                           }`}>
                             {q.number}
                           </div>
                           <div className="flex-1">
-                            <div className="text-slate-800 dark:text-slate-200 font-medium mb-3" dangerouslySetInnerHTML={{ __html: q.text }} />
+                            <div className="text-slate-800 font-medium mb-3" dangerouslySetInnerHTML={{ __html: q.text }} />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-3">
-                                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase mb-1">Your Answer</div>
+                              <div className="bg-slate-100 rounded-lg p-3">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1">Your Answer</div>
                                 <div className={`font-medium ${res.is_correct ? 'text-green-700' : 'text-red-700'}`}>
                                   {formatAnswer(res.user_answer) || <span className="italic text-slate-400 dark:text-slate-500">Blank</span>}
                                 </div>
@@ -135,7 +135,7 @@ export default function ReadingResultsPage() {
               ))}
               
               {tasks.length === 0 && (
-                <div className="p-8 text-center text-slate-500 dark:text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-8 text-center text-slate-500 border border-dashed border-slate-200 rounded-xl">
                   Task details are not available.
                 </div>
               )}

@@ -238,7 +238,7 @@ export default function WritingSessionPage() {
 
   if (!sessionToken || !activeQuestion || isRestoring) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
       </div>
     );
@@ -247,17 +247,17 @@ export default function WritingSessionPage() {
   const isWarning = timeLeft < 300;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
       {/* Top Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
+      <header className="bg-white border-b border-slate-200 shadow-sm shrink-0">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="font-bold text-slate-800 dark:text-slate-200 text-lg">Writing Assessment</h1>
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+            <h1 className="font-bold text-slate-800 text-lg">Writing Assessment</h1>
+            <div className="flex bg-slate-100 p-1 rounded-lg">
               <button
                 onClick={() => setCurrentTask(1)}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                  currentTask === 1 ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 '
+                  currentTask === 1 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                 }`}
               >
                 Task 1
@@ -266,7 +266,7 @@ export default function WritingSessionPage() {
                 <button
                   onClick={() => setCurrentTask(1.2)}
                   className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                    currentTask === 1.2 ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 '
+                    currentTask === 1.2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                   }`}
                 >
                   Task 1.2
@@ -275,7 +275,7 @@ export default function WritingSessionPage() {
               <button
                 onClick={() => setCurrentTask(2)}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                  currentTask === 2 ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300 '
+                  currentTask === 2 ? 'bg-white shadow-sm text-teal-600' : 'text-slate-500 hover:text-slate-700 '
                 }`}
               >
                 Task 2
@@ -285,7 +285,7 @@ export default function WritingSessionPage() {
           
           <div className="flex items-center gap-6">
             
-            <div className={`flex items-center gap-2 font-mono text-lg font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-700 dark:text-slate-300 '}`}>
+            <div className={`flex items-center gap-2 font-mono text-lg font-bold ${timeLeft < 300 ? 'text-red-500 animate-pulse' : 'text-slate-700 '}`}>
               <Clock className="w-5 h-5" />
               {formatTime(timeLeft)}
             </div>
@@ -305,18 +305,18 @@ export default function WritingSessionPage() {
       <main className="flex-1 max-w-6xl w-full mx-auto p-6 flex gap-6 overflow-hidden">
         
         {/* Left Panel: Prompt */}
-        <div className="w-1/3 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden shrink-0">
-          <div className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 px-6 py-4">
-            <h2 className="font-bold text-slate-800 dark:text-slate-200 ">{activeQuestion.title}</h2>
-            <div className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-2">
+        <div className="w-1/3 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden shrink-0">
+          <div className="bg-slate-50 border-b border-slate-100 px-6 py-4">
+            <h2 className="font-bold text-slate-800 ">{activeQuestion.title}</h2>
+            <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
               <span>Min {activeQuestion.minWords} words</span>
               <span>•</span>
               <span>~{activeQuestion.recommendedMinutes} minutes</span>
             </div>
           </div>
-          <div className="p-6 overflow-y-auto grow text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap text-sm">
+          <div className="p-6 overflow-y-auto grow text-slate-700 leading-relaxed whitespace-pre-wrap text-sm">
             {activeQuestion.imageUrl && (
-              <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 ">
+              <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 ">
                 <img src={activeQuestion.imageUrl} alt="Task Image" className="w-full h-auto object-cover max-h-64" />
               </div>
             )}
@@ -325,7 +325,7 @@ export default function WritingSessionPage() {
         </div>
 
         {/* Right Panel: Editor */}
-        <div className="w-2/3 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="w-2/3 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <textarea
             value={currentTask === 1 ? task1Text : currentTask === 1.2 ? task1_2Text : task2Text}
             onChange={(e) => {
@@ -335,10 +335,10 @@ export default function WritingSessionPage() {
             }}
             disabled={isSubmitting}
             placeholder="Type your answer here..."
-            className="w-full grow p-6 resize-none focus:outline-none focus:ring-0 text-slate-700 dark:text-slate-300 text-base leading-relaxed"
+            className="w-full grow p-6 resize-none focus:outline-none focus:ring-0 text-slate-700 text-base leading-relaxed"
             spellCheck={false}
           />
-          <div className="bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 px-6 py-3 flex items-center justify-between shrink-0">
+          <div className="bg-slate-50 border-t border-slate-100 px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
               <span className={`text-sm font-semibold ${
                 (currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords ? 'text-amber-500' : 'text-emerald-500'
@@ -346,7 +346,7 @@ export default function WritingSessionPage() {
                 {currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words} words
               </span>
               {((currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords) && (
-                <div className="flex items-center gap-1.5 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 px-2 py-1 rounded-md">
+                <div className="flex items-center gap-1.5 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-md">
                   <AlertCircle className="w-3 h-3" />
                   Below minimum
                 </div>
@@ -358,12 +358,12 @@ export default function WritingSessionPage() {
 
       {/* Loading Overlay */}
       {isSubmitting && (
-        <div className="fixed inset-0 bg-white dark:bg-slate-900  backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-white  backdrop-blur-sm z-50 flex flex-col items-center justify-center">
           <div className="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-teal-500/10 ring-1 ring-teal-100 animate-bounce">
             <PenTool className="w-10 h-10 text-teal-500" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">Analyzing your writing...</h2>
-          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-center max-w-sm">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">Analyzing your writing...</h2>
+          <p className="text-slate-500 text-center max-w-sm">
             Our AI examiner is evaluating your vocabulary, grammar, and task achievement based on UZBMB standards.
           </p>
         </div>

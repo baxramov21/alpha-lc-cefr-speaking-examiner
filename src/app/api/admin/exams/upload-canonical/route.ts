@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         }
         if (q.context_text) {
           currentContextText = q.context_text;
-          finalPassageHtml += `\n<div class="bg-slate-50 dark:bg-slate-950 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 dark:text-slate-200 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
+          finalPassageHtml += `\n<div class="bg-slate-50 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
         }
       }
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
         let finalQuestionText = q.question_text;
         if (currentContextText) {
-          finalQuestionText = `<div class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-4 text-sm text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800 dark:text-slate-200">${q.question_text}</div>`;
+          finalQuestionText = `<div class="bg-slate-100 border border-slate-200 rounded-xl p-4 mb-4 text-sm text-slate-700 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800 dark:text-slate-200">${q.question_text}</div>`;
         }
 
         return {

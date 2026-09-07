@@ -120,7 +120,7 @@ export default function FullExamResultsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-12 font-sans">
+    <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header */}
@@ -128,27 +128,27 @@ export default function FullExamResultsPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-teal-100 rounded-full mb-4 shadow-sm border border-teal-200">
             <Award className="w-10 h-10 text-teal-600" />
           </div>
-          <h1 className="text-4xl font-black text-slate-800 dark:text-slate-200 tracking-tight">Full Exam Results</h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 dark:text-slate-500 max-w-xl mx-auto">
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">Full Exam Results</h1>
+          <p className="text-lg text-slate-500 max-w-xl mx-auto">
             Congratulations, <span className="font-bold text-slate-700 dark:text-slate-300">{session.fullName}</span>! You have successfully completed all sections. Below are your overall results.
           </p>
         </div>
 
         {/* Overall Score Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-200 dark:border-slate-700 text-center relative overflow-hidden">
+        <div className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border border-slate-200 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-500" />
-          <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-6">Overall Evaluation</h2>
+          <h2 className="text-xl font-bold text-slate-700 mb-6">Overall Evaluation</h2>
           <div className="flex flex-col md:flex-row items-center justify-center gap-12">
             <div>
-              <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">CEFR Level</p>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">CEFR Level</p>
               <div className="text-7xl font-black text-teal-600 tracking-tighter">
                 {averageBand}
               </div>
             </div>
-            <div className="w-px h-24 bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
+            <div className="w-px h-24 bg-slate-200 hidden md:block"></div>
             <div>
-              <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Average Score</p>
-              <div className="text-6xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Average Score</p>
+              <div className="text-6xl font-black text-slate-800 tracking-tighter">
                 {averageScore}%
               </div>
             </div>
@@ -160,13 +160,13 @@ export default function FullExamResultsPage() {
           {examTypes.map((type) => {
             const sub = submissions[type];
             const Icon = ICONS[type] || HelpCircle;
-            const colorClass = COLORS[type] || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+            const colorClass = COLORS[type] || 'bg-slate-100 text-slate-600 dark:text-slate-300';
             
             return (
-              <div key={type} className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
+              <div key={type} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                 {!sub && (
-                  <div className="absolute inset-0 bg-white dark:bg-slate-900/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center border border-dashed border-slate-300 dark:border-slate-600 rounded-2xl">
-                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Incomplete</p>
+                  <div className="absolute inset-0 bg-white dark:bg-slate-900/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center border border-dashed border-slate-300 rounded-2xl">
+                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-1">Incomplete</p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">No result found for {type}</p>
                   </div>
                 )}
@@ -175,14 +175,14 @@ export default function FullExamResultsPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 capitalize">{type}</h3>
+                    <h3 className="text-xl font-bold text-slate-800 capitalize">{type}</h3>
                   </div>
                   {sub && (
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => router.push(`/exam/${type}/results`)}
-                      className="text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:text-slate-200"
+                      className="text-slate-500 hover:text-slate-800 dark:text-slate-200"
                     >
                       Details <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
@@ -191,11 +191,11 @@ export default function FullExamResultsPage() {
                 
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Level</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Level</p>
                     <p className="text-3xl font-black text-slate-700 dark:text-slate-300">{sub?.overall_band || '-'}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Score</p>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Score</p>
                     <p className="text-2xl font-bold text-slate-600 dark:text-slate-300">{sub?.overall_score || 0}%</p>
                   </div>
                 </div>

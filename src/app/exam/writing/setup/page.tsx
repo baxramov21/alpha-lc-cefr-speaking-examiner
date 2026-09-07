@@ -114,8 +114,8 @@ export default function WritingSetupPage() {
   if (!sessionToken) return null; // Avoid hydration mismatch or flash
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl bg-white rounded-[var(--radius-lg)] shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800">
         
         {/* Header Area */}
         <div className="bg-slate-900 text-white p-8 pb-10 text-center relative overflow-hidden">
@@ -143,7 +143,7 @@ export default function WritingSetupPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Time Limit: 60 Minutes</h3>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   You have exactly 60 minutes to complete both Task 1 and Task 2. You should spend about 20 minutes on Task 1 and 40 minutes on Task 2.
                 </p>
               </div>
@@ -155,19 +155,19 @@ export default function WritingSetupPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Word Requirements</h3>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   Task 1 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200">150 words</span>. Task 2 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200">250 words</span>.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="bg-emerald-50 dark:bg-emerald-950 text-emerald-600 p-3 rounded-xl mt-1">
+              <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl mt-1">
                 <Shield className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Exam Conditions</h3>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   Do not refresh the page or navigate away during the exam. Your timer will continue running. Submissions are final once you click "Submit Test".
                 </p>
               </div>
@@ -176,10 +176,10 @@ export default function WritingSetupPage() {
           </div>
 
           {/* Action Area */}
-          <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col items-center justify-between gap-4 md:flex-row">
             <Button 
               variant="ghost" 
-              className="text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-900 w-full md:w-auto order-2 md:order-1"
+              className="text-slate-500 hover:text-slate-900 w-full md:w-auto order-2 md:order-1"
               onClick={() => router.push('/dashboard')}
               disabled={isStarting}
             >
@@ -208,7 +208,7 @@ export default function WritingSetupPage() {
               </Button>
               
               {questionsError && (
-                <p className="mt-2 text-sm text-red-500 text-center bg-red-50 dark:bg-red-950 p-3 rounded-lg border border-red-100 font-medium">
+                <p className="mt-2 text-sm text-red-500 text-center bg-red-50 p-3 rounded-lg border border-red-100 font-medium">
                   {questionsError}
                 </p>
               )}

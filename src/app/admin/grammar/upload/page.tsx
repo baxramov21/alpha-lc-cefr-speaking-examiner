@@ -554,13 +554,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       <div className="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Grammar Test</h1>
-          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-2">
+          <p className="text-slate-500 mt-2">
             Upload Grammar, Grammar Reading, or Grammar Listening tests.
           </p>
         </div>
         <button
           onClick={() => setShowPrompt(!showPrompt)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-950 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
         >
           <Bot className="w-5 h-5" />
           {showPrompt ? 'Hide AI Prompt Guide' : 'How to get JSON from Claude?'}
@@ -568,11 +568,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-8 bg-slate-100 dark:bg-slate-800 p-2 rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-4 mb-8 bg-slate-100 p-2 rounded-2xl w-fit">
         <button
           onClick={() => { setExamMode('grammar_json'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_json' ? 'bg-white dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'grammar_json' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Grammar (JSON Mode)
@@ -580,7 +580,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_pdf' ? 'bg-white dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'grammar_pdf' ? 'bg-white shadow-sm text-indigo-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Grammar (PDF Mode)
@@ -588,7 +588,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('reading'); setPreviewData(null); setJsonFile(null); setAudioFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'reading' ? 'bg-white dark:bg-slate-900 shadow-sm text-fuchsia-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'reading' ? 'bg-white shadow-sm text-fuchsia-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Reading (PDF Mode)
@@ -596,7 +596,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => { setExamMode('listening'); setPreviewData(null); setJsonFile(null); }}
           className={`px-6 py-2 rounded-xl font-bold transition-all flex items-center gap-2 ${
-            examMode === 'listening' ? 'bg-white dark:bg-slate-900 shadow-sm text-teal-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'
+            examMode === 'listening' ? 'bg-white shadow-sm text-teal-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
           }`}
         >
           Listening (PDF Mode)
@@ -605,66 +605,66 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       <div className="mb-8 flex flex-col md:flex-row gap-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Select Grammar Level</label>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Select Grammar Level</label>
           <select
             value={grammarLevel}
             onChange={(e) => setGrammarLevel(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           >
             <option value="elementary">Elementary</option>
             <option value="pre-intermediate">Pre-Intermediate</option>
             <option value="intermediate">Intermediate</option>
           </select>
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
+          <p className="text-xs text-slate-500 mt-2">Questions will only be visible to students enrolled in this level.</p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Exam Name</label>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Exam Name</label>
           <input
             type="text"
             placeholder="e.g. Unit 1 Test"
             value={customExamName}
             onChange={(e) => setCustomExamName(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full md:w-64 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-2">Overrides the title from JSON.</p>
+          <p className="text-xs text-slate-500 mt-2">Overrides the title from JSON.</p>
         </div>
 
         {(examMode === 'grammar_pdf' || examMode === 'reading' || examMode === 'listening') && (
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">PDF Page Range (Optional)</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">PDF Page Range (Optional)</label>
             <div className="flex gap-2 items-center">
               <input
                 type="text"
                 placeholder="e.g. 12-14"
                 value={pageRange}
                 onChange={(e) => setPageRange(e.target.value)}
-                className="w-full md:w-32 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+                className="w-full md:w-32 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
               />
               <Button 
                 onClick={handleDownloadExtractedPdf}
                 disabled={!pdfFile || !pageRange}
                 type="button"
                 variant="outline"
-                className="bg-white dark:bg-slate-900 border-indigo-200 text-indigo-700 hover:bg-indigo-50 dark:bg-indigo-950 h-10 px-4 rounded-xl font-medium"
+                className="bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-10 px-4 rounded-xl font-medium"
               >
                 Download Extracted PDF
               </Button>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
+            <p className="text-xs text-slate-500 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
           </div>
         )}
         
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Question Range (Optional)</label>
+          <label className="block text-sm font-semibold text-slate-700 mb-2">Question Range (Optional)</label>
           <input
             type="text"
             placeholder="e.g. 11-20"
             value={questionRange}
             onChange={(e) => setQuestionRange(e.target.value)}
-            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full md:w-48 px-4 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-2">Filters the JSON to only include these questions.</p>
+          <p className="text-xs text-slate-500 mt-2">Filters the JSON to only include these questions.</p>
         </div>
       </div>
 
@@ -696,7 +696,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {success && (
-        <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 rounded-xl flex items-start gap-3">
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
           <div>
             <h3 className="font-semibold text-emerald-900">Upload Successful</h3>
@@ -706,7 +706,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {errorMsg && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 rounded-xl flex items-start gap-3">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
           <div className="w-full">
             <h3 className="font-semibold text-red-900">{errorMsg}</h3>
@@ -725,23 +725,23 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
-          <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4">{examMode === 'grammar_json' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
-          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 dark:bg-slate-800 relative group">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
+          <h3 className="font-bold text-slate-800 mb-4">{examMode === 'grammar_json' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
+          <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
             <input type="file" accept=".json" onChange={handleJsonChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
-            <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
               <FileJson className="w-5 h-5 text-indigo-500" />
             </div>
-            {jsonFile ? <p className="text-xs font-bold text-indigo-700 bg-indigo-50 dark:bg-indigo-950 px-2 py-1 rounded truncate w-full">{jsonFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select JSON</p>}
+            {jsonFile ? <p className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded truncate w-full">{jsonFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select JSON</p>}
           </div>
         </div>
 
         {examMode !== 'grammar_json' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4">Upload Questions (PDF)</h3>
-            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 dark:bg-slate-800 relative group">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
+            <h3 className="font-bold text-slate-800 mb-4">Upload Questions (PDF)</h3>
+            <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
               <input type="file" accept=".pdf" ref={pdfInputRef} onChange={(e) => setPdfFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
-              <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
                 <FileText className="w-5 h-5 text-fuchsia-500" />
               </div>
               {pdfFile ? <p className="text-xs font-bold text-fuchsia-700 bg-fuchsia-50 px-2 py-1 rounded truncate w-full">{pdfFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select PDF</p>}
@@ -750,11 +750,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         )}
 
         {examMode === 'listening' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-4">Upload Audio (MP3)</h3>
-            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 dark:bg-slate-800 relative group">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col">
+            <h3 className="font-bold text-slate-800 mb-4">Upload Audio (MP3)</h3>
+            <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
               <input type="file" accept="audio/*" ref={audioInputRef} onChange={(e) => setAudioFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
-              <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
                 <Headphones className="w-5 h-5 text-teal-500" />
               </div>
               {audioFile ? <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full">{audioFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select Audio</p>}
@@ -764,7 +764,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
 
       {previewData && (
-        <div className="mt-8 border-t border-slate-100 dark:border-slate-800 pt-8">
+        <div className="mt-8 border-t border-slate-100 pt-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
@@ -779,8 +779,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               Submit
             </button>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700">
-             <h4 className="font-bold text-slate-700 dark:text-slate-300 mb-2">{previewData.title}</h4>
+          <div className="bg-slate-50 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700">
+             <h4 className="font-bold text-slate-700 mb-2">{previewData.title}</h4>
              <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
           </div>
         </div>
@@ -788,10 +788,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       {isUploading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Uploading Exam</h3>
-            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-sm text-center">Saving data to the database... {uploadProgress > 0 && `(${uploadProgress}%)`}</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Uploading Exam</h3>
+            <p className="text-slate-500 text-sm text-center">Saving data to the database... {uploadProgress > 0 && `(${uploadProgress}%)`}</p>
           </div>
         </div>
       )}

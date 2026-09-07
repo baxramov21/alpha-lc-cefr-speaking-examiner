@@ -42,8 +42,8 @@ function StatusToggle({ exam, onToggle }: { exam: Exam; onToggle: (exam: Exam) =
       }}
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border cursor-pointer transition-all ${
         exam.is_active
-          ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-50 dark:bg-red-950 hover:text-red-700 hover:border-red-200'
-          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+          ? 'bg-green-100 text-green-800 border-green-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200'
+          : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
       }`}
       title={exam.is_active ? 'Click to deactivate' : 'Click to activate'}
     >
@@ -232,10 +232,10 @@ export default function CanonicalExamsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-black text-slate-800 dark:text-slate-200 flex items-center gap-3">
+          <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
             <Database className="w-8 h-8 text-fuchsia-600" /> Canonical Exams
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 mt-1 font-medium">Manage uploaded exams and pair them for students.</p>
+          <p className="text-slate-500 mt-1 font-medium">Manage uploaded exams and pair them for students.</p>
         </div>
         <Button onClick={tab === 'exams' ? fetchExams : fetchPairs} variant="outline" className="flex items-center gap-2">
           <RefreshCw className={`w-4 h-4 ${(examsLoading || pairsLoading) ? 'animate-spin' : ''}`} /> Refresh
@@ -244,31 +244,31 @@ export default function CanonicalExamsPage() {
 
       {/* Tabs */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setProgrammeTab('CEFR')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'CEFR' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'CEFR' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             CEFR
           </button>
           <button
             onClick={() => setProgrammeTab('IELTS')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'IELTS' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${programmeTab === 'IELTS' ? 'bg-indigo-600 shadow text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             IELTS
           </button>
         </div>
         
-        <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+        <div className="flex gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setTab('exams')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white dark:bg-slate-900 shadow text-slate-900' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'exams' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             <span className="flex items-center gap-2"><Layers className="w-4 h-4" /> Individual Exams</span>
           </button>
           <button
             onClick={() => setTab('pairs')}
-            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white dark:bg-slate-900 shadow text-slate-900' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
+            className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${tab === 'pairs' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`}
           >
             <span className="flex items-center gap-2"><Link2 className="w-4 h-4" /> Exam Pairs</span>
           </button>
@@ -279,20 +279,20 @@ export default function CanonicalExamsPage() {
       {tab === 'exams' && (
         <>
           {examsError && (
-            <div className="bg-red-50 dark:bg-red-950 text-red-700 p-4 rounded-xl flex items-center gap-3 mb-6">
+            <div className="bg-red-50 text-red-700 p-4 rounded-xl flex items-center gap-3 mb-6">
               <AlertCircle className="w-5 h-5 shrink-0" /> {examsError}
             </div>
           )}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-left">
-              <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-700">
+              <thead className="bg-slate-50 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Exam Title</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Duration</th>
-                  <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Uploaded</th>
-                  <th className="px-6 py-4 text-right font-bold text-slate-600 dark:text-slate-300 text-sm uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Exam Title</th>
+                  <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-4 font-bold text-slate-600 text-sm uppercase tracking-wider">Uploaded</th>
+                  <th className="px-6 py-4 text-right font-bold text-slate-600 text-sm uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -305,7 +305,7 @@ export default function CanonicalExamsPage() {
                     <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">{exam.title}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                        exam.exam_type === 'CEFR_READING' ? 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 border-indigo-200'
+                        exam.exam_type === 'CEFR_READING' ? 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'
                       }`}>
                         {exam.exam_type === 'CEFR_READING' ? <BookOpen className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
                         {exam.exam_type === 'CEFR_READING' ? 'Reading' : 'Listening'}
@@ -334,7 +334,7 @@ export default function CanonicalExamsPage() {
                         </Button>
                         <Button
                           variant="outline" size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:bg-red-950 border-red-200"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                           onClick={() => handleDeleteExam(exam.id, exam.title)}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -353,37 +353,37 @@ export default function CanonicalExamsPage() {
       {tab === 'pairs' && (
         <>
           {pairsError && (
-            <div className="bg-red-50 dark:bg-red-950 text-red-700 p-4 rounded-xl flex items-center gap-3 mb-6">
+            <div className="bg-red-50 text-red-700 p-4 rounded-xl flex items-center gap-3 mb-6">
               <AlertCircle className="w-5 h-5 shrink-0" /> {pairsError}
             </div>
           )}
 
           {/* Pair Form */}
           {showPairForm && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200 shadow-lg p-6 mb-8">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+            <div className="bg-white rounded-2xl border border-indigo-200 shadow-lg p-6 mb-8">
+              <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                 <Link2 className="w-5 h-5 text-indigo-500" />
                 {editingPair ? 'Edit Exam Pair' : 'Create New Exam Pair'}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Pair Name</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Pair Name</label>
                   <input
                     type="text"
                     value={pairName}
                     onChange={e => setPairName(e.target.value)}
                     placeholder="e.g. Multilevel Master Test 3"
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none"
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                     <BookOpen className="w-4 h-4 text-fuchsia-500" /> Reading Exam
                   </label>
                   <select
                     value={pairReadingId}
                     onChange={e => setPairReadingId(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
                   >
                     <option value="">— None —</option>
                     {readingExams.map(e => (
@@ -392,13 +392,13 @@ export default function CanonicalExamsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                     <Headphones className="w-4 h-4 text-indigo-500" /> Listening Exam
                   </label>
                   <select
                     value={pairListeningId}
                     onChange={e => setPairListeningId(e.target.value)}
-                    className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
+                    className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900"
                   >
                     <option value="">— None —</option>
                     {listeningExams.map(e => (
@@ -431,15 +431,15 @@ export default function CanonicalExamsPage() {
           {pairsLoading ? (
             <div className="py-12 text-center text-slate-400 dark:text-slate-500">Loading pairs...</div>
           ) : programmePairs.length === 0 ? (
-            <div className="p-10 text-center bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+            <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
               <Link2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium">No {programmeTab} exam pairs yet.</p>
-              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Create one to assign a Reading + Listening bundle to students.</p>
+              <p className="text-slate-500 font-medium">No {programmeTab} exam pairs yet.</p>
+              <p className="text-slate-400 text-sm mt-1">Create one to assign a Reading + Listening bundle to students.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {programmePairs.map(pair => (
-                <div key={pair.id} className={`bg-white dark:bg-slate-900 rounded-2xl border shadow-sm overflow-hidden transition-all ${
+                <div key={pair.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
                   pair.is_active ? 'border-green-300 shadow-green-100' : 'border-slate-200 dark:border-slate-700'
                 }`}>
                   <div className="p-5 flex items-start justify-between gap-4">
@@ -454,13 +454,13 @@ export default function CanonicalExamsPage() {
                       </div>
                       <div className="flex flex-wrap gap-3">
                         <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium ${
-                          pair.reading_exam ? 'bg-fuchsia-50 text-fuchsia-800 border border-fuchsia-200' : 'bg-slate-50 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 border-dashed'
+                          pair.reading_exam ? 'bg-fuchsia-50 text-fuchsia-800 border border-fuchsia-200' : 'bg-slate-50 text-slate-400 border border-slate-200 border-dashed'
                         }`}>
                           <BookOpen className="w-4 h-4" />
                           {pair.reading_exam ? pair.reading_exam.title : 'No Reading Exam'}
                         </div>
                         <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium ${
-                          pair.listening_exam ? 'bg-indigo-50 dark:bg-indigo-950 text-indigo-800 border border-indigo-200' : 'bg-slate-50 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 border-dashed'
+                          pair.listening_exam ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-slate-50 text-slate-400 border border-slate-200 border-dashed'
                         }`}>
                           <Headphones className="w-4 h-4" />
                           {pair.listening_exam ? pair.listening_exam.title : 'No Listening Exam'}
@@ -472,8 +472,8 @@ export default function CanonicalExamsPage() {
                         onClick={() => handleTogglePairActive(pair)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                           pair.is_active
-                            ? 'bg-green-600 text-white border-green-600 hover:bg-red-50 dark:bg-red-950 hover:text-red-700 hover:border-red-300'
-                            : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-green-50 hover:text-green-700 hover:border-green-300'
+                            ? 'bg-green-600 text-white border-green-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300'
+                            : 'bg-white text-slate-600 border-slate-300 hover:bg-green-50 hover:text-green-700 hover:border-green-300'
                         }`}
                       >
                         {pair.is_active ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}

@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div>
               <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-300 text-base leading-none tracking-tight">Alpha LC</p>
-              <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 font-medium tracking-wide">Examiner</p>
+              <p className="text-slate-400 text-xs mt-1 font-medium tracking-wide">Examiner</p>
             </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                   ${isActive
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/30'
-                    : 'text-slate-400 dark:text-slate-500 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                   }
                 `}
               >
@@ -106,14 +106,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Bottom: user + logout */}
         <div className="px-3 py-4 border-t border-slate-700/50">
           <div className="bg-slate-800 rounded-xl p-3 mb-3">
-            <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{adminEmail}</p>
+            <p className="text-xs text-slate-400 truncate">{adminEmail}</p>
             <p className="text-xs font-semibold text-slate-200 mt-0.5">Administrator</p>
           </div>
           <div className="flex items-center gap-2 mb-3">
             {mounted && (
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-400 dark:text-slate-500 hover:text-white hover:bg-slate-800 transition-all"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
               >
                 {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
@@ -122,7 +122,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 dark:text-slate-500 hover:text-red-400 hover:bg-red-50 dark:bg-red-9500/10 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-red-400 hover:bg-red-50 dark:bg-red-9500/10 transition-all"
             id="admin-logout-btn"
           >
             <LogOut className="w-4 h-4" />

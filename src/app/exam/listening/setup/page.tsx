@@ -62,9 +62,9 @@ export default function ListeningSetupPage() {
   if (!sessionToken) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto w-full">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           {/* Header */}
           <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
@@ -85,14 +85,14 @@ export default function ListeningSetupPage() {
 
           {/* Body */}
           <div className="p-8">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
               <Volume2 className="w-6 h-6 text-teal-600" /> Test Instructions & Audio Check
             </h2>
             
             <div className="space-y-6">
-              <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Important Playback Rules:</h3>
-                <ul className="list-disc list-inside text-slate-600 dark:text-slate-300 space-y-2">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <h3 className="font-semibold text-slate-800 mb-2">Important Playback Rules:</h3>
+                <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>The audio for each part will play <strong>automatically</strong>.</li>
                   <li>You <strong>cannot pause, rewind, or skip</strong> the audio.</li>
                   <li>The recording will be played exactly <strong>twice</strong>.</li>
@@ -100,9 +100,9 @@ export default function ListeningSetupPage() {
                 </ul>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Test Format:</h3>
-                <ul className="list-disc list-inside text-slate-600 dark:text-slate-300 space-y-2">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <h3 className="font-semibold text-slate-800 mb-2">Test Format:</h3>
+                <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>There are multiple parts to this test.</li>
                   <li>Answer the questions as you listen.</li>
                   <li>Read the questions carefully before the audio begins.</li>
@@ -110,7 +110,7 @@ export default function ListeningSetupPage() {
               </div>
             </div>
 
-            <div className="mt-10 border-t border-slate-100 dark:border-slate-800 pt-8 flex items-center justify-between">
+            <div className="mt-10 border-t border-slate-100 pt-8 flex items-center justify-between">
               <div className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-500">
                 By clicking start, you agree to the examination terms and conditions.
               </div>

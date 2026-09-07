@@ -62,9 +62,9 @@ export default function ReadingSetupPage() {
   if (!sessionToken) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto w-full">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           {/* Header */}
           <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
@@ -85,14 +85,14 @@ export default function ReadingSetupPage() {
 
           {/* Body */}
           <div className="p-8">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
               <FileText className="w-6 h-6 text-fuchsia-600" /> Test Instructions
             </h2>
             
             <div className="space-y-6">
-              <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">Important Test Rules:</h3>
-                <ul className="list-disc list-inside text-slate-600 dark:text-slate-300 space-y-2">
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <h3 className="font-semibold text-slate-800 mb-2">Important Test Rules:</h3>
+                <ul className="list-disc list-inside text-slate-600 space-y-2">
                   <li>You will have a fixed amount of time to complete all reading tasks.</li>
                   <li>The timer will start immediately when you enter the exam.</li>
                   <li>You can switch between different parts of the test using the navigation bar.</li>
@@ -101,15 +101,15 @@ export default function ReadingSetupPage() {
               </div>
 
               {isLoadingTasks ? (
-                <div className="flex flex-col items-center justify-center p-8 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center justify-center p-8 bg-slate-50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <Loader2 className="w-8 h-8 text-fuchsia-500 animate-spin mb-4" />
-                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-center">
+                  <p className="text-slate-500 font-medium text-center">
                     Downloading reading materials securely...<br/>
                     <span className="text-sm">Please do not close this window.</span>
                   </p>
                 </div>
               ) : (
-                <div className="bg-emerald-50 dark:bg-emerald-950 p-6 rounded-2xl border border-emerald-100 flex items-center gap-4">
+                <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center gap-4">
                   <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-9500 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
@@ -123,7 +123,7 @@ export default function ReadingSetupPage() {
               )}
             </div>
 
-            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end">
               <Button 
                 size="lg" 
                 className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white h-14 px-8 rounded-xl font-bold text-lg w-full sm:w-auto shadow-lg shadow-fuchsia-500/20"
