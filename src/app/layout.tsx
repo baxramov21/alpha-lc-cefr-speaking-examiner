@@ -29,9 +29,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${merriweather.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col">
-        
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-        
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -245,13 +245,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       <div className="mb-8 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900">Upload Canonical Exam</h1>
-          <p className="text-slate-500 mt-2">
+          <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">
             Ingest pre-formatted Reading and Listening JSON exams into the database.
           </p>
         </div>
         <button
           onClick={() => setShowPrompt(!showPrompt)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold transition-colors border border-indigo-200 shadow-sm"
         >
           <Bot className="w-5 h-5" />
           {showPrompt ? 'Hide AI Prompt Guide' : 'How to get JSON from Claude?'}
@@ -310,7 +310,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
            />
            <label 
              htmlFor="image-host" 
-             className={`px-4 py-2 rounded-xl font-bold transition-all shadow-sm cursor-pointer border ${isHostingImage ? 'bg-blue-100 text-blue-400 border-blue-200' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'}`}
+             className={`px-4 py-2 rounded-xl font-bold transition-all shadow-sm cursor-pointer border ${isHostingImage ? 'bg-blue-100 text-blue-400 border-blue-200' : 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-blue-700 border-blue-300 hover:bg-blue-100'}`}
            >
              {isHostingImage ? 'Uploading...' : 'Upload Image'}
            </label>
@@ -318,14 +318,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
       
       {hostedImageUrl && (
-        <div className="mb-8 p-4 bg-white border border-slate-200 rounded-xl flex items-center justify-between shadow-sm">
+        <div className="mb-8 p-4 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 dark:border-slate-700">
               <img src={hostedImageUrl} alt="Hosted" className="w-full h-full object-cover" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-800">Image URL Generated</p>
-              <p className="text-xs font-mono text-slate-500 max-w-md truncate">{hostedImageUrl}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Image URL Generated</p>
+              <p className="text-xs font-mono text-slate-500 dark:text-slate-400 dark:text-slate-400 max-w-md truncate">{hostedImageUrl}</p>
             </div>
           </div>
           <button 
@@ -341,13 +341,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       <div className="flex flex-col md:flex-row gap-6 mb-8">
-        <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+        <div className="flex bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-1 rounded-xl w-fit">
           <button
             onClick={() => setProgramme('CEFR')}
             className={`px-6 py-2 rounded-lg font-bold transition-all ${
               programme === 'CEFR' 
-                ? 'bg-white text-indigo-700 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-indigo-700 shadow-sm' 
+                : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
             CEFR
@@ -356,15 +356,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             onClick={() => setProgramme('IELTS')}
             className={`px-6 py-2 rounded-lg font-bold transition-all ${
               programme === 'IELTS' 
-                ? 'bg-white text-indigo-700 shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 text-indigo-700 shadow-sm' 
+                : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
             IELTS
           </button>
         </div>
 
-        <div className="w-px bg-slate-200 hidden md:block"></div>
+        <div className="w-px bg-slate-200 dark:bg-slate-700 dark:bg-slate-700 hidden md:block"></div>
 
         <div className="flex gap-4">
         <button
@@ -372,7 +372,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-6 py-3 rounded-xl font-bold transition-all ${
             examMode === 'reading' 
               ? 'bg-fuchsia-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              : 'bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-50'
           }`}
         >
           Reading Exam
@@ -382,7 +382,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
             examMode === 'listening' 
               ? 'bg-teal-600 text-white shadow-md' 
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              : 'bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-50'
           }`}
         >
           <Headphones className="w-5 h-5" />
@@ -392,7 +392,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
 
       {success && (
-        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
+        <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950 border border-emerald-200 rounded-xl flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
           <div>
             <h3 className="font-semibold text-emerald-900">Upload Successful</h3>
@@ -402,7 +402,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       )}
 
       {errorMsg && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 dark:bg-red-950 border border-red-200 rounded-xl flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
           <div className="w-full">
             <h3 className="font-semibold text-red-900">{errorMsg}</h3>
@@ -422,9 +422,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         
         {examMode === 'listening' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col h-full">
-            <h3 className="font-bold text-slate-800 mb-4">Step 1: Upload Audio (MP3/WAV)</h3>
-            <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Step 1: Upload Audio (MP3/WAV)</h3>
+            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
               <input 
                 type="file" 
                 accept="audio/*"
@@ -437,10 +437,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
               />
-              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
                 <UploadCloud className="w-5 h-5 text-teal-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-700">Select Audio Files</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select Audio Files</p>
               
               {audioFiles.length > 0 && (
                 <div className="mt-4 flex flex-col gap-2 w-full max-w-xs">
@@ -456,11 +456,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         )}
 
-        <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden flex flex-col h-full ${examMode === 'reading' ? 'md:col-span-2' : ''}`}>
-          <h3 className="font-bold text-slate-800 mb-4">
+        <div className={`bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full ${examMode === 'reading' ? 'md:col-span-2' : ''}`}>
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">
             {examMode === 'listening' ? 'Step 2: Upload JSON' : 'Upload JSON File'}
           </h3>
-          <div className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
+          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
           <input 
             type="file" 
             accept=".json" 
@@ -468,14 +468,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
           />
-          <div className="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center border border-slate-100 mb-4 group-hover:scale-110 transition-transform">
+          <div className="w-14 h-14 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-4 group-hover:scale-110 transition-transform">
             <UploadCloud className="w-6 h-6 text-indigo-500" />
           </div>
-          <p className="text-sm font-semibold text-slate-700">Click to upload or drag and drop</p>
-          <p className="text-xs text-slate-500 mt-1">Only .json format is supported</p>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Click to upload or drag and drop</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1">Only .json format is supported</p>
           
           {file && (
-            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-indigo-700 bg-indigo-50 px-3 py-2 rounded-full border border-indigo-100 truncate max-w-full">
+            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-indigo-700 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 px-3 py-2 rounded-full border border-indigo-100 truncate max-w-full">
               <FileJson className="w-4 h-4 shrink-0" />
               <span className="truncate">{file.name}</span>
             </div>
@@ -485,11 +485,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
 
         {previewData && (
-          <div className="mt-8 border-t border-slate-100 pt-8">
+          <div className="mt-8 border-t border-slate-100 dark:border-slate-800 dark:border-slate-800 pt-8">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
-                <p className="text-sm text-slate-500">Review the extracted content before submitting.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Review the extracted content before submitting.</p>
               </div>
               <button 
                 onClick={handleUpload}
@@ -502,39 +502,39 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-                <h4 className="text-sm font-semibold text-slate-700 mb-4 flex justify-between">
+              <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-5">
+                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-4 flex justify-between">
                   Passage Rendering
-                  <span className="text-xs font-medium px-2 py-0.5 bg-slate-200 text-slate-600 rounded">{previewData.exam_type}</span>
+                  <span className="text-xs font-medium px-2 py-0.5 bg-slate-200 dark:bg-slate-700 dark:bg-slate-700 text-slate-600 dark:text-slate-300 dark:text-slate-300 rounded">{previewData.exam_type}</span>
                 </h4>
                 <h1 className="text-xl font-bold mb-4">{previewData.title}</h1>
                 <div 
-                  className="prose prose-sm max-w-none bg-white p-4 rounded-lg shadow-sm border border-slate-100 h-96 overflow-y-auto"
+                  className="prose prose-sm max-w-none bg-white dark:bg-slate-900 dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800 dark:border-slate-800 h-96 overflow-y-auto"
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewData.parts?.[0]?.passage_html || '') }}
                 />
               </div>
 
-              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
-                <h4 className="text-sm font-semibold text-slate-700 mb-4">Extracted Questions ({previewData.parts?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0})</h4>
+              <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-5">
+                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-4">Extracted Questions ({previewData.parts?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0})</h4>
                 <div className="space-y-3 h-96 overflow-y-auto pr-2">
                   {previewData.parts?.map((p: any) => p.questions || []).flat().map((q: any, i: number) => (
-                    <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                    <div key={i} className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800 dark:border-slate-800">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-slate-400">Q{q.question_number}</span>
-                        <span className="text-[10px] font-semibold tracking-wider uppercase bg-slate-100 text-slate-500 px-2 py-1 rounded">{q.type}</span>
+                        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500">Q{q.question_number}</span>
+                        <span className="text-[10px] font-semibold tracking-wider uppercase bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 px-2 py-1 rounded">{q.type}</span>
                       </div>
-                      <p className="text-sm font-medium text-slate-800 mb-3">{q.question_text}</p>
+                      <p className="text-sm font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-3">{q.question_text}</p>
                       {q.options && q.options.length > 0 && (
                         <div className="space-y-1.5 mb-3">
                           {q.options.map((opt: string, j: number) => (
                             <div key={j} className="text-xs flex gap-2">
-                              <span className="text-slate-400 font-mono">{String.fromCharCode(65 + j)}.</span>
-                              <span className="text-slate-600">{opt}</span>
+                              <span className="text-slate-400 dark:text-slate-500 dark:text-slate-500 font-mono">{String.fromCharCode(65 + j)}.</span>
+                              <span className="text-slate-600 dark:text-slate-300 dark:text-slate-300">{opt}</span>
                             </div>
                           ))}
                         </div>
                       )}
-                      <div className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded inline-block">
+                      <div className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950 px-2 py-1 rounded inline-block">
                         Ans: {q.correct_answer}
                       </div>
                     </div>
@@ -548,14 +548,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       {/* Blocking Full-Screen Loading Overlay */}
       {isUploading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Uploading Exam</h3>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Uploading Exam</h3>
             
             {examMode === 'listening' && audioFiles.length > 0 ? (
               <div className="w-full text-center">
-                <p className="text-slate-500 text-sm mb-6">Processing audio files and compiling JSON data...</p>
-                <div className="w-full bg-slate-100 rounded-full h-4 mb-2 overflow-hidden shadow-inner">
+                <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm mb-6">Processing audio files and compiling JSON data...</p>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-full h-4 mb-2 overflow-hidden shadow-inner">
                   <div 
                     className="bg-teal-500 h-full rounded-full transition-all duration-300 ease-out flex items-center justify-end pr-2" 
                     style={{ width: `${uploadProgress}%` }}
@@ -564,7 +564,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 <p className="text-teal-700 font-black text-lg">{uploadProgress}%</p>
               </div>
             ) : (
-              <p className="text-slate-500 text-sm text-center">Saving canonical exam data to the database...</p>
+              <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">Saving canonical exam data to the database...</p>
             )}
           </div>
         </div>

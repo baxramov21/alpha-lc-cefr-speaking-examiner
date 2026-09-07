@@ -180,7 +180,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
          currentHtml = currentHtml.replace('[UPLOAD_MAP_IMAGE_HERE]', url);
       } else {
          // Just append it at the beginning if they lost the placeholder
-         currentHtml = `<img src="${url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200" alt="Part Diagram" />\n` + currentHtml;
+         currentHtml = `<img src="${url}" class="w-full max-w-2xl mx-auto rounded-2xl shadow-md my-6 border border-slate-200 dark:border-slate-700 dark:border-slate-700" alt="Part Diagram" />\n` + currentHtml;
       }
       
       newParts[pIdx].passage_html = currentHtml;
@@ -193,13 +193,13 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
   if (loading) return (
     <div className="p-12 text-center">
       <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500 mb-3" />
-      <p className="text-slate-500 font-medium">Loading exam editor...</p>
+      <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">Loading exam editor...</p>
     </div>
   );
 
   if (error && !exam.title) return (
     <div className="p-12 text-center">
-      <div className="max-w-md mx-auto p-6 bg-red-50 border border-red-200 rounded-2xl">
+      <div className="max-w-md mx-auto p-6 bg-red-50 dark:bg-red-950 dark:bg-red-950 border border-red-200 rounded-2xl">
         <p className="font-bold text-red-800 mb-2">Failed to Load Exam</p>
         <p className="text-red-600 text-sm mb-4">{error}</p>
         <Button onClick={fetchExam} className="bg-red-600 hover:bg-red-700 text-white">
@@ -218,8 +218,8 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-black text-slate-800">Edit Exam</h1>
-            <p className="text-slate-500 font-medium text-sm mt-1">{exam.id}</p>
+            <h1 className="text-3xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200">Edit Exam</h1>
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium text-sm mt-1">{exam.id}</p>
           </div>
         </div>
         <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm min-w-[140px]">
@@ -228,39 +228,39 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
         </Button>
       </div>
 
-      {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl mb-6 font-medium">{error}</div>}
-      {success && <div className="p-4 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl mb-6 font-bold flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Exam successfully updated!</div>}
+      {error && <div className="p-4 bg-red-50 dark:bg-red-950 dark:bg-red-950 text-red-700 rounded-xl mb-6 font-medium">{error}</div>}
+      {success && <div className="p-4 bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950 text-emerald-700 border border-emerald-200 rounded-xl mb-6 font-bold flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Exam successfully updated!</div>}
 
       <div className="space-y-8">
         {/* Core Settings */}
-        <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Exam Settings</h2>
+        <section className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 pb-2">Exam Settings</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Title</label>
-              <input type="text" value={exam.title} onChange={e => updateField('title', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Title</label>
+              <input type="text" value={exam.title} onChange={e => updateField('title', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Exam Type</label>
-              <select value={exam.exam_type} onChange={e => updateField('exam_type', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none bg-white">
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Exam Type</label>
+              <select value={exam.exam_type} onChange={e => updateField('exam_type', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none bg-white dark:bg-slate-900 dark:bg-slate-900">
                 <option value="CEFR_READING">CEFR_READING</option>
                 <option value="CEFR_LISTENING">CEFR_LISTENING</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Total Exam Duration (Minutes)</label>
-              <input type="number" value={exam.time_limit ? Math.floor(exam.time_limit / 60) : 60} onChange={e => updateField('time_limit', parseInt(e.target.value) * 60)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Total Exam Duration (Minutes)</label>
+              <input type="number" value={exam.time_limit ? Math.floor(exam.time_limit / 60) : 60} onChange={e => updateField('time_limit', parseInt(e.target.value) * 60)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Audio Preparation Pause (Seconds)</label>
-              <input type="number" value={exam.prep_time} onChange={e => updateField('prep_time', parseInt(e.target.value))} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none" />
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Audio Preparation Pause (Seconds)</label>
+              <input type="number" value={exam.prep_time} onChange={e => updateField('prep_time', parseInt(e.target.value))} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none" />
             </div>
           </div>
         </section>
 
         {/* Parts */}
         <div className="flex items-center justify-between mb-4 mt-12">
-          <h2 className="text-2xl font-black text-slate-800">Parts ({exam.parts.length})</h2>
+          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200">Parts ({exam.parts.length})</h2>
           <Button onClick={addPart} className="bg-slate-900 text-white hover:bg-slate-800">
             <Plus className="w-4 h-4 mr-2" /> Add Part
           </Button>
@@ -269,14 +269,14 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
         {exam.parts.map((part: any, pIdx: number) => {
           const isExpanded = expandedPart === pIdx;
           return (
-            <div key={pIdx} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+            <div key={pIdx} className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
               <div 
-                className={`p-4 flex items-center justify-between cursor-pointer ${isExpanded ? 'bg-slate-50 border-b border-slate-200' : ''}`}
+                className={`p-4 flex items-center justify-between cursor-pointer ${isExpanded ? 'bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700' : ''}`}
                 onClick={() => setExpandedPart(isExpanded ? null : pIdx)}
               >
                 <div className="flex items-center gap-3">
-                  {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
-                  <span className="font-bold text-lg text-slate-800">Part {part.part_number}: {part.title}</span>
+                  {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" /> : <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-500 dark:text-slate-500" />}
+                  <span className="font-bold text-lg text-slate-800 dark:text-slate-200 dark:text-slate-200">Part {part.part_number}: {part.title}</span>
                   <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 rounded-full">{part.questions?.length || 0} Questions</span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); removePart(pIdx); }} className="text-red-500 hover:text-red-600 hover:bg-red-50">
@@ -287,13 +287,13 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
               {isExpanded && (
                 <div className="p-6 space-y-8">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Part Title</label>
-                    <input type="text" value={part.title} onChange={e => updatePart(pIdx, 'title', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none" />
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Part Title</label>
+                    <input type="text" value={part.title} onChange={e => updatePart(pIdx, 'title', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none" />
                   </div>
 
                   {exam.exam_type === 'CEFR_LISTENING' && (
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Music className="w-4 h-4 text-indigo-500" /> Audio URLs</label>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2 flex items-center gap-2"><Music className="w-4 h-4 text-indigo-500" /> Audio URLs</label>
                       <div className="space-y-3 mb-3">
                         {part.audio_urls?.map((url: string, aIdx: number) => (
                           <div key={aIdx} className="flex gap-2">
@@ -301,7 +301,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                               const newUrls = [...(part.audio_urls || [])];
                               newUrls[aIdx] = e.target.value;
                               updatePart(pIdx, 'audio_urls', newUrls);
-                            }} className="flex-1 h-11 px-4 rounded-xl border border-slate-200 focus:border-indigo-500 outline-none" />
+                            }} className="flex-1 h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 focus:border-indigo-500 outline-none" />
                             <Button variant="outline" onClick={() => {
                               const newUrls = part.audio_urls.filter((_:any, i:number) => i !== aIdx);
                               updatePart(pIdx, 'audio_urls', newUrls);
@@ -309,11 +309,11 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                           </div>
                         ))}
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => updatePart(pIdx, 'audio_urls', [...(part.audio_urls || []), ''])} className="w-full border-dashed text-slate-500"><Plus className="w-4 h-4 mr-2" /> Add Audio URL</Button>
+                      <Button variant="outline" size="sm" onClick={() => updatePart(pIdx, 'audio_urls', [...(part.audio_urls || []), ''])} className="w-full border-dashed text-slate-500 dark:text-slate-400 dark:text-slate-400"><Plus className="w-4 h-4 mr-2" /> Add Audio URL</Button>
                     </div>
                   )}
 
-                  <details className="mt-4 border border-amber-200 bg-amber-50 rounded-xl">
+                  <details className="mt-4 border border-amber-200 bg-amber-50 dark:bg-amber-950 dark:bg-amber-950 rounded-xl">
                     <summary className="p-4 font-bold text-amber-800 cursor-pointer outline-none">
                       Advanced: Edit Passage HTML (Fix Map Images)
                     </summary>
@@ -341,40 +341,40 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                       <textarea 
                         value={part.passage_html} 
                         onChange={e => updatePart(pIdx, 'passage_html', e.target.value)} 
-                        className="w-full h-40 p-4 rounded-xl border border-amber-300 focus:border-amber-500 outline-none font-mono text-sm resize-y bg-white" 
+                        className="w-full h-40 p-4 rounded-xl border border-amber-300 focus:border-amber-500 outline-none font-mono text-sm resize-y bg-white dark:bg-slate-900 dark:bg-slate-900" 
                         placeholder="<p>Passage HTML...</p>" 
                       />
                     </div>
                   </details>
 
                   <div>
-                    <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
-                      <h3 className="font-bold text-slate-800">Questions</h3>
+                    <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 pb-2">
+                      <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Questions</h3>
                       <Button size="sm" onClick={() => addQuestion(pIdx)} variant="outline"><Plus className="w-4 h-4 mr-2" /> Add Question</Button>
                     </div>
                     <div className="space-y-4">
                       {part.questions?.map((q: any, qIdx: number) => (
-                        <div key={qIdx} className="bg-slate-50 p-4 rounded-xl border border-slate-200 relative group">
+                        <div key={qIdx} className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 relative group">
                           <Button variant="ghost" size="sm" onClick={() => removeQuestion(pIdx, qIdx)} className="absolute top-2 right-2 text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></Button>
                           <div className="flex gap-4">
-                            <div className="w-10 h-10 bg-white border border-slate-200 text-slate-700 rounded-lg flex items-center justify-center font-bold">{q.question_number}</div>
+                            <div className="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 text-slate-700 dark:text-slate-300 dark:text-slate-300 rounded-lg flex items-center justify-center font-bold">{q.question_number}</div>
                             <div className="flex-1 space-y-3">
                               <div className="flex gap-3">
-                                <input type="number" value={q.question_number} onChange={e => updateQuestion(pIdx, qIdx, 'question_number', parseInt(e.target.value))} className="w-20 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm" placeholder="No." />
-                                <select value={q.type} onChange={e => updateQuestion(pIdx, qIdx, 'type', e.target.value)} className="w-40 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm bg-white">
+                                <input type="number" value={q.question_number} onChange={e => updateQuestion(pIdx, qIdx, 'question_number', parseInt(e.target.value))} className="w-20 h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm" placeholder="No." />
+                                <select value={q.type} onChange={e => updateQuestion(pIdx, qIdx, 'type', e.target.value)} className="w-40 h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm bg-white dark:bg-slate-900 dark:bg-slate-900">
                                   <option value="MULTIPLE_CHOICE">Multiple Choice</option>
                                   <option value="FILL_IN">Fill In</option>
                                   <option value="MATCHING">Matching</option>
                                 </select>
-                                <input type="text" value={q.correct_answer} onChange={e => updateQuestion(pIdx, qIdx, 'correct_answer', e.target.value)} className="flex-1 h-10 px-3 rounded-lg border border-slate-200 outline-none text-sm font-medium placeholder:font-normal" placeholder="Correct Answer..." />
+                                <input type="text" value={q.correct_answer} onChange={e => updateQuestion(pIdx, qIdx, 'correct_answer', e.target.value)} className="flex-1 h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm font-medium placeholder:font-normal" placeholder="Correct Answer..." />
                               </div>
-                              <textarea value={q.question_text} onChange={e => updateQuestion(pIdx, qIdx, 'question_text', e.target.value)} className="w-full h-16 p-3 rounded-lg border border-slate-200 outline-none text-sm resize-none" placeholder="Question Text..." />
+                              <textarea value={q.question_text} onChange={e => updateQuestion(pIdx, qIdx, 'question_text', e.target.value)} className="w-full h-16 p-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm resize-none" placeholder="Question Text..." />
                               
                               {(q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (
                                 <div className="pl-4 border-l-2 border-indigo-200 space-y-2 mt-2">
                                   {q.options?.map((opt: string, oIdx: number) => (
                                     <div key={oIdx} className="flex gap-2">
-                                      <input type="text" value={opt} onChange={e => updateOption(pIdx, qIdx, oIdx, e.target.value)} className="flex-1 h-9 px-3 rounded-lg border border-slate-200 outline-none text-sm" />
+                                      <input type="text" value={opt} onChange={e => updateOption(pIdx, qIdx, oIdx, e.target.value)} className="flex-1 h-9 px-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm" />
                                       <Button variant="ghost" size="icon" onClick={() => removeOption(pIdx, qIdx, oIdx)} className="h-9 w-9 text-red-500"><Trash2 className="w-4 h-4" /></Button>
                                     </div>
                                   ))}

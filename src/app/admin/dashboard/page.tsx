@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
         delta: 'Awaiting AI scoring',
         icon: Clock,
         color: 'text-amber-600',
-        bg: 'bg-amber-50',
+        bg: 'bg-amber-50 dark:bg-amber-950 dark:bg-amber-950',
         border: 'border-amber-100',
       },
       {
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
         delta: '100% automated',
         icon: CheckCircle2,
         color: 'text-emerald-600',
-        bg: 'bg-emerald-50',
+        bg: 'bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950',
         border: 'border-emerald-100',
       },
     ]);
@@ -125,20 +125,20 @@ export default function AdminDashboardPage() {
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800">Dashboard</h1>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200">Dashboard</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Overview of student submissions filtered by skill.
           </p>
         </div>
         
         {/* Skill Tabs */}
-        <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+        <div className="flex items-center bg-white dark:bg-slate-900 dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700">
           <button
             onClick={() => setActiveSkill('speaking')}
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'speaking' 
                 ? 'bg-teal-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 hover:bg-slate-50'
             }`}
           >
             Speaking
@@ -148,7 +148,7 @@ export default function AdminDashboardPage() {
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'writing' 
                 ? 'bg-emerald-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 hover:bg-slate-50'
             }`}
           >
             Writing
@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
             className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
               activeSkill === 'listening' 
                 ? 'bg-indigo-500 text-white shadow-sm' 
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 hover:bg-slate-50'
             }`}
           >
             Listening
@@ -173,7 +173,7 @@ export default function AdminDashboardPage() {
           return (
             <div
               key={kpi.label}
-              className={`bg-white rounded-2xl border ${kpi.border} p-5 shadow-sm transition-all duration-500 ${
+              className={`bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border ${kpi.border} p-5 shadow-sm transition-all duration-500 ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
               }`}
               style={{ transitionDelay: `${i * 80}ms` }}
@@ -181,8 +181,8 @@ export default function AdminDashboardPage() {
               <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${kpi.color}`} />
               </div>
-              <p className="text-2xl font-black text-slate-800">{kpi.value}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{kpi.label}</p>
+              <p className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200">{kpi.value}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-0.5">{kpi.label}</p>
               <p className={`text-xs font-medium mt-1.5 ${kpi.color}`}>{kpi.delta}</p>
             </div>
           );
@@ -192,23 +192,23 @@ export default function AdminDashboardPage() {
       {/* Chart + Recent table */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
         {/* Area chart */}
-        <div className="xl:col-span-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div className="xl:col-span-3 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="font-bold text-slate-800">Submissions Over Time</h2>
+              <h2 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Submissions Over Time</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Last 7 days</p>
             </div>
-            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100">
+            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-1 rounded-lg border border-slate-100 dark:border-slate-800 dark:border-slate-800">
               <button 
                 onClick={() => setChartType('bar')}
-                className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'bar' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-slate-600'}`}
                 title="Bar Chart"
               >
                 <BarChart2 className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => setChartType('area')}
-                className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white shadow-sm text-teal-600' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-md transition-all ${chartType === 'area' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-slate-600'}`}
                 title="Line/Area Chart"
               >
                 <LineChart className="w-4 h-4" />
@@ -254,9 +254,9 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Recent submissions */}
-        <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+        <div className="xl:col-span-2 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-800">Recent {activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Submissions</h2>
+            <h2 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Recent {activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1)} Submissions</h2>
             <Link
               href="/admin/submissions"
               className="text-xs text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-1"
@@ -266,7 +266,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="space-y-2">
             {recent.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No recent submissions found.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 text-center py-4">No recent submissions found.</p>
             ) : (
               recent.map((sub) => (
               <Link
@@ -279,7 +279,7 @@ export default function AdminDashboardPage() {
                   {sub.studentName.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-700 truncate group-hover:text-teal-700 transition-colors">
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 truncate group-hover:text-teal-700 transition-colors">
                     {sub.studentName}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{sub.groupName}</p>
@@ -302,17 +302,17 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'View All Submissions', href: '/admin/submissions', icon: FileText, color: 'text-teal-600 bg-teal-50' },
-          { label: 'Manage Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 bg-slate-100' },
+          { label: 'Manage Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 dark:text-slate-300 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800' },
         ].map((a) => (
           <Link
             key={a.href}
             href={a.href}
-            className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4 hover:shadow-md transition-all hover:border-teal-200 group"
+            className="flex items-center gap-3 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 dark:border-slate-800 rounded-2xl p-4 hover:shadow-md transition-all hover:border-teal-200 group"
           >
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${a.color}`}>
               <FileText className="w-4 h-4" />
             </div>
-            <span className="text-sm font-semibold text-slate-700 group-hover:text-teal-700 transition-colors">
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 group-hover:text-teal-700 transition-colors">
               {a.label}
             </span>
             <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />

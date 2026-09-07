@@ -22,11 +22,11 @@ export default function GrammarResultsPage() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-24">
-      <header className="bg-white border-b border-slate-200">
+      <header className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500" />
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="font-bold text-slate-800">Test Results</h1>
-          <Button variant="ghost" onClick={() => router.push('/dashboard/grammar')} className="text-slate-500 font-medium">
+          <h1 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">Test Results</h1>
+          <Button variant="ghost" onClick={() => router.push('/dashboard/grammar')} className="text-slate-500 dark:text-slate-400 dark:text-slate-400 font-medium">
             Exit to Dashboard
           </Button>
         </div>
@@ -34,43 +34,43 @@ export default function GrammarResultsPage() {
 
       <main className="max-w-4xl mx-auto px-6 mt-12 space-y-8">
         {/* Score Card */}
-        <section className="bg-white rounded-[2rem] p-10 text-center shadow-sm border border-slate-200 relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl pointer-events-none" />
+        <section className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-[2rem] p-10 text-center shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 relative overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-50 rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6 shadow-inner">
               <Award className="w-12 h-12 text-emerald-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-500 uppercase tracking-wider mb-2">Final Score</h2>
-            <div className="text-7xl font-black text-slate-800 tracking-tighter mb-4">
+            <h2 className="text-xl font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Final Score</h2>
+            <div className="text-7xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 tracking-tighter mb-4">
               {result.percentage}%
             </div>
-            <p className="text-lg font-medium text-slate-600">
-              You scored <span className="font-bold text-slate-800">{result.totalScore}</span> out of <span className="font-bold text-slate-800">{result.maxScore}</span> questions correct.
+            <p className="text-lg font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300">
+              You scored <span className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{result.totalScore}</span> out of <span className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{result.maxScore}</span> questions correct.
             </p>
           </div>
         </section>
 
         {/* Detailed Breakdown */}
         <section>
-          <h3 className="text-xl font-bold text-slate-800 mb-6">Detailed Breakdown</h3>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-6">Detailed Breakdown</h3>
           <div className="space-y-4">
             {result.questionResults?.map((qr: any, idx: number) => (
-              <div key={idx} className={`bg-white border rounded-2xl p-6 shadow-sm ${qr.is_correct ? 'border-emerald-200' : 'border-rose-200'}`}>
+              <div key={idx} className={`bg-white dark:bg-slate-900 dark:bg-slate-900 border rounded-2xl p-6 shadow-sm ${qr.is_correct ? 'border-emerald-200' : 'border-rose-200'}`}>
                 <div className="flex gap-4">
                   <div className={`w-8 h-8 rounded-full font-bold flex items-center justify-center shrink-0 ${qr.is_correct ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
                     {qr.question_number}
                   </div>
                   <div className="flex-1 space-y-4">
                     <div 
-                      className="text-lg font-medium text-slate-800 leading-relaxed"
+                      className="text-lg font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: qr.question_text }}
                     />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Your Answer</p>
+                      <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800">
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Your Answer</p>
                         <div className="flex items-center gap-2">
                           {qr.is_correct ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <XCircle className="w-5 h-5 text-rose-500 shrink-0" />}
                           <span className={`font-semibold ${qr.is_correct ? 'text-emerald-700' : 'text-rose-700'}`}>
@@ -80,7 +80,7 @@ export default function GrammarResultsPage() {
                       </div>
                       
                       {!qr.is_correct && (
-                        <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                        <div className="bg-emerald-50 dark:bg-emerald-950 dark:bg-emerald-950 p-4 rounded-xl border border-emerald-100">
                           <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Correct Answer</p>
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />

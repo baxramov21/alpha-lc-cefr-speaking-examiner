@@ -137,7 +137,7 @@ export default function AudioRecorder({
           relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200
           ${isRecording
             ? 'bg-teal-500 text-white pulse-ring shadow-lg shadow-teal-500/40'
-            : 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-600'
+            : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-600 dark:text-slate-300 dark:text-slate-300 hover:bg-teal-50 hover:text-teal-600'
           }
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}

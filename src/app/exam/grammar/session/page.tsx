@@ -126,7 +126,7 @@ function GrammarSessionContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 dark:bg-slate-950">
         <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
       </div>
     );
@@ -134,11 +134,11 @@ function GrammarSessionContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-        <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6">
+        <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-8 rounded-2xl shadow-sm text-center max-w-md">
           <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Oops!</h2>
-          <p className="text-slate-600 mb-6">{error}</p>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Oops!</h2>
+          <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 mb-6">{error}</p>
           <Button onClick={() => router.push('/dashboard/grammar')} className="w-full bg-indigo-600 hover:bg-indigo-700">
             Back to Dashboard
           </Button>
@@ -153,20 +153,20 @@ function GrammarSessionContent() {
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-24">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="font-bold text-slate-800 line-clamp-1">{exam.title}</h1>
+            <h1 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 line-clamp-1">{exam.title}</h1>
           </div>
           
           <div className="flex items-center gap-6">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-colors ${isTimeLow ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-slate-100 text-slate-600'}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-sm transition-colors ${isTimeLow ? 'bg-rose-100 text-rose-600 animate-pulse' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-600 dark:text-slate-300 dark:text-slate-300'}`}>
               <Clock className="w-4 h-4" />
               {formatTime(timeRemaining)}
             </div>
             
-            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500">
+            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
               <span className="text-indigo-600 font-bold">{answeredCount}</span> / {questions.length} answered
             </div>
           </div>
@@ -176,26 +176,26 @@ function GrammarSessionContent() {
       {exam.pdf_url ? (
         <main className="max-w-[1600px] mx-auto w-full h-[calc(100vh-64px)] flex overflow-hidden">
           {/* Left Side: PDF Viewer */}
-          <div className="w-1/2 h-full border-r border-slate-200 bg-slate-100 p-4">
+          <div className="w-1/2 h-full border-r border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-4">
             <iframe 
               src={`${exam.pdf_url}#toolbar=0&navpanes=0`}
-              className="w-full h-full rounded-xl shadow-sm border border-slate-200"
+              className="w-full h-full rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700"
             />
           </div>
 
           {/* Right Side: Questions Scrollable */}
           <div className="w-1/2 h-full overflow-y-auto p-8 pb-32 space-y-6 custom-scrollbar">
             {questions.map((q, idx) => (
-              <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative">
+              <div key={q.id} className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm relative">
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 text-indigo-600 font-bold flex items-center justify-center shrink-0">
                     {q.question_number}
                   </div>
                   <div className="flex-1 space-y-4">
                     {/* Only show question text if it's not a generic placeholder */}
                     {q.question_text !== `Question ${q.question_number}` && q.question_text !== `Question ${q.question_number}?` && (
                       <div 
-                        className="text-lg font-medium text-slate-800 leading-relaxed"
+                        className="text-lg font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: q.question_text }}
                       />
                     )}
@@ -207,12 +207,12 @@ function GrammarSessionContent() {
                           return (
                             <label 
                               key={oIdx} 
-                              className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
+                              className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950' : 'border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-indigo-200 hover:bg-slate-50'}`}
                             >
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600 dark:border-slate-600'}`}>
                                 {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                               </div>
-                              <span className="text-slate-700">{opt}</span>
+                              <span className="text-slate-700 dark:text-slate-300 dark:text-slate-300">{opt}</span>
                             </label>
                           );
                         })}
@@ -222,7 +222,7 @@ function GrammarSessionContent() {
                         <input 
                           type="text" 
                           placeholder="Type your answer here..."
-                          className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 font-medium"
+                          className="w-full p-4 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium"
                           value={answers[q.id] || ''}
                           onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
                         />
@@ -237,14 +237,14 @@ function GrammarSessionContent() {
       ) : (
         <main className="max-w-4xl mx-auto px-6 mt-8 space-y-6 pb-32">
           {questions.map((q, idx) => (
-            <div key={q.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div key={q.id} className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
               <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 text-indigo-600 font-bold flex items-center justify-center shrink-0">
                   {q.question_number}
                 </div>
                 <div className="flex-1 space-y-4">
                   <div 
-                    className="text-lg font-medium text-slate-800 leading-relaxed"
+                    className="text-lg font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: q.question_text }}
                   />
                   
@@ -255,12 +255,12 @@ function GrammarSessionContent() {
                         return (
                           <label 
                             key={oIdx} 
-                            className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-200 hover:bg-slate-50'}`}
+                            className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950' : 'border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-indigo-200 hover:bg-slate-50'}`}
                           >
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300'}`}>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600 dark:border-slate-600'}`}>
                               {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                             </div>
-                            <span className="text-slate-700">{opt}</span>
+                            <span className="text-slate-700 dark:text-slate-300 dark:text-slate-300">{opt}</span>
                           </label>
                         );
                       })}
@@ -270,7 +270,7 @@ function GrammarSessionContent() {
                       <input 
                         type="text" 
                         placeholder="Type your answer here..."
-                        className="w-full p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 font-medium"
+                        className="w-full p-4 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium"
                         value={answers[q.id] || ''}
                         onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
                       />
@@ -284,9 +284,9 @@ function GrammarSessionContent() {
       )}
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-40">
+      <div className="fixed bottom-0 left-0 w-full bg-white dark:bg-slate-900 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 dark:border-slate-700 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-40">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="text-sm font-medium text-slate-500">
+          <div className="text-sm font-medium text-slate-500 dark:text-slate-400 dark:text-slate-400">
             Progress: {Math.round((answeredCount / questions.length) * 100)}%
           </div>
           <Button 
@@ -312,7 +312,7 @@ function GrammarSessionContent() {
 export default function GrammarSessionPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 dark:bg-slate-950">
         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
       </div>
     }>

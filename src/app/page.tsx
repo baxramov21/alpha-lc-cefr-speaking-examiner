@@ -118,7 +118,7 @@ export default function StudentLoginPage() {
   return (
     <div className="min-h-screen flex font-sans selection:bg-teal-500/30">
       {/* Left: Brand Panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#06090e] flex-col items-center justify-center p-12 relative overflow-hidden border-r border-slate-200">
+      <div className="hidden lg:flex lg:w-1/2 bg-[#06090e] flex-col items-center justify-center p-12 relative overflow-hidden border-r border-slate-200 dark:border-slate-700 dark:border-slate-700">
         {/* Universal Ambient Backgrounds */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-500 z-50 shadow-[0_0_20px_rgba(20,184,166,0.5)]" />
         <div className="absolute -top-[30%] -left-[10%] w-[100vw] h-[100vw] rounded-full bg-teal-900/20 blur-[120px] pointer-events-none" />
@@ -134,7 +134,7 @@ export default function StudentLoginPage() {
             <span className="font-light text-slate-300">Exam Platform</span>
           </h1>
           
-          <p className="text-slate-400 text-lg leading-relaxed mb-12">
+          <p className="text-slate-400 dark:text-slate-500 dark:text-slate-500 text-lg leading-relaxed mb-12">
             AI-powered CEFR examination.<br />
             Fast, accurate, and detailed results.
           </p>
@@ -162,7 +162,7 @@ export default function StudentLoginPage() {
       </div>
 
       {/* Right: Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 relative z-10">
+      <div className="flex-1 flex items-center justify-center p-6 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 relative z-10">
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
           <div className="flex items-center gap-4 mb-10 lg:hidden justify-center">
@@ -171,14 +171,14 @@ export default function StudentLoginPage() {
             </div>
             <div>
               <p className="font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500 text-2xl leading-none tracking-tight">Alpha LC</p>
-              <p className="text-sm text-slate-500 mt-1 font-medium">Exam Platform</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1 font-medium">Exam Platform</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 dark:border-slate-800 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-8 md:p-10 relative overflow-hidden group">
             <div className="mb-8 relative z-10">
-              <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Login</h2>
-              <p className="text-slate-500 text-sm">
+              <h2 className="text-3xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 tracking-tight mb-2">Login</h2>
+              <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm">
                 Enter your details to start the exam.
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function StudentLoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 relative z-10" id="student-login-form">
               {/* Full Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Full Name
                 </Label>
                 <div className="relative">
@@ -210,7 +210,7 @@ export default function StudentLoginPage() {
 
               {/* Group Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="groupName" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Group Name / ID
                 </Label>
                 <div className="relative">
@@ -234,7 +234,7 @@ export default function StudentLoginPage() {
 
               {/* Teacher Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="teacherName" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Teacher Name
                 </Label>
                 <div className="relative">
@@ -258,7 +258,7 @@ export default function StudentLoginPage() {
 
               {/* Passcode */}
               <div className="space-y-1.5">
-                <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="passcode" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Passcode
                 </Label>
                 <div className="relative">
@@ -291,13 +291,13 @@ export default function StudentLoginPage() {
               {/* Grammar Level Selection */}
               {requiresGrammarLevel && (
                 <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700">
+                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
                     Select Your Grammar Level
                   </Label>
                   <div className="relative">
                     <select
                       id="grammarLevel"
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700"
+                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300 dark:text-slate-300"
                       {...register('grammarLevel', { required: 'Please select a level' })}
                     >
                       <option value="">Choose a level...</option>
@@ -314,7 +314,7 @@ export default function StudentLoginPage() {
 
               {/* Auth error */}
               {authError && (
-                <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-600 flex items-start gap-3">
+                <div className="bg-red-50 dark:bg-red-950 dark:bg-red-950 border border-red-100 rounded-xl p-4 text-sm text-red-600 flex items-start gap-3">
                   <span className="mt-0.5 text-lg">⚠️</span>
                   <span className="leading-snug">{authError}</span>
                 </div>
@@ -345,14 +345,14 @@ export default function StudentLoginPage() {
 
           {/* Admin link & Footer */}
           <div className="mt-8 text-center space-y-4">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">
               Are you a teacher?{' '}
               <a href="/admin" className="text-teal-600 hover:text-teal-500 font-semibold underline-offset-4 hover:underline transition-colors">
                 Admin Panel →
               </a>
             </p>
-            <div className="text-xs text-slate-400 font-medium tracking-wide">
-              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-slate-800 transition-colors">@baxramovv.21</a>
+            <div className="text-xs text-slate-400 dark:text-slate-500 dark:text-slate-500 font-medium tracking-wide">
+              Powered by <a href="https://instagram.com/baxramovv.21" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-800 transition-colors">@baxramovv.21</a>
             </div>
           </div>
         </div>
