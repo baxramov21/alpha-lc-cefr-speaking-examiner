@@ -331,6 +331,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       const text = await file.text();
       let parsed = JSON.parse(text);
       
+      // Unwrap if Claude wrapped the root object in an array
+      if (Array.isArray(parsed) && parsed.length === 1 && (parsed[0].parts || parsed[0].exams)) {
+        parsed = parsed[0];
+      }
+      // If Claude returned the parts array directly
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].questions !== undefined) {
+        parsed = { parts: parsed };
+      }
+      
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         // Handle Canonical Exam format with "parts", or a batch of exams with "exams"
         let partsArray: any[] = [];
@@ -441,7 +450,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           text: combinedText,
           question_type: qType
         };
-      });
+      }).filter((q: any) => q.part && q.text); // Filter out completely empty/invalid rows caused by bad LLM JSON
+      
+      if (parsed.length === 0) {
+        throw new Error("No valid questions could be parsed from the JSON. Please check if the JSON matches the expected schema.");
+      }
       
       const payloadWithProgramme = parsed.map((q: any) => ({ ...q, programme }));
       const res = await fetch('/api/admin/questions/bulk', {
