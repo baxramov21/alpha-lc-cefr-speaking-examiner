@@ -77,14 +77,14 @@ export async function POST(req: NextRequest) {
     if (uniqueQuestionsToInsert.length > 0) {
       const { error } = await supabase.from('questions').insert(uniqueQuestionsToInsert);
       if (error) throw error;
-      
+
       uniqueQuestionsToInsert.forEach((q: any) => {
         stats[q.part] = (stats[q.part] || 0) + 1;
       });
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       count: uniqueQuestionsToInsert.length,
       skipped: validQuestions.length - uniqueQuestionsToInsert.length,
       stats

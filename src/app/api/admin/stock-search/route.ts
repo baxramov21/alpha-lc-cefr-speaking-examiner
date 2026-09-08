@@ -27,7 +27,18 @@ export async function GET(req: NextRequest) {
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Unsplash API Error:', errorData);
-      return NextResponse.json({ error: 'Failed to fetch from Unsplash' }, { status: response.status });
+      
+      let parsedError = 'Failed to fetch from Unsplash';
+      try {
+        const jsonError = JSON.parse(errorData);
+        if (jsonError.errors) parsedError = `Unsplash Error: ${jsonError.errors.join(', ')}`;
+      } catch (e) {
+        if (response.status === 403 || response.status === 429) {
+          parsedError = 'Unsplash Rate Limit Exceeded (Max 50 requests per hour on demo accounts). Please try again later.';
+        }
+      }
+
+      return NextResponse.json({ error: parsedError }, { status: response.status });
     }
 
     const data = await response.json();
