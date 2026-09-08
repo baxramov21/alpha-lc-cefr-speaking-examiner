@@ -346,28 +346,46 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (partsArray.length > 0) {
           const flatQuestions: any[] = [];
           partsArray.forEach((p: any) => {
-            if (Array.isArray(p.questions)) {
-              p.questions.forEach((q: any, index: number) => {
-                let mappedPart = `part${p.part_number}`;
-                // Map Q4-Q6 in Part 1 to part1_2
-                if (p.part_number === 1 && index >= 3) {
-                  mappedPart = 'part1_2';
+            if (Array.isArray(p.questions) && p.questions.length > 0) {
+              if (p.part_number === 2 || p.part_number === 3) {
+                // For Part 2 and Part 3, we want ONE unified question block per test, not separate entries
+                let combinedText = p.passage_html ? p.passage_html + '\n\n' : '';
+                const qTexts = p.questions.map((q: any) => q.question_text || q.text || '').filter(Boolean);
+                
+                if (qTexts.length > 0) {
+                  combinedText += qTexts.map((txt: string) => `<p>${txt}</p>`).join('');
                 }
-                let combinedText = q.question_text || q.text || '';
-                // If there's a passage_html for the part (e.g. Cue Card content), and this is the first question, combine them so data isn't lost!
-                if (index === 0 && p.passage_html && p.passage_html.length > 5) {
-                   combinedText = p.passage_html + '\n\n' + combinedText;
-                }
-
+                
                 flatQuestions.push({
-                  part: mappedPart,
+                  part: `part${p.part_number}`,
                   text: combinedText,
                   topic: p.title || '',
-                  image_url: q.image_url || p.image_url || '',
-                  table_data: q.table_data || null,
-                  question_type: q.question_type || q.type || 'standard'
+                  image_url: p.questions[0]?.image_url || p.image_url || '',
+                  table_data: p.questions[0]?.table_data || null,
+                  question_type: p.questions[0]?.question_type || p.questions[0]?.type || 'standard'
                 });
-              });
+              } else {
+                p.questions.forEach((q: any, index: number) => {
+                  let mappedPart = `part${p.part_number}`;
+                  // Map Q4-Q6 in Part 1 to part1_2
+                  if (p.part_number === 1 && index >= 3) {
+                    mappedPart = 'part1_2';
+                  }
+                  let combinedText = q.question_text || q.text || '';
+                  if (index === 0 && p.passage_html && p.passage_html.length > 5) {
+                     combinedText = p.passage_html + '\n\n' + combinedText;
+                  }
+
+                  flatQuestions.push({
+                    part: mappedPart,
+                    text: combinedText,
+                    topic: p.title || '',
+                    image_url: q.image_url || p.image_url || '',
+                    table_data: q.table_data || null,
+                    question_type: q.question_type || q.type || 'standard'
+                  });
+                });
+              }
             }
           });
           parsed = flatQuestions;
