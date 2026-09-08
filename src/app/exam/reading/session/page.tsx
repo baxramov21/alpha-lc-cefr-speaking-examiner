@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock, Loader2, Send, BookOpen, ChevronRight, ChevronLeft, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Clock, Loader2, Send, BookOpen, ChevronRight, ChevronLeft, AlertTriangle, AlertCircle, Highlighter, Eraser } from 'lucide-react';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Button } from '@/components/ui/button';
 import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
@@ -30,6 +30,7 @@ export default function ReadingSessionPage() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRestoring, setIsRestoring] = useState(true);
+  const [selectionRect, setSelectionRect] = useState<{ top: number, left: number, width: number } | null>(null);
   const isSubmittingRef = useRef(false);
   const endTimeRef = useRef<number | null>(null);
 
@@ -119,6 +120,56 @@ export default function ReadingSessionPage() {
     };
   }, []);
 
+  // Text selection handler for Highlighter
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        setSelectionRect(null);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
+
+  const handleTextMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const container = document.getElementById('reading-text-container');
+      if (container && container.contains(range.commonAncestorContainer)) {
+        setSelectionRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width
+        });
+      }
+    }
+  };
+
+  const applyHighlight = () => {
+    const container = document.getElementById('reading-text-container');
+    if (container) {
+      container.contentEditable = "true";
+      document.execCommand('hiliteColor', false, '#fef08a'); // Tailwind yellow-200
+      container.contentEditable = "false";
+      window.getSelection()?.removeAllRanges();
+      setSelectionRect(null);
+    }
+  };
+
+  const removeHighlight = () => {
+    const container = document.getElementById('reading-text-container');
+    if (container) {
+      container.contentEditable = "true";
+      document.execCommand('hiliteColor', false, 'transparent'); 
+      container.contentEditable = "false";
+      window.getSelection()?.removeAllRanges();
+      setSelectionRect(null);
+    }
+  };
+
   useEffect(() => {
     const textContainer = document.getElementById('reading-text-container');
     const questionsContainer = document.getElementById('reading-questions-container');
@@ -207,6 +258,33 @@ export default function ReadingSessionPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
+      {/* Floating Highlighter Toolbar */}
+      {selectionRect && (
+        <div 
+          className="fixed z-50 flex items-center gap-1 bg-slate-900 dark:bg-slate-800 text-white p-1.5 rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 border border-slate-700"
+          style={{
+            top: selectionRect.top - 50,
+            left: selectionRect.left + selectionRect.width / 2 - 45
+          }}
+        >
+          <button 
+            onClick={applyHighlight}
+            className="p-1.5 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-md transition-colors"
+            title="Highlight"
+          >
+            <Highlighter className="w-4 h-4 text-yellow-400" />
+          </button>
+          <div className="w-px h-4 bg-slate-700 mx-0.5" />
+          <button 
+            onClick={removeHighlight}
+            className="p-1.5 hover:bg-slate-800 dark:hover:bg-slate-700 rounded-md transition-colors"
+            title="Remove Highlight"
+          >
+            <Eraser className="w-4 h-4 text-slate-300" />
+          </button>
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm shrink-0">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -271,7 +349,12 @@ export default function ReadingSessionPage() {
                   />
                 </div>
               ) : (
-                <div id="reading-text-container" className="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+                <div 
+                  id="reading-text-container" 
+                  className="flex-1 overflow-y-auto p-6 lg:p-10 relative outline-none"
+                  onMouseUp={handleTextMouseUp}
+                  onTouchEnd={handleTextMouseUp}
+                >
                   <div className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 dark:text-slate-200 ">
                     {currentTask.image_url && (
                       <div className="mb-6 flex justify-center">

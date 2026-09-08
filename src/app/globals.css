@@ -185,3 +185,14 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 30px #0f172a inset !important; /* slate-900 */
   -webkit-text-fill-color: #f8fafc !important; /* slate-50 */
 }
+/* Custom Highlight CSS */
+.dark #reading-text-container span[style*="background-color: rgb(254, 240, 138)"], 
+.dark #reading-text-container span[style*="background-color: #fef08a"] {
+  background-color: #fef08a !important;
+  color: #1e293b !important;
+}
+#reading-text-container span[style*="background-color: rgb(254, 240, 138)"], 
+#reading-text-container span[style*="background-color: #fef08a"] {
+  color: #1e293b !important;
+}
+
