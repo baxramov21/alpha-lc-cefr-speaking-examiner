@@ -368,7 +368,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
                                 </select>
                                 <input type="text" value={q.correct_answer} onChange={e => updateQuestion(pIdx, qIdx, 'correct_answer', e.target.value)} className="flex-1 h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm font-medium placeholder:font-normal" placeholder="Correct Answer..." />
                               </div>
-                              <textarea value={q.question_text} onChange={e => updateQuestion(pIdx, qIdx, 'question_text', e.target.value)} className="w-full h-16 p-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm resize-none" placeholder="Question Text..." />
+                              <textarea value={q.question_text} onChange={e => updateQuestion(pIdx, qIdx, 'question_text', e.target.value)} className="w-full min-h-[120px] p-3 rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 outline-none text-sm resize-y" placeholder="Question Text..." />
                               
                               {(q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (
                                 <div className="pl-4 border-l-2 border-indigo-200 space-y-2 mt-2">

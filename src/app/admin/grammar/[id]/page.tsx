@@ -243,7 +243,7 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
                 <textarea
                   value={q.question_text}
                   onChange={(e) => updateQuestion(qIdx, 'question_text', e.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white min-h-[80px]"
+                  className="w-full border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white min-h-[120px] resize-y"
                 />
               </div>
 
@@ -306,7 +306,7 @@ export default function EditGrammarExamPage({ params }: { params: Promise<{ id: 
                 <textarea
                   value={q.explanation || ''}
                   onChange={(e) => updateQuestion(qIdx, 'explanation', e.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white min-h-[60px] text-sm"
+                  className="w-full border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl px-4 py-3 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white min-h-[100px] resize-y text-sm"
                   placeholder="Why is this the correct answer?"
                 />
               </div>
