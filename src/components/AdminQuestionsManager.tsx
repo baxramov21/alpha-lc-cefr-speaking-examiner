@@ -365,23 +365,39 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   question_type: p.questions[0]?.question_type || p.questions[0]?.type || 'standard'
                 });
               } else {
-                p.questions.forEach((q: any, index: number) => {
-                  let mappedPart = `part${p.part_number}`;
-                  // Map Q4-Q6 in Part 1 to part1_2
-                  if (p.part_number === 1 && index >= 3) {
-                    mappedPart = 'part1_2';
-                  }
-                  let combinedText = q.question_text || q.text || '';
-
+                // Part 1 logic
+                
+                // First 3 questions are separate Part 1.1 questions
+                const part1Questions = p.questions.slice(0, 3);
+                part1Questions.forEach((q: any) => {
                   flatQuestions.push({
-                    part: mappedPart,
-                    text: combinedText,
+                    part: 'part1',
+                    text: q.question_text || q.text || '',
                     topic: p.title || '',
                     image_url: q.image_url || p.image_url || '',
                     table_data: q.table_data || null,
                     question_type: q.question_type || q.type || 'standard'
                   });
                 });
+                
+                // Any remaining questions (index 3+) belong to Part 1.2 (Picture task)
+                const part1_2Questions = p.questions.slice(3);
+                if (part1_2Questions.length > 0) {
+                  const qTexts = part1_2Questions.map((q: any) => q.question_text || q.text || '').filter(Boolean);
+                  
+                  // Join them with newlines so setup/page.tsx can easily parse them as bullets
+                  const combinedText = qTexts.join('\n');
+                  
+                  flatQuestions.push({
+                    part: 'part1_2',
+                    text: combinedText,
+                    topic: p.title || '',
+                    image_url: part1_2Questions[0]?.image_url || p.image_url || '',
+                    table_data: part1_2Questions[0]?.table_data || null,
+                    // Part 1.2 is an image task in CEFR
+                    question_type: 'image'
+                  });
+                }
               }
             }
           });
