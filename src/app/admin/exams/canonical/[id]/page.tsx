@@ -214,7 +214,7 @@ export default function EditCanonicalExamPage({ params }: { params: Promise<{ id
     <div className="p-8 max-w-5xl mx-auto pb-32">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.push('/admin/exams/canonical')} className="shrink-0 p-2 h-10 w-10">
+          <Button variant="outline" onClick={() => router.push(exam.programme === 'GRAMMAR' ? '/admin/grammar' : '/admin/exams/canonical')} className="shrink-0 p-2 h-10 w-10">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
