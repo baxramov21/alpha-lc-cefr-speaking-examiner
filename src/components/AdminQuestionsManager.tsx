@@ -372,9 +372,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                     mappedPart = 'part1_2';
                   }
                   let combinedText = q.question_text || q.text || '';
-                  if (index === 0 && p.passage_html && p.passage_html.length > 5) {
-                     combinedText = p.passage_html + '\n\n' + combinedText;
-                  }
 
                   flatQuestions.push({
                     part: mappedPart,
