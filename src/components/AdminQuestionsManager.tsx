@@ -95,23 +95,24 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
 1. Strict Exam Type: Set "exam_type": "${programme}_SPEAKING".
 2. Text-Only Processing (No Images): 
    - Discard all embedded pictures, photos, and decorative graphics from the PDF.
-   - If an image contains chart data, graphs, or structured visual tables, extract the information and convert it into a semantic HTML <table> or structured <p> tags inside passage_html.
-3. Part Isolation & Identification:
+   - DO NOT generate any HTML tags (no <div>, <b>, <p>, <table>, etc). Extract only clean, raw text.
+3. Part 3 Debate formatting:
+   - For Part 3, if there are "FOR" and "AGAINST" points in the PDF, extract them as separate string arrays in the JSON: "for_points": [...] and "against_points": [...]
+4. Part Isolation & Identification:
    - Accurately categorize all prompts into their corresponding parts:
      - Part 1: Personal Questions / Interview -> part_number: 1
-     - Part 2: Cue Card / Individual Long Turn (data/topics) -> part_number: 2
-     - Part 3: Two-Way Discussion / Deep Follow-up -> part_number: 3
+     - Part 2: Cue Card / Individual Long Turn -> part_number: 2
+     - Part 3: Two-Way Discussion / Debate -> part_number: 3
    - NEVER mix questions from different parts under the same part array.
 
 ### Target JSON Schema:
 {
-  "title": "<Exam PDF Title from>",
+  "title": "<Exam PDF Title>",
   "exam_type": "${programme}_SPEAKING",
   "parts": [
     {
       "part_number": 1,
       "title": "Part 1: Interview",
-      "passage_html": "<p>General instructions for Part 1</p>",
       "questions": [
         {
           "question_number": 1,
@@ -123,11 +124,10 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
     {
       "part_number": 2,
       "title": "Part 2: Cue Card",
-      "passage_html": "<div><b>Cue Card Topic</b><p>Instructions and bullet points or HTML data table</p></div>",
       "questions": [
         {
           "question_number": 2,
-          "question_text": "<Prompt card cue for text>",
+          "question_text": "<Full prompt text and bullet points combined cleanly with newlines>",
           "type": "SPEAKING_PROMPT"
         }
       ]
@@ -135,12 +135,13 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
     {
       "part_number": 3,
       "title": "Part 3: Discussion",
-      "passage_html": "<p>Instructions for Part 3</p>",
       "questions": [
         {
           "question_number": 3,
-          "question_text": "<Discussion question>",
-          "type": "SPEAKING_PROMPT"
+          "question_text": "<Debate statement or discussion question>",
+          "type": "DEBATE",
+          "for_points": ["<First FOR point>", "<Second FOR point>"],
+          "against_points": ["<First AGAINST point>", "<Second AGAINST point>"]
         }
       ]
     }
@@ -349,20 +350,27 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             if (Array.isArray(p.questions) && p.questions.length > 0) {
               if (p.part_number === 2 || p.part_number === 3) {
                 // For Part 2 and Part 3, we want ONE unified question block per test, not separate entries
-                let combinedText = p.passage_html ? p.passage_html + '\n\n' : '';
+                // Instead of using passage_html and <p> tags, just join questions cleanly with newlines
                 const qTexts = p.questions.map((q: any) => q.question_text || q.text || '').filter(Boolean);
+                const combinedText = qTexts.join('\n');
                 
-                if (qTexts.length > 0) {
-                  combinedText += qTexts.map((txt: string) => `<p>${txt}</p>`).join('');
+                let tableData = p.questions[0]?.table_data || null;
+                
+                // For Part 3 debate, map the extracted for_points and against_points into table_data
+                if (p.part_number === 3 && p.questions[0]?.for_points && p.questions[0]?.against_points) {
+                   tableData = {
+                     forPoints: p.questions[0].for_points,
+                     againstPoints: p.questions[0].against_points
+                   };
                 }
-                
+
                 flatQuestions.push({
                   part: `part${p.part_number}`,
                   text: combinedText,
                   topic: p.title || '',
                   image_url: p.questions[0]?.image_url || p.image_url || '',
-                  table_data: p.questions[0]?.table_data || null,
-                  question_type: p.questions[0]?.question_type || p.questions[0]?.type || 'standard'
+                  table_data: tableData,
+                  question_type: p.part_number === 3 ? 'debate' : (p.questions[0]?.question_type || p.questions[0]?.type || 'standard')
                 });
               } else {
                 // Part 1 logic
