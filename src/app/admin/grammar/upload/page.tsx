@@ -624,7 +624,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             type="text"
             placeholder="e.g. Unit 1 Test"
             value={customExamName}
-            onChange={(e) => setCustomExamName(e.target.value)}
+            onChange={(e) => {
+              setCustomExamName(e.target.value);
+              if (previewData) {
+                setPreviewData({ ...previewData, title: e.target.value || 'Extracted Exam' });
+              }
+            }}
             className="w-full md:w-64 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Overrides the title from JSON.</p>
