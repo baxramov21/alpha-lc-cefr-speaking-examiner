@@ -34,12 +34,18 @@ export default function GrammarUploadPage() {
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
+  const targetTestInstructions = (testIdentifier || answersPageNumber) ? `
+4. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
+${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
+${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
+If both are provided, use the page number to locate the answers, and verify they belong to the test identifier. Do NOT extract answers from other tests.` : '';
+
   const grammarPrompt = `Please act as an expert English examiner converting grammar questions into a strict JSON format for my app.
 
 CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json' and provide a direct download link.
 2. EVERY question MUST have a "correct_answer".
-3. Provide a brief explanation for the correct answer if possible.
+3. Provide a brief explanation for the correct answer if possible.${targetTestInstructions}
 
 SCHEMA:
 {
@@ -61,7 +67,7 @@ SCHEMA:
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
-  const targetTestInstructions = (testIdentifier || answersPageNumber) ? `
+  const targetTestInstructionsForPdf = (testIdentifier || answersPageNumber) ? `
 5. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
 ${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
 ${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
@@ -74,7 +80,7 @@ CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json'.
 2. EVERY question MUST have a "correct_answer".
 3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
-4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructions}
+4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructionsForPdf}
 
 SCHEMA:
 {
@@ -104,7 +110,7 @@ CRITICAL INSTRUCTIONS:
 2. EVERY question MUST have a "correct_answer".
 3. For MULTIPLE_CHOICE questions, provide the full text for each option in the "options" array.
 4. "correct_answer" MUST exactly match one of the items in the "options" array.
-5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructions}
+5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructionsForPdf}
 
 SCHEMA:
 {
