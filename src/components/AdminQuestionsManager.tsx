@@ -331,10 +331,21 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       let parsed = JSON.parse(text);
       
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        // Handle Canonical Exam format with "parts"
-        if (Array.isArray(parsed.parts)) {
+        // Handle Canonical Exam format with "parts", or a batch of exams with "exams"
+        let partsArray: any[] = [];
+        if (Array.isArray(parsed.exams)) {
+           parsed.exams.forEach((exam: any) => {
+              if (Array.isArray(exam.parts)) {
+                 partsArray.push(...exam.parts);
+              }
+           });
+        } else if (Array.isArray(parsed.parts)) {
+           partsArray = parsed.parts;
+        }
+
+        if (partsArray.length > 0) {
           const flatQuestions: any[] = [];
-          parsed.parts.forEach((p: any) => {
+          partsArray.forEach((p: any) => {
             if (Array.isArray(p.questions)) {
               p.questions.forEach((q: any, index: number) => {
                 let mappedPart = `part${p.part_number}`;
@@ -345,7 +356,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 let combinedText = q.question_text || q.text || '';
                 // If there's a passage_html for the part (e.g. Cue Card content), and this is the first question, combine them so data isn't lost!
                 if (index === 0 && p.passage_html && p.passage_html.length > 5) {
-                   combinedText = p.passage_html + '\\n\\n' + combinedText;
+                   combinedText = p.passage_html + '\n\n' + combinedText;
                 }
 
                 flatQuestions.push({
