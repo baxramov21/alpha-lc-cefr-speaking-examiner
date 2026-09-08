@@ -1142,15 +1142,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               {isUploadingTest ? 'Uploading...' : 'Upload JSON File'}
             </Button>
           </div>
-          <Button 
-            onClick={openSeedModal} 
-            variant="outline" 
-            className="border-slate-300 dark:border-slate-600 dark:border-slate-600 text-slate-700 dark:text-slate-300 dark:text-slate-300 font-medium bg-white dark:bg-slate-900 dark:bg-slate-900 hover:bg-slate-50"
-            disabled={isSeeding}
-          >
-            {isSeeding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-            {isSeeding ? 'Seeding...' : 'Seed Database'}
-          </Button>
+
           <Button 
             onClick={handleCleanDuplicates} 
             variant="outline" 
