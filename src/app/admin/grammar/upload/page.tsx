@@ -27,6 +27,8 @@ export default function GrammarUploadPage() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [pageRange, setPageRange] = useState<string>('');
   const [questionRange, setQuestionRange] = useState<string>('');
+  const [testIdentifier, setTestIdentifier] = useState<string>('');
+  const [answersPageNumber, setAnswersPageNumber] = useState<string>('');
   const [customExamName, setCustomExamName] = useState<string>('');
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
@@ -59,6 +61,12 @@ SCHEMA:
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
+  const targetTestInstructions = (testIdentifier || answersPageNumber) ? `
+5. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
+${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
+${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
+If both are provided, use the page number to locate the answers, and verify they belong to the test identifier. Do NOT extract answers from other tests.` : '';
+
   const grammarPdfPrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
 
@@ -66,7 +74,7 @@ CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json'.
 2. EVERY question MUST have a "correct_answer".
 3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
-4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
+4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructions}
 
 SCHEMA:
 {
@@ -96,7 +104,7 @@ CRITICAL INSTRUCTIONS:
 2. EVERY question MUST have a "correct_answer".
 3. For MULTIPLE_CHOICE questions, provide the full text for each option in the "options" array.
 4. "correct_answer" MUST exactly match one of the items in the "options" array.
-5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
+5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructions}
 
 SCHEMA:
 {
@@ -670,6 +678,31 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Filters the JSON to only include these questions.</p>
+        </div>
+      </div>
+
+      <div className="mb-8 flex flex-col md:flex-row gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Test Target (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. Test 1"
+            value={testIdentifier}
+            onChange={(e) => setTestIdentifier(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Helps Claude find the right test in a multi-test PDF.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Answer Page (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. 45"
+            value={answersPageNumber}
+            onChange={(e) => setAnswersPageNumber(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Explicitly tells Claude which page the answers are on.</p>
         </div>
       </div>
 

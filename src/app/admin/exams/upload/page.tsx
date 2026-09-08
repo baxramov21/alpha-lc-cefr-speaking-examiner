@@ -17,6 +17,8 @@ export default function CanonicalUploadPage() {
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [testIdentifier, setTestIdentifier] = useState('');
+  const [answersPageNumber, setAnswersPageNumber] = useState('');
   const audioInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -31,6 +33,10 @@ CRITICAL INSTRUCTIONS:
 6. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
 7. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
 8. If the exam requires images (e.g., map questions, diagrams), use the "image_url" field. You should set its value to a placeholder like "[UPLOAD_MAP_IMAGE_HERE]" and the administrator will replace it with the real URL later.
+${(testIdentifier || answersPageNumber) ? `9. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
+${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
+${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
+If both are provided, use the page number to locate the answers, and verify they belong to the test identifier. Do NOT extract answers from other tests.` : ''}
 
 SCHEMA:
 {
@@ -301,6 +307,31 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           Listening Exam
         </button>
       </div>
+      </div>
+
+      <div className="mb-8 flex flex-col md:flex-row gap-6">
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Test Target (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. Test 1"
+            value={testIdentifier}
+            onChange={(e) => setTestIdentifier(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Helps Claude find the right test in a multi-test PDF.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Answer Page (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. 45"
+            value={answersPageNumber}
+            onChange={(e) => setAnswersPageNumber(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Explicitly tells Claude which page the answers are on.</p>
+        </div>
       </div>
 
       {success && (
