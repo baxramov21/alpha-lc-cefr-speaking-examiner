@@ -368,8 +368,30 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       }
 
       if (!Array.isArray(parsed)) {
-        throw new Error("JSON must be an array of questions");
+        throw new Error("JSON must be an array of questions or match the canonical schema with 'parts'");
       }
+      
+      // Normalize any inconsistencies in keys before sending to API
+      parsed = parsed.map((q: any) => {
+        let mappedPart = q.part;
+        if (!mappedPart && q.part_number !== undefined) {
+          mappedPart = `part${q.part_number}`;
+        }
+        
+        let combinedText = q.text || q.question_text || '';
+        
+        let qType = q.question_type || q.type || 'standard';
+        if (qType === 'SPEAKING_PROMPT' || qType === 'MULTIPLE_CHOICE' || qType === 'FILL_IN') {
+          qType = 'standard';
+        }
+
+        return {
+          ...q,
+          part: mappedPart,
+          text: combinedText,
+          question_type: qType
+        };
+      });
       
       const payloadWithProgramme = parsed.map((q: any) => ({ ...q, programme }));
       const res = await fetch('/api/admin/questions/bulk', {
