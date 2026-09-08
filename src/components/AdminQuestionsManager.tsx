@@ -332,7 +332,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       let parsed = JSON.parse(text);
       
       // Unwrap if Claude wrapped the root object in an array
-      if (Array.isArray(parsed) && parsed.length === 1 && (parsed[0].parts || parsed[0].exams)) {
+      if (Array.isArray(parsed) && parsed.length === 1 && (parsed[0].parts || parsed[0].exams || parsed[0].tests)) {
         parsed = parsed[0];
       }
       // If Claude returned the parts array directly
@@ -341,12 +341,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       }
       
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        // Handle Canonical Exam format with "parts", or a batch of exams with "exams"
+        // Handle Canonical Exam format with "parts", or a batch of exams with "exams"/"tests"
         let partsArray: any[] = [];
         if (Array.isArray(parsed.exams)) {
            parsed.exams.forEach((exam: any) => {
               if (Array.isArray(exam.parts)) {
                  partsArray.push(...exam.parts);
+              }
+           });
+        } else if (Array.isArray(parsed.tests)) {
+           parsed.tests.forEach((test: any) => {
+              if (Array.isArray(test.parts)) {
+                 partsArray.push(...test.parts);
               }
            });
         } else if (Array.isArray(parsed.parts)) {
