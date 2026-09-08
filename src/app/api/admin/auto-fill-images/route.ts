@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey) return NextResponse.json({ error: 'Gemini API key is missing' }, { status: 500 });
     if (!unsplashKey) return NextResponse.json({ error: 'Unsplash API key is missing' }, { status: 500 });
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // Fetch the target questions
     const { data: questions, error: fetchErr } = await supabase

@@ -1,6 +1,6 @@
 import { UzbmbEvaluation } from '@/lib/types';
 
-export const GEMINI_MODEL = 'gemini-2.5-flash';
+export const GEMINI_MODEL = 'gemini-1.5-flash';
 
 export function generateSpeakingPrompt(examMode: string): string {
   const modeContext = examMode === 'full'

@@ -573,7 +573,7 @@ export default function AdminSettingsPage() {
               className="w-full h-10 rounded-xl text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-slate-900"
             >
               <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
-              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+              <option value="gemini-1.5-flash-lite">gemini-1.5-flash-lite</option>
             </select>
           </div>
           
@@ -585,7 +585,7 @@ export default function AdminSettingsPage() {
               className="w-full h-10 rounded-xl text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 px-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all bg-white dark:bg-slate-900 dark:bg-slate-900"
             >
               <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-1.5-flash">gemini-1.5-flash</option>
             </select>
           </div>
 

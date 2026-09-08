@@ -32,8 +32,8 @@ export async function getModelConfig(): Promise<ModelConfig> {
 
   // Return defaults if database record is missing or error occurs
   return applyFallbackLogic({
-    part_model: 'gemini-2.5-flash',
-    final_model: 'gemini-2.5-flash',
+    part_model: 'gemini-1.5-flash',
+    final_model: 'gemini-1.5-flash',
     writing_time_minutes: 60,
     reading_time_minutes: 60,
     listening_repetitions: 2,
