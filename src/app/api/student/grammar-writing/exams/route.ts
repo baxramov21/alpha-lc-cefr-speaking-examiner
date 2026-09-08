@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
-
+import { getSeededRandom } from '@/lib/seededRandom';
 export async function GET(req: NextRequest) {
   try {
     const sessionToken = req.headers.get('Authorization')?.replace('Bearer ', '');
@@ -31,7 +31,14 @@ export async function GET(req: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json({ exams: exams || [] }, { status: 200 });
+    let finalExams = exams || [];
+    if (finalExams.length > 0) {
+      const seededRand = getSeededRandom(sessionToken || 'default-seed');
+      const randomExam = finalExams[Math.floor(seededRand() * finalExams.length)];
+      finalExams = [randomExam];
+    }
+
+    return NextResponse.json({ exams: finalExams }, { status: 200 });
 
   } catch (error: any) {
     console.error('API /student/grammar-writing/exams error:', error);

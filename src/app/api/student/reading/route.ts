@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
-
+import { getSeededRandomSelection, getSeededRandom } from '@/lib/seededRandom';
 export async function GET(req: NextRequest) {
   try {
     const authHeader = req.headers.get('authorization');
@@ -20,10 +20,12 @@ export async function GET(req: NextRequest) {
           .from('grammar_triples')
           .select('reading_exam_id')
           .ilike('level', grammarLevel)
-          .eq('is_active', true);
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
           
         if (triples && triples.length > 0) {
-          const randomTriple = triples[Math.floor(Math.random() * triples.length)];
+          const seededRand = getSeededRandom(token || 'default-seed');
+          const randomTriple = triples[Math.floor(seededRand() * triples.length)];
           const { data: tripleExam } = await supabase
             .from('canonical_exams')
             .select('*')
@@ -53,7 +55,8 @@ export async function GET(req: NextRequest) {
 
       if (examError) throw examError;
       if (exams && exams.length > 0) {
-        exam = exams[Math.floor(Math.random() * exams.length)];
+        const seededRand = getSeededRandom(token || 'default-seed');
+        exam = exams[Math.floor(seededRand() * exams.length)];
       }
     }
 

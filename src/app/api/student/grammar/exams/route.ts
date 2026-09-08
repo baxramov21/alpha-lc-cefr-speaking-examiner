@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
-
+import { getSeededRandom } from '@/lib/seededRandom';
 export async function GET(req: NextRequest) {
   try {
     const sessionToken = req.headers.get('Authorization')?.replace('Bearer ', '');
@@ -24,10 +24,12 @@ export async function GET(req: NextRequest) {
         .from('grammar_triples')
         .select('grammar_exam_id')
         .ilike('level', grammarLevel)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
       if (triples && triples.length > 0) {
-        const randomTriple = triples[Math.floor(Math.random() * triples.length)];
+        const seededRand = getSeededRandom(sessionToken || 'default-seed');
+        const randomTriple = triples[Math.floor(seededRand() * triples.length)];
         const { data: tripleExam } = await supabaseAdmin
           .from('grammar_exams')
           .select('id, title, level, time_limit')
@@ -54,7 +56,8 @@ export async function GET(req: NextRequest) {
       }
       
       if (fallbackExams && fallbackExams.length > 0) {
-        const randomFallback = fallbackExams[Math.floor(Math.random() * fallbackExams.length)];
+        const seededRand = getSeededRandom(sessionToken || 'default-seed');
+        const randomFallback = fallbackExams[Math.floor(seededRand() * fallbackExams.length)];
         exams = [randomFallback];
       } else {
         exams = [];

@@ -1,29 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase';
 
-function getRandomSelection(arr: any[], count: number) {
-  const result = [...arr];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result.slice(0, count);
-}
+import { getSeededRandomSelection } from '@/lib/seededRandom';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const authHeader = req.headers.get('authorization');
+    const token = authHeader?.split('Bearer ')[1] || 'default-seed';
     const { data: questions, error } = await supabase
       .from('questions')
       .select('*')
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .order('id', { ascending: true });
 
     if (error) throw error;
     if (!questions) return NextResponse.json({ questions: [] }, { status: 200 });
 
-    const p1Standard = getRandomSelection(questions.filter(q => q.part === 'part1' && q.question_type === 'standard'), 3);
-    const p1Image = getRandomSelection(questions.filter(q => q.part === 'part1' && q.question_type === 'image'), 3);
-    const p2 = getRandomSelection(questions.filter(q => q.part === 'part2'), 1);
-    const p3 = getRandomSelection(questions.filter(q => q.part === 'part3'), 1);
+    const p1Standard = getSeededRandomSelection(questions.filter(q => q.part === 'part1' && q.question_type === 'standard'), 3, token + '-p1s');
+    const p1Image = getSeededRandomSelection(questions.filter(q => q.part === 'part1' && q.question_type === 'image'), 3, token + '-p1i');
+    const p2 = getSeededRandomSelection(questions.filter(q => q.part === 'part2'), 1, token + '-p2');
+    const p3 = getSeededRandomSelection(questions.filter(q => q.part === 'part3'), 1, token + '-p3');
 
     const examData = [...p1Standard, ...p1Image, ...p2, ...p3];
 
