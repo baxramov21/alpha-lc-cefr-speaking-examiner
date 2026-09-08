@@ -883,9 +883,10 @@ export default function ExamSessionPage() {
                         )}
                       </div>
                     ) : null}
-                    <p className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed whitespace-pre-line text-center">
-                      {question.text}
-                    </p>
+                    <div 
+                      className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed whitespace-pre-line text-center [&>p]:mb-4 [&>div]:mb-4"
+                      dangerouslySetInnerHTML={{ __html: question.text }}
+                    />
                   </>
                 )}
               </div>

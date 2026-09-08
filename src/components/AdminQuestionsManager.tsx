@@ -1705,7 +1705,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium group-hover:text-teal-700 transition-colors">{q.text}</p>
+                        <div 
+                          className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium group-hover:text-teal-700 transition-colors whitespace-pre-wrap [&>p]:mb-2 [&>div]:mb-2" 
+                          dangerouslySetInnerHTML={{ __html: q.text }} 
+                        />
                       )}
                       {q.question_type === 'image' && q.image_url && (
                         <div className="mt-4 flex gap-4 h-24">
