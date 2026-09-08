@@ -35,7 +35,13 @@ export default function AdminQuestionsManager({ programme, availableSkills }: Ad
   const [isUploading, setIsUploading] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedModalOpen, setSeedModalOpen] = useState(false);
-  const [seedCountdown, setSeedCountdown] = useState(0);
+  const [seedCountdown, setSeedCountdown] = useState(3);
+
+  // Delete recent states
+  const [deleteRecentModalOpen, setDeleteRecentModalOpen] = useState(false);
+  const [deleteHours, setDeleteHours] = useState(24);
+  const [isDeletingRecent, setIsDeletingRecent] = useState(false);
+
   const [isUploadingTest, setIsUploadingTest] = useState(false);
   const [uploadSuccessStats, setUploadSuccessStats] = useState<{count: number, skipped: number, stats: Record<string, number>} | null>(null);
 
@@ -230,6 +236,28 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       alert('Error updating all timings.');
     }
     setIsSavingTimings(false);
+  };
+
+  const handleDeleteRecent = async () => {
+    if (!deleteHours || deleteHours <= 0) return;
+    setIsDeletingRecent(true);
+    try {
+      const res = await fetch(`/api/admin/questions/bulk?hours=${deleteHours}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Deleted successfully!');
+        setDeleteRecentModalOpen(false);
+        fetchQuestions();
+      } else {
+        alert('Delete failed: ' + data.error);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('Delete failed: ' + err.message);
+    }
+    setIsDeletingRecent(false);
   };
 
   useEffect(() => {
@@ -1243,6 +1271,16 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             {isCleaningDuplicates ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
             {isCleaningDuplicates ? 'Cleaning...' : 'Clean Duplicates'}
           </Button>
+
+          <Button 
+            onClick={() => setDeleteRecentModalOpen(true)} 
+            variant="outline" 
+            className="border-slate-300 dark:border-slate-600 dark:border-slate-600 text-red-600 font-medium bg-white dark:bg-slate-900 dark:bg-slate-900 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Recent
+          </Button>
+
           <Button onClick={() => setIsCreating(true)} className="bg-teal-600 hover:bg-teal-700 text-white shadow-md rounded-xl font-bold">
             <Plus className="w-4 h-4 mr-2" />
             Add New Question
@@ -1360,6 +1398,49 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               {isUploadingListening ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
               {isUploadingListening ? 'Uploading & Parsing...' : 'Upload Task'}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE RECENT MODAL */}
+      {deleteRecentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl w-full max-w-md p-8 shadow-2xl space-y-6 text-center transform transition-all">
+            <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <Trash2 className="w-10 h-10" />
+            </div>
+            <div>
+              <h3 className="font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 text-2xl mb-2">Delete Recent</h3>
+              <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 text-sm">
+                This will safely delete all questions added within the selected timeframe. Perfect for clearing out accidental bulk uploads.
+              </p>
+            </div>
+            
+            <div className="text-left space-y-2">
+              <Label className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300">Timeframe</Label>
+              <select 
+                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:bg-slate-800 focus:ring-2 focus:ring-rose-500"
+                value={deleteHours}
+                onChange={(e) => setDeleteHours(Number(e.target.value))}
+              >
+                <option value={1}>Last 1 Hour</option>
+                <option value={12}>Last 12 Hours</option>
+                <option value={24}>Last 24 Hours</option>
+                <option value={48}>Last 48 Hours</option>
+                <option value={168}>Last 7 Days</option>
+              </select>
+            </div>
+
+            <div className="flex gap-3 justify-center pt-6 border-t border-slate-100 dark:border-slate-800 dark:border-slate-800">
+              <Button variant="outline" className="px-6" onClick={() => setDeleteRecentModalOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleDeleteRecent} 
+                className="bg-rose-600 hover:bg-rose-700 font-bold px-6"
+                disabled={isDeletingRecent}
+              >
+                {isDeletingRecent ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Yes, Delete Them'}
+              </Button>
+            </div>
           </div>
         </div>
       )}

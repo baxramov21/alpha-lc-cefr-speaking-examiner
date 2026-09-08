@@ -95,3 +95,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const hours = parseInt(url.searchParams.get('hours') || '0', 10);
+
+    if (!hours || isNaN(hours) || hours <= 0) {
+      return NextResponse.json({ error: 'Valid hours parameter is required' }, { status: 400 });
+    }
+
+    const targetTime = new Date();
+    targetTime.setHours(targetTime.getHours() - hours);
+
+    const { error } = await supabase
+      .from('questions')
+      .delete()
+      .gte('created_at', targetTime.toISOString());
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, message: `Deleted questions added in the last ${hours} hours` }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error in bulk delete:', error);
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
+}
