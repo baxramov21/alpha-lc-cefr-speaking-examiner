@@ -917,39 +917,39 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </div>
       </div>
       
-      {data.part === 'part1_2' ? (
+      {(data.part === 'part1_2' && data.table_data?.sub_questions) ? (
         <div className="space-y-4 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700">
           <div className="space-y-2">
-            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 1 (Description)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 1</Label>
             <textarea
               className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-3 text-sm"
-              value={data.table_data?.sub_questions?.[0] ?? 'Please describe the pictures shown on the screen and compare them.'}
+              value={data.table_data?.sub_questions?.[0] ?? ''}
               onChange={(e) => {
-                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                const sub = [...(data.table_data?.sub_questions || [])];
                 sub[0] = e.target.value;
                 setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
               }}
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 2 (Specific)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 2</Label>
             <textarea
               className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-3 text-sm"
-              value={data.table_data?.sub_questions?.[1] ?? data.text ?? ''}
+              value={data.table_data?.sub_questions?.[1] ?? ''}
               onChange={(e) => {
-                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                const sub = [...(data.table_data?.sub_questions || [])];
                 sub[1] = e.target.value;
                 setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
               }}
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 3 (General)</Label>
+            <Label className="text-slate-700 dark:text-slate-300 dark:text-slate-300 font-semibold">Question 3</Label>
             <textarea
               className="w-full min-h-[60px] rounded-lg border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-3 text-sm"
-              value={data.table_data?.sub_questions?.[2] ?? 'How do you think this situation will change in the future?'}
+              value={data.table_data?.sub_questions?.[2] ?? ''}
               onChange={(e) => {
-                const sub = [...(data.table_data?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', data.text || '', 'How do you think this situation will change in the future?'])];
+                const sub = [...(data.table_data?.sub_questions || [])];
                 sub[2] = e.target.value;
                 setter({ ...data, table_data: { ...data.table_data, sub_questions: sub } });
               }}
@@ -1713,9 +1713,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                           </span>
                         )}
                       </div>
-                      {q.part === 'part1_2' ? (
+                      {(q.part === 'part1_2' && (q.table_data as any)?.sub_questions) ? (
                         <ul className="list-disc pl-5 space-y-1 text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium group-hover:text-teal-700 transition-colors">
-                          {((q.table_data as any)?.sub_questions || ['Please describe the pictures shown on the screen and compare them.', q.text || '', 'How do you think this situation will change in the future?']).map((sq: string, idx: number) => (
+                          {((q.table_data as any)?.sub_questions).map((sq: string, idx: number) => (
                             <li key={idx}>{sq}</li>
                           ))}
                         </ul>

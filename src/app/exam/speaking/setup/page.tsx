@@ -119,37 +119,27 @@ export default function ExamSetupPage() {
               ];
             }
 
-            // Fallback for older, unmigrated data
-            const fullText = p1ImageSource.text.replace(/\(Photo A:.*?Photo B:.*?\)/i, '').trim();
-            const subQuestions = fullText.split('?')
-              .map((q: string) => q.trim())
-              .filter((q: string) => q.length > 5)
-              .map((q: string) => q + '?');
-            const finalQ2Text = subQuestions.length > 0 ? shuffle(subQuestions)[0] : fullText;
+            let bullets: string[] = [];
+            const text = p1ImageSource.text;
+            if (text.includes('*') || text.includes('- ')) {
+              bullets = text.split(/(?:\n+)|(?=\*)|(?=- )/)
+                .map((s: string) => s.replace(/^[\*\-]\s*/, '').trim())
+                .filter(Boolean);
+            } else if (text.includes('\n')) {
+              bullets = text.split(/\n+/).map((s: string) => s.trim()).filter(Boolean);
+            } else {
+              // Split by sentences if no explicit list markers
+              bullets = text.split(/(?<=[.?!])\s+/).map((s: string) => s.trim()).filter(Boolean);
+            }
+            if (bullets.length === 0) bullets = [text];
 
-            return [
-              {
-                ...p1ImageSource,
-                id: p1ImageSource.id + '_q1',
-                text: 'Please describe the pictures shown on the screen and compare them.',
-                prep_seconds: tFirst.prep_seconds,
-                speak_seconds: tFirst.speak_seconds
-              },
-              {
-                ...p1ImageSource,
-                id: p1ImageSource.id + '_q2',
-                text: finalQ2Text,
-                prep_seconds: tRest.prep_seconds,
-                speak_seconds: tRest.speak_seconds
-              },
-              {
-                ...p1ImageSource,
-                id: p1ImageSource.id + '_q3',
-                text: `How do you think this situation will change in the future?`,
-                prep_seconds: tRest.prep_seconds,
-                speak_seconds: tRest.speak_seconds
-              }
-            ];
+            return bullets.map((qText, idx) => ({
+              ...p1ImageSource,
+              id: p1ImageSource.id + '_q' + (idx + 1),
+              text: qText,
+              prep_seconds: idx === 0 ? tFirst.prep_seconds : tRest.prep_seconds,
+              speak_seconds: idx === 0 ? tFirst.speak_seconds : tRest.speak_seconds
+            }));
           })() : [];
           
           // Part 2: 1 question
