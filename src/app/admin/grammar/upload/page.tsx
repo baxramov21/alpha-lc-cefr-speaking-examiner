@@ -365,6 +365,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           setPreviewData(valResult.data);
         }
       } else if (examMode === 'grammar_pdf') {
+        if (!json.answers && Array.isArray(json.questions)) {
+           json.answers = {};
+           json.questions.forEach((q: any) => {
+              if (q.question_number !== undefined && q.correct_answer !== undefined) {
+                 json.answers[q.question_number.toString()] = {
+                    correct_answer: q.correct_answer,
+                    type: q.type || 'MULTIPLE_CHOICE'
+                 };
+              }
+           });
+        }
+        
         const valResult = GrammarPdfExamSchema.safeParse(json);
         if (!valResult.success) {
           setValidationErrors(valResult.error.issues);

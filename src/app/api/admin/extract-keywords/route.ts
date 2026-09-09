@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModelConfig } from '@/lib/modelHelper';
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || '');
@@ -16,7 +17,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Gemini API key is missing' }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const config = await getModelConfig();
+    const model = genAI.getGenerativeModel({ model: config.part_model || 'gemini-1.5-flash' });
 
     let prompt = '';
     let isDual = part === 'part1';

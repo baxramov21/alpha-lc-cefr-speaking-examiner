@@ -84,8 +84,8 @@ export async function POST(req: Request) {
         if (retries > 1 && (e.message?.includes('503') || e.message?.includes('429') || e.message?.includes('fetch failed'))) {
           retries--;
           if (retries === 1) {
-            console.log('Falling back to gemini-1.5-flash due to 503 errors');
-            model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            console.log('Falling back to flash due to 503 errors');
+            model = genAI.getGenerativeModel({ model: config.part_model || 'gemini-1.5-flash' });
           }
           await new Promise(r => setTimeout(r, 4000));
         } else {

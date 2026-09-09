@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModelConfig } from '@/lib/modelHelper';
 
 // Initialize Supabase with Service Role to bypass RLS for admin tasks
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -22,7 +23,8 @@ export async function POST(req: NextRequest) {
     if (!apiKey) return NextResponse.json({ error: 'Gemini API key is missing' }, { status: 500 });
     if (!unsplashKey) return NextResponse.json({ error: 'Unsplash API key is missing' }, { status: 500 });
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const config = await getModelConfig();
+    const model = genAI.getGenerativeModel({ model: config.part_model || 'gemini-1.5-flash' });
 
     // Fetch the target questions
     const { data: questions, error: fetchErr } = await supabase
