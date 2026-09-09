@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
         title: data.title,
         level: data.level,
         time_limit: data.time_limit,
+        is_active: true,
       })
       .select()
       .single();
