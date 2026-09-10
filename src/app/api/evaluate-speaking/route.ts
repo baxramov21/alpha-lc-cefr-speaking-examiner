@@ -53,6 +53,9 @@ export async function POST(req: NextRequest) {
     }
 
     const questionsData: { id: string; text: string; imageUrl?: string; part?: string }[] = JSON.parse(questionsDataStr);
+    const recordingDurationsStr = formData.get('recordingDurations') as string | null;
+    const recordingDurations: Record<string, number> = recordingDurationsStr ? JSON.parse(recordingDurationsStr) : {};
+    const PART2_3_TIME_LIMIT = 120; // seconds
     const generativeParts: any[] = [];
     const audioFilesForTelegram: { buffer: Buffer; mimeType: string; groupId: string }[] = [];
     
@@ -117,6 +120,25 @@ export async function POST(req: NextRequest) {
       } else {
         generativeParts.push("[No audible speech detected]");
       }
+    }
+
+    // Inject early-finish timing context for Part 2 and Part 3
+    const earlyFinishNotes: string[] = [];
+    for (const [groupId, duration] of Object.entries(recordingDurations)) {
+      if (groupId.startsWith('part2') || groupId.startsWith('part3')) {
+        const secondsEarly = PART2_3_TIME_LIMIT - duration;
+        if (secondsEarly > 0) {
+          const partLabel = groupId.startsWith('part2') ? 'Part 2' : 'Part 3';
+          if (secondsEarly <= 30) {
+            earlyFinishNotes.push(`TIMING NOTE — ${partLabel}: Student finished ${secondsEarly} seconds early (within the 30-second grace window). Do NOT penalize for finishing early. Evaluate only what was said.`);
+          } else {
+            earlyFinishNotes.push(`TIMING NOTE — ${partLabel}: Student finished ${secondsEarly} seconds early (exceeded the 30-second grace). This is a significantly short response. Apply appropriate deductions to Fluency & Coherence for insufficient speech duration.`);
+          }
+        }
+      }
+    }
+    if (earlyFinishNotes.length > 0) {
+      generativeParts.push(`\n\n=== EARLY FINISH TIMING CONTEXT ===\n${earlyFinishNotes.join('\n')}\n=== END TIMING CONTEXT ===\n`);
     }
 
     generativeParts.push(`\n\n${generateSpeakingPrompt(examMode)}`);

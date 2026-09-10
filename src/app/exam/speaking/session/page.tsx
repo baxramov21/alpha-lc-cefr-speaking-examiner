@@ -411,6 +411,13 @@ export default function ExamSessionPage() {
           const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
           formData.append('questionsData', JSON.stringify(questionsData));
 
+          // Send recording durations so AI knows if student finished early
+          const durationMap: Record<string, number> = {};
+          for (const r of updatedRecordings) {
+            durationMap[r.groupId] = r.durationSeconds;
+          }
+          formData.append('recordingDurations', JSON.stringify(durationMap));
+
           for (const r of updatedRecordings) {
             if (r.audioBlob && r.durationSeconds > 1) {
               try {
@@ -516,6 +523,13 @@ export default function ExamSessionPage() {
       
       const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
       formData.append('questionsData', JSON.stringify(questionsData));
+
+      // Send recording durations so AI knows if student finished early
+      const durationMap: Record<string, number> = {};
+      for (const r of recordings) {
+        durationMap[r.groupId] = r.durationSeconds;
+      }
+      formData.append('recordingDurations', JSON.stringify(durationMap));
 
       for (const r of recordings) {
         if (r.audioBlob && r.durationSeconds > 1) {
