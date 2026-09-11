@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 import TipTapEditor from '@/components/TipTapEditor';
 import { UploadCloud, CheckCircle2, ChevronRight, Image as ImageIcon, Save, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
