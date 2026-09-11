@@ -18,7 +18,6 @@ export default function CanonicalUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [pageRange, setPageRange] = useState<string>('');
   const [questionRange, setQuestionRange] = useState<string>('');
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [programme, setProgramme] = useState<'CEFR'|'IELTS'>('CEFR');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
