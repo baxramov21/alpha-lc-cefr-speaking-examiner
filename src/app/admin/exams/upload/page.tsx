@@ -1,17 +1,23 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp } from 'lucide-react';
+import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
 import DOMPurify from 'dompurify';
+import { PDFDocument } from 'pdf-lib';
+import { Button } from '@/components/ui/button';
 
 export default function CanonicalUploadPage() {
   const [file, setFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<any[]>([]);
   const [previewData, setPreviewData] = useState<ExamCanonicalPayload | null>(null);
   const [success, setSuccess] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [pageRange, setPageRange] = useState<string>('');
+  const [questionRange, setQuestionRange] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [programme, setProgramme] = useState<'CEFR'|'IELTS'>('CEFR');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
@@ -20,6 +26,76 @@ export default function CanonicalUploadPage() {
   const [testIdentifier, setTestIdentifier] = useState('');
   const [answersPageNumber, setAnswersPageNumber] = useState('');
   const audioInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadExtractedPdf = async () => {
+    if (!pdfFile || !pageRange) {
+      alert("Please select a PDF file and specify a valid page range (e.g. 12-14)");
+      return;
+    }
+    
+    try {
+      const [start, end] = pageRange.split('-').map(Number);
+      if (isNaN(start) || isNaN(end) || start <= 0 || end < start) {
+        alert("Invalid page range format. Please use format like '12-14'");
+        return;
+      }
+      
+      const pdfBytes = await pdfFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(pdfBytes);
+      const newPdf = await PDFDocument.create();
+      
+      const indices = [];
+      for (let i = start - 1; i < end; i++) indices.push(i);
+      
+      const validIndices = indices.filter(i => i < pdfDoc.getPageCount());
+      if (validIndices.length === 0) {
+        alert("Page range exceeds the document length!");
+        return;
+      }
+      
+      const copiedPages = await newPdf.copyPages(pdfDoc, validIndices);
+      copiedPages.forEach((page) => newPdf.addPage(page));
+      
+      const newPdfBytes = await newPdf.save();
+      const blob = new Blob([newPdfBytes as any], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+    } catch (err: any) {
+      alert("Error extracting PDF: " + err.message);
+    }
+  };
+
+  const uploadFileToSupabase = async (file: File): Promise<string> => {
+    const urlRes = await fetch('/api/admin/exams/get-upload-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileName: file.name, contentType: file.type || 'application/octet-stream' })
+    });
+    const urlData = await urlRes.json();
+    if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
+
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', urlData.signedUrl, true);
+      xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(true);
+        else reject(new Error('Upload failed'));
+      };
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.send(file);
+    });
+
+    return urlData.publicUrl;
+  };
 
 
   const claudePrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
@@ -129,6 +205,49 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     try {
       let finalPayload = { ...previewData, programme };
 
+      if (questionRange) {
+        const [startQ, endQ] = questionRange.split('-').map(Number);
+        if (!isNaN(startQ) && !isNaN(endQ) && startQ > 0 && endQ >= startQ) {
+          if (finalPayload.parts) {
+            finalPayload.parts.forEach((part: any) => {
+              if (part.questions) {
+                part.questions = part.questions.filter((q: any) => {
+                  const qNum = Number(q.question_number || q.number);
+                  return qNum >= startQ && qNum <= endQ;
+                });
+              }
+            });
+            finalPayload.parts = finalPayload.parts.filter((p: any) => p.questions && p.questions.length > 0);
+          }
+        }
+      }
+
+      if (pdfFile) {
+        let fileToUpload = pdfFile;
+        if (pageRange) {
+           const [start, end] = pageRange.split('-').map(Number);
+           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
+              const pdfBytes = await pdfFile.arrayBuffer();
+              const pdfDoc = await PDFDocument.load(pdfBytes);
+              const newPdf = await PDFDocument.create();
+              const indices = [];
+              for (let i = start - 1; i < end; i++) indices.push(i);
+              
+              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
+              copiedPages.forEach((page) => newPdf.addPage(page));
+              
+              const newPdfBytes = await newPdf.save();
+              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
+              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
+           }
+        }
+        
+        const pdfUrl = await uploadFileToSupabase(fileToUpload);
+        if (finalPayload.parts && finalPayload.parts.length > 0) {
+          finalPayload.parts[0].pdf_url = pdfUrl;
+        }
+      }
+
       if (examMode === 'listening' && audioFiles.length > 0) {
         setUploadProgress(0);
 
@@ -199,6 +318,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       } else {
         setSuccess(true);
         setFile(null);
+        setPdfFile(null);
         setPreviewData(null);
         setIsUploading(false);
         setUploadProgress(0);
@@ -332,6 +452,39 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Explicitly tells Claude which page the answers are on.</p>
         </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">PDF Page Range (Optional)</label>
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              placeholder="e.g. 12-14"
+              value={pageRange}
+              onChange={(e) => setPageRange(e.target.value)}
+              className="w-full md:w-32 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            />
+            <Button 
+              onClick={handleDownloadExtractedPdf}
+              disabled={!pdfFile || !pageRange}
+              type="button"
+              variant="outline"
+              className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-10 px-4 rounded-xl font-medium"
+            >
+              Download Extracted PDF
+            </Button>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Question Range (Optional)</label>
+          <input
+            type="text"
+            placeholder="e.g. 11-20"
+            value={questionRange}
+            onChange={(e) => setQuestionRange(e.target.value)}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Filters the JSON to only include these questions.</p>
+        </div>
       </div>
 
       {success && (
@@ -364,9 +517,58 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         
+        <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Questions (PDF)</h3>
+          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
+            <input 
+              type="file" 
+              accept=".pdf" 
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+            />
+            <div className="w-14 h-14 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-4 group-hover:scale-110 transition-transform">
+              <FileText className="w-6 h-6 text-fuchsia-500" />
+            </div>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Click to select PDF</p>
+            {pdfFile && (
+              <div className="mt-4 flex items-center gap-2 text-xs font-medium text-fuchsia-700 bg-fuchsia-50 dark:bg-fuchsia-950 dark:bg-fuchsia-950 px-3 py-2 rounded-full border border-fuchsia-100 truncate max-w-full">
+                <FileText className="w-4 h-4 shrink-0" />
+                <span className="truncate">{pdfFile.name}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">
+            {examMode === 'listening' ? 'Upload Answer Key (JSON)' : 'Upload JSON File'}
+          </h3>
+          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
+          <input 
+            type="file" 
+            accept=".json" 
+            title="Click to upload JSON"
+            onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+          />
+          <div className="w-14 h-14 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-4 group-hover:scale-110 transition-transform">
+            <UploadCloud className="w-6 h-6 text-indigo-500" />
+          </div>
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Click to upload or drag and drop</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1">Only .json format is supported</p>
+          
+          {file && (
+            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-indigo-700 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 px-3 py-2 rounded-full border border-indigo-100 truncate max-w-full">
+              <FileJson className="w-4 h-4 shrink-0" />
+              <span className="truncate">{file.name}</span>
+            </div>
+          )}
+        </div>
+        </div>
+
         {examMode === 'listening' && (
-          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Step 1: Upload Audio (MP3/WAV)</h3>
+          <div className="md:col-span-2 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Step 3: Upload Audio (MP3/WAV)</h3>
             <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
               <input 
                 type="file" 
@@ -398,33 +600,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </div>
           </div>
         )}
-
-        <div className={`bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col h-full ${examMode === 'reading' ? 'md:col-span-2' : ''}`}>
-          <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">
-            {examMode === 'listening' ? 'Step 2: Upload JSON' : 'Upload JSON File'}
-          </h3>
-          <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
-          <input 
-            type="file" 
-            accept=".json" 
-            title="Click to upload JSON"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
-          />
-          <div className="w-14 h-14 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-4 group-hover:scale-110 transition-transform">
-            <UploadCloud className="w-6 h-6 text-indigo-500" />
-          </div>
-          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Click to upload or drag and drop</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-1">Only .json format is supported</p>
-          
-          {file && (
-            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-indigo-700 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 px-3 py-2 rounded-full border border-indigo-100 truncate max-w-full">
-              <FileJson className="w-4 h-4 shrink-0" />
-              <span className="truncate">{file.name}</span>
-            </div>
-          )}
-        </div>
-        </div>
       </div>
 
         {previewData && (

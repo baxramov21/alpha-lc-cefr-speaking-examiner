@@ -52,16 +52,29 @@ export async function GET(req: NextRequest) {
 
       if (error) {
         console.error('Error fetching grammar exams:', error);
-        return NextResponse.json({ error: 'Failed to fetch exams' }, { status: 500 });
-      }
-      
-      if (fallbackExams && fallbackExams.length > 0) {
+      } else if (fallbackExams && fallbackExams.length > 0) {
         const seededRand = getSeededRandom(sessionToken || 'default-seed');
         const randomFallback = fallbackExams[Math.floor(seededRand() * fallbackExams.length)];
         exams = [randomFallback];
-      } else {
-        exams = [];
       }
+    }
+
+    // Also fetch canonical native exams for Grammar
+    const { data: nativeExams, error: nativeError } = await supabaseAdmin
+      .from('canonical_exams')
+      .select('id, title, grammar_level as level, time_limit')
+      .eq('is_active', true)
+      .eq('programme', 'GRAMMAR')
+      .ilike('grammar_level', grammarLevel)
+      .order('created_at', { ascending: false });
+      
+    if (!nativeError && nativeExams) {
+      const nativeMapped = nativeExams.map((ex: any) => ({
+        ...ex,
+        isNative: true
+      }));
+      // Append them to the list of available exams
+      exams = [...exams, ...nativeMapped];
     }
 
     return NextResponse.json({ exams }, { status: 200 });

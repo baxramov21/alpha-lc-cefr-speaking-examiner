@@ -17,11 +17,23 @@ export default function FullExamNextAction() {
   }, []);
 
   if (!examState) {
+    const handleReturn = () => {
+      const rawSession = sessionStorage.getItem('examSession');
+      if (rawSession) {
+        const session = JSON.parse(rawSession);
+        if (session.programme === 'GRAMMAR') {
+          router.push('/dashboard/grammar');
+          return;
+        }
+      }
+      router.push('/dashboard');
+    };
+
     return (
       <Button 
         size="lg" 
         className="rounded-full px-8 gap-2 bg-slate-800 hover:bg-slate-700 text-white" 
-        onClick={() => router.push('/dashboard')}
+        onClick={handleReturn}
       >
         <Home className="w-4 h-4" /> Return to Dashboard
       </Button>

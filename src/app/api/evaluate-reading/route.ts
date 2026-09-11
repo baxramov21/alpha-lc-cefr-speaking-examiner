@@ -84,20 +84,40 @@ export async function POST(req: NextRequest) {
       auth: { persistSession: false }
     });
 
-    const submissionData = {
-      student_name: studentName || 'Unknown',
-      group_name: groupName || 'Unknown',
-      teacher_name: teacherName || 'Unknown',
-      passcode_used: session.passcode,
-      overall_score: evaluation.total_score,
-      overall_band: evaluation.cefr_level,
-      evaluation_data: { ...evaluation, examType: 'reading' },
-      is_saved: false
-    };
+    if (session.programme === 'GRAMMAR') {
+      const examId = tasks[0]?.exam_id;
+      const percentage = Math.round((evaluation.total_score / evaluation.max_score) * 100);
+      
+      const { error } = await supabaseAdmin.from('grammar_submissions').insert([{
+        exam_id: examId || null,
+        student_name: studentName || 'Unknown',
+        group_name: groupName || 'Unknown',
+        teacher_name: teacherName || 'Unknown',
+        passcode_used: session.passcode,
+        grammar_level: session.grammarLevel || 'intermediate',
+        total_score: evaluation.total_score,
+        max_score: evaluation.max_score,
+        percentage: percentage || 0,
+        question_results: JSON.stringify(evaluation.question_results)
+      }]);
+      if (error) console.error('Supabase grammar insert error:', error);
+      
+    } else {
+      const submissionData = {
+        student_name: studentName || 'Unknown',
+        group_name: groupName || 'Unknown',
+        teacher_name: teacherName || 'Unknown',
+        passcode_used: session.passcode,
+        overall_score: evaluation.total_score,
+        overall_band: evaluation.cefr_level,
+        evaluation_data: { ...evaluation, examType: 'reading' },
+        is_saved: false
+      };
 
-    const { error } = await supabaseAdmin.from('submissions').insert([submissionData]);
-    if (error) {
-      console.error('Supabase insert error:', error);
+      const { error } = await supabaseAdmin.from('submissions').insert([submissionData]);
+      if (error) {
+        console.error('Supabase insert error:', error);
+      }
     }
 
     return NextResponse.json(evaluation, { status: 200 });

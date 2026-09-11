@@ -36,6 +36,7 @@ export default function GrammarDashboardPage() {
   const [submissions, setSubmissions] = useState<GrammarSubmission[]>([]);
   const [exams, setExams] = useState<GrammarExam[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStartingExam, setIsStartingExam] = useState<string | null>(null);
 
   useEffect(() => {
     const rawSession = sessionStorage.getItem('examSession');
@@ -82,8 +83,25 @@ export default function GrammarDashboardPage() {
     router.push('/');
   };
 
-  const handleStartExam = (examId: string) => {
-    router.push(`/exam/grammar/session?examId=${examId}`);
+  const handleStartExam = async (examId: string) => {
+    setIsStartingExam(examId);
+    try {
+      const res = await fetch(`/api/student/grammar/exams/${examId}`, {
+        headers: { Authorization: `Bearer ${session?.sessionToken}` }
+      });
+      const data = await res.json();
+      
+      if (data.isNative) {
+        sessionStorage.setItem('readingTasks', JSON.stringify(data.questions));
+        sessionStorage.setItem('readingTimeLimit', data.time_limit.toString());
+        router.push('/exam/reading/session');
+      } else {
+        router.push(`/exam/grammar/session?examId=${examId}`);
+      }
+    } catch (err) {
+      console.error('Failed to start exam', err);
+      setIsStartingExam(null);
+    }
   };
 
   const handleStartSkill = (path: string) => {
@@ -293,9 +311,11 @@ export default function GrammarDashboardPage() {
                   </div>
                   <Button 
                     onClick={() => handleStartExam(exam.id)}
-                    className="w-full bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 font-bold mt-4"
+                    disabled={isStartingExam === exam.id}
+                    className="w-full bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 font-bold mt-4 gap-2"
                   >
-                    Start Test
+                    {isStartingExam === exam.id ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {isStartingExam === exam.id ? 'Starting...' : 'Start Test'}
                   </Button>
                 </div>
               ))
