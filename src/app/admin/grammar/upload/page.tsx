@@ -576,8 +576,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
         setUploadProgress(20);
         
-        let fileToUpload = pdfFile;
-        if (pageRange) {
+        let fileToUpload: File | null = pdfFile;
+        if (pdfFile && pageRange) {
            const [start, end] = pageRange.split('-').map(Number);
            if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
               const pdfBytes = await pdfFile.arrayBuffer();
@@ -595,10 +595,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
            }
         }
 
-        const pdfUrl = await uploadFileToSupabase(fileToUpload);
+        let pdfUrl = null;
+        if (fileToUpload) {
+          pdfUrl = await uploadFileToSupabase(fileToUpload);
+        }
         
         // Inject PDF URL into part 1
-        if (finalPayload.parts && finalPayload.parts.length > 0) {
+        if (pdfUrl && finalPayload.parts && finalPayload.parts.length > 0) {
           finalPayload.parts[0].pdf_url = pdfUrl;
         }
 

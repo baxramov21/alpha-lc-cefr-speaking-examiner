@@ -19,8 +19,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const id = resolvedParams.id;
 
     // Fetch the exam
-    let exam = null;
-    let questions = null;
+    let exam: any = null;
+    let questions: any = null;
     let isNative = false;
     let time_limit = 3600;
     
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
       
       // We don't check level mismatch strictly for native yet, or we can check grammar_level
-      if (nativeExam.grammar_level && nativeExam.grammar_level.toLowerCase() !== session.grammarLevel.toLowerCase()) {
+      if (nativeExam.grammar_level && session.grammarLevel && nativeExam.grammar_level.toLowerCase() !== session.grammarLevel.toLowerCase()) {
          return NextResponse.json({ error: 'Exam level mismatch' }, { status: 403 });
       }
       
