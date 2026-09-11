@@ -213,7 +213,7 @@ export default function ExamEditorPage() {
           </div>
           <div className="flex-1 p-4 overflow-hidden">
              {activePassage.pdf_url ? (
-               <iframe src={\`\${activePassage.pdf_url}#toolbar=0\`} className="w-full h-full rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
+               <iframe src={`${activePassage.pdf_url}#toolbar=0`} className="w-full h-full rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
              ) : (
                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
                  <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
@@ -230,11 +230,11 @@ export default function ExamEditorPage() {
            {passages.length > 1 && (
              <div className="flex p-4 gap-2 overflow-x-auto bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0">
                {passages.map((p, idx) => (
-                 <button
-                   key={p.id}
-                   onClick={() => setActivePassageIndex(idx)}
-                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all \${activePassageIndex === idx ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
-                 >
+                  <button
+                    key={p.id}
+                    onClick={() => setActivePassageIndex(idx)}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activePassageIndex === idx ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
+                  >
                    Part {p.part_number}
                  </button>
                ))}
