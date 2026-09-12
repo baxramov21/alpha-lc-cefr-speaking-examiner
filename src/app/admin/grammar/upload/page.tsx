@@ -407,7 +407,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     let payloads = Array.isArray(previewData) ? previewData : [previewData];
     
     const finalPayloads = payloads.map((payload, index) => {
-      let finalPayload = { ...payload };
+      let finalPayload = { ...payload, grammar_level: grammarLevel, level: grammarLevel };
       if (customExamName) {
          finalPayload.title = payloads.length > 1 ? `${customExamName} ${index + 1}` : customExamName;
       }
