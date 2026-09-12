@@ -594,7 +594,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </button>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="mb-8 flex flex-wrap gap-6 items-start">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Select Grammar Level</label>
           <select 
