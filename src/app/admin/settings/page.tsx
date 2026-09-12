@@ -30,7 +30,7 @@ export default function AdminSettingsPage() {
   const [finalModel, setFinalModel] = useState('gemini-3.5-flash');
   const [writingTime, setWritingTime] = useState(60);
   const [readingTime, setReadingTime] = useState(60);
-  const [listeningReps, setListeningReps] = useState(2);
+  const [listeningReps, setListeningReps] = useState(1);
   const [fullExamModeEnabled, setFullExamModeEnabled] = useState(false);
   const [fullExamSequence, setFullExamSequence] = useState<string[]>(['speaking', 'listening', 'reading', 'writing']);
   const [ttsVoice, setTtsVoice] = useState('uk_male');
@@ -88,7 +88,7 @@ export default function AdminSettingsPage() {
         setFinalModel(data.final_model || 'gemini-3.5-flash');
         setWritingTime(data.writing_time_minutes || 60);
         setReadingTime(data.reading_time_minutes || 60);
-        setListeningReps(data.listening_repetitions || 2);
+        setListeningReps(data.listening_repetitions || 1);
         setFullExamModeEnabled(data.full_exam_mode_enabled ?? false);
         setFullExamSequence(data.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing']);
         setTtsVoice(data.tts_voice || 'uk_male');

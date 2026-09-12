@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       final_model: body.final_model,
       writing_time_minutes: body.writing_time_minutes ? parseInt(body.writing_time_minutes, 10) : 60,
       reading_time_minutes: body.reading_time_minutes ? parseInt(body.reading_time_minutes, 10) : 60,
-      listening_repetitions: body.listening_repetitions ? parseInt(body.listening_repetitions, 10) : 2,
+      listening_repetitions: body.listening_repetitions ? parseInt(body.listening_repetitions, 10) : 1,
       full_exam_mode_enabled: body.full_exam_mode_enabled ?? false,
       full_exam_sequence: body.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing'],
       tts_voice: body.tts_voice || 'uk_male'

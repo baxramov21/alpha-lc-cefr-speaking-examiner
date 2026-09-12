@@ -17,7 +17,6 @@ export default function CanonicalUploadPage() {
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [pageRange, setPageRange] = useState<string>('');
-  const [questionRange, setQuestionRange] = useState<string>('');
   const [programme, setProgramme] = useState<'CEFR'|'IELTS'>('CEFR');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
@@ -204,49 +203,11 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     try {
       let finalPayload = { ...previewData, programme };
 
-      if (questionRange) {
-        const [startQ, endQ] = questionRange.split('-').map(Number);
-        if (!isNaN(startQ) && !isNaN(endQ) && startQ > 0 && endQ >= startQ) {
-          if (finalPayload.parts) {
-            finalPayload.parts.forEach((part: any) => {
-              if (part.questions) {
-                part.questions = part.questions.filter((q: any) => {
-                  const qNum = Number(q.question_number || q.number);
-                  return qNum >= startQ && qNum <= endQ;
-                });
-              }
-            });
-            finalPayload.parts = finalPayload.parts.filter((p: any) => p.questions && p.questions.length > 0);
-          }
-        }
-      }
+      // questionRange filtering has been removed
 
-      if (pdfFile) {
-        let fileToUpload = pdfFile;
-        if (pageRange) {
-           const [start, end] = pageRange.split('-').map(Number);
-           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
-              const pdfBytes = await pdfFile.arrayBuffer();
-              const pdfDoc = await PDFDocument.load(pdfBytes);
-              const newPdf = await PDFDocument.create();
-              const indices = [];
-              for (let i = start - 1; i < end; i++) indices.push(i);
-              
-              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
-              copiedPages.forEach((page) => newPdf.addPage(page));
-              
-              const newPdfBytes = await newPdf.save();
-              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
-              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
-           }
-        }
-        
-        const pdfUrl = await uploadFileToSupabase(fileToUpload);
-        if (finalPayload.parts && finalPayload.parts.length > 0) {
-          finalPayload.parts[0].pdf_url = pdfUrl;
-        }
-      }
-
+      // The PDF is only used for local slicing and downloading for Claude.
+      // We DO NOT upload it to Supabase or set pdf_url, because it ruins the student UI layout.
+      
       if (examMode === 'listening' && audioFiles.length > 0) {
         setUploadProgress(0);
 
@@ -428,61 +389,50 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       </div>
       </div>
 
-      <div className="mb-8 flex flex-col md:flex-row gap-6">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Test Target (Optional)</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Answers Test Target (Optional)</label>
           <input
             type="text"
             placeholder="e.g. Test 1"
             value={testIdentifier}
             onChange={(e) => setTestIdentifier(e.target.value)}
-            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Helps Claude find the right test in a multi-test PDF.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Helps Claude find the right test in a multi-test Answers PDF.</p>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Answer Page (Optional)</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Answers Page Number (Optional)</label>
           <input
             type="text"
             placeholder="e.g. 45"
             value={answersPageNumber}
             onChange={(e) => setAnswersPageNumber(e.target.value)}
-            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Explicitly tells Claude which page the answers are on.</p>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">PDF Page Range (Optional)</label>
-          <div className="flex gap-2 items-center">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">PDF Extraction Range (Optional)</label>
+          <div className="flex gap-2">
             <input
               type="text"
               placeholder="e.g. 12-14"
               value={pageRange}
               onChange={(e) => setPageRange(e.target.value)}
-              className="w-full md:w-32 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+              className="w-full px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
             />
             <Button 
               onClick={handleDownloadExtractedPdf}
               disabled={!pdfFile || !pageRange}
               type="button"
               variant="outline"
-              className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-10 px-4 rounded-xl font-medium"
+              className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-indigo-200 text-indigo-700 hover:bg-indigo-50 h-[42px] px-4 rounded-xl font-medium shrink-0"
             >
-              Download Extracted PDF
+              Extract PDF
             </Button>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Downloads a tiny PDF so Claude won't reject it.</p>
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Question Range (Optional)</label>
-          <input
-            type="text"
-            placeholder="e.g. 11-20"
-            value={questionRange}
-            onChange={(e) => setQuestionRange(e.target.value)}
-            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
-          />
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Filters the JSON to only include these questions.</p>
         </div>
       </div>
 

@@ -56,7 +56,7 @@ export default function ListeningSessionPage() {
   // Playback state
   const [phase, setPhase] = useState<PlaybackPhase>('waiting');
   const [prepCountdown, setPrepCountdown] = useState(10);
-  const [maxPlays, setMaxPlays] = useState(2);
+  const [maxPlays, setMaxPlays] = useState(1);
   const [currentPlayCount, setCurrentPlayCount] = useState(1);
   const [audioIndex, setAudioIndex] = useState(0);
   const [audioBlocked, setAudioBlocked] = useState(false);
@@ -92,12 +92,12 @@ export default function ListeningSessionPage() {
         return;
       }
 
-      let maxRepetitions = 2;
+      let maxRepetitions = 1;
       try {
         const res = await fetch('/api/admin/settings/models');
         if (res.ok) {
           const config = await res.json();
-          maxRepetitions = config.listening_repetitions || 2;
+          maxRepetitions = config.listening_repetitions || 1;
           setMaxPlays(maxRepetitions);
         }
       } catch (err) {

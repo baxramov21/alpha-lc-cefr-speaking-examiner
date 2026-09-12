@@ -36,7 +36,7 @@ export async function getModelConfig(): Promise<ModelConfig> {
     final_model: 'gemini-1.5-flash',
     writing_time_minutes: 60,
     reading_time_minutes: 60,
-    listening_repetitions: 2,
+    listening_repetitions: 1,
     full_exam_mode_enabled: false,
     full_exam_sequence: ['speaking', 'listening', 'reading', 'writing'],
     tts_voice: 'uk_male'
@@ -63,7 +63,7 @@ function applyFallbackLogic(config: ModelConfig): ModelConfig {
     ...config,
     writing_time_minutes: config.writing_time_minutes || 60,
     reading_time_minutes: config.reading_time_minutes || 60,
-    listening_repetitions: config.listening_repetitions || 2,
+    listening_repetitions: config.listening_repetitions || 1,
     full_exam_mode_enabled: config.full_exam_mode_enabled ?? false,
     full_exam_sequence: config.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing'],
     tts_voice: config.tts_voice || 'uk_male'
