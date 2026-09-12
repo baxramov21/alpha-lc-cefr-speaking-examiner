@@ -1,22 +1,16 @@
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config({ path: '.env.local' });
-require('dotenv').config({ path: '.env' });
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-async function run() {
-  const { data, error } = await supabase.from('canonical_exams')
-    .select('id, title, programme, grammar_level, is_active')
-    .eq('programme', 'GRAMMAR')
-    .eq('exam_type', 'CEFR_READING');
-  console.log("Canonical Exams:", data);
-
-  if (data && data.length > 0) {
-    const examId = data[0].id;
-    const { data: passages } = await supabase.from('passages').select('id, exam_id').eq('exam_id', examId);
-    console.log("Passages for exam", examId, ":", passages);
-  }
+async function check() {
+  const { data: grammarExams } = await supabase.from('grammar_exams').select('*');
+  console.log('Grammar Exams:', grammarExams?.length);
+  
+  const { data: canonicalExams } = await supabase.from('canonical_exams').select('id, title, level, exam_type');
+  console.log('Canonical Exams:', canonicalExams?.length);
+  console.log(canonicalExams);
 }
-run();
+check();

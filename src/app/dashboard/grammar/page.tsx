@@ -127,22 +127,22 @@ export default function GrammarDashboardPage() {
   return (
     <div className="min-h-screen bg-[#F7F8FA] pb-20">
       {/* Header */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 relative">
+      <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-indigo-500 border border-indigo-400 shadow-lg shadow-indigo-500/30 relative">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-indigo-500 shadow-lg shadow-indigo-500/30 relative">
               <BookOpen className="w-5 h-5 text-white relative z-10" />
             </div>
             <div>
-              <h1 className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-300 leading-tight tracking-tight text-lg">Alpha LC</h1>
-              <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider mt-0.5">Grammar Practice</p>
+              <h1 className="font-bold text-slate-900 dark:text-white leading-tight tracking-tight text-lg">Alpha LC</h1>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Grammar Practice</p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-400 dark:text-slate-500 dark:text-slate-500 hover:text-white hover:bg-white/10 rounded-full transition-colors" title="Logout">
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors" title="Logout">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
