@@ -63,9 +63,9 @@ export async function POST(req: NextRequest) {
       .from('grammar_submissions')
       .insert({
         exam_id: examId,
-        student_name: session.fullName,
-        group_name: session.groupName,
-        teacher_name: session.teacherName,
+        student_name: session.fullName || 'Unknown Student',
+        group_name: session.groupName || 'Unknown Group',
+        teacher_name: session.teacherName || 'Unknown Teacher',
         passcode_used: session.passcode,
         grammar_level: session.grammarLevel || 'intermediate',
         total_score: totalScore,
