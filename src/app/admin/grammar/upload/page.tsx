@@ -790,7 +790,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Review the extracted content before submitting.</p>
             </div>
             <button 
-              onClick={handleUpload}
+              onClick={handleUploadClick}
               disabled={isSubmitDisabled}
               className="w-full max-w-[200px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
