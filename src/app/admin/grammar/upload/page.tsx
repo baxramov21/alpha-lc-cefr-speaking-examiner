@@ -449,10 +449,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           fetch('/api/admin/exams/canonical'),
           fetch('/api/admin/grammar/exams')
        ]);
-       const canData = await canRes.json();
-       const gramData = await gramRes.json();
+       const canDataRaw = await canRes.json();
+       const gramDataRaw = await gramRes.json();
        
-       const allExisting = [...(canData || []), ...(gramData || [])];
+       const canData = Array.isArray(canDataRaw) ? canDataRaw : (canDataRaw.data || []);
+       const gramData = Array.isArray(gramDataRaw) ? gramDataRaw : (gramDataRaw.exams || gramDataRaw.data || []);
+       
+       const allExisting = [...canData, ...gramData];
        const existingTitles = new Set(allExisting.map((e: any) => e.title?.toLowerCase()));
 
        const conflicts = finalPayloads.filter(p => existingTitles.has(p.title?.toLowerCase()));
