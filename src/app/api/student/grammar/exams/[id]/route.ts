@@ -33,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .single();
 
     if (!legacyError && legacyExam) {
-      if (legacyExam.level !== session.grammarLevel) {
+      if (!legacyExam.level || !session.grammarLevel || legacyExam.level.toLowerCase() !== session.grammarLevel.toLowerCase()) {
         return NextResponse.json({ error: 'Exam level mismatch' }, { status: 403 });
       }
       exam = legacyExam;
