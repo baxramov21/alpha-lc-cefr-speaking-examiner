@@ -705,6 +705,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 Copy
               </button>
             </div>
+            <p className="text-xs text-indigo-300/80 italic">
+              * Claude usually returns a file named exam.json. Upload it below.
+            </p>
+          </div>
         </div>
       )}
 
