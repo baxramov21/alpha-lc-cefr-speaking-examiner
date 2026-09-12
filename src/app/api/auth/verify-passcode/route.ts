@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
     fullName: fullName || '',
     programme,
     grammarLevel,
-    groupName: passcodeRecord.group_name || 'Unknown',
-    teacherName: passcodeRecord.teacher_name || 'Unknown',
+    groupName: passcodeRecord?.group_name || 'Unknown',
+    teacherName: passcodeRecord?.teacher_name || 'Unknown',
     type: 'student_session',
   })
     .setProtectedHeader({ alg: 'HS256' })
