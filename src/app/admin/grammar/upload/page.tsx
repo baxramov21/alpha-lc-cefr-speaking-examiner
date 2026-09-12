@@ -28,19 +28,24 @@ export default function GrammarUploadPage() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [pageRange, setPageRange] = useState<string>('');
   const [questionRange, setQuestionRange] = useState<string>('');
-  const [testIdentifier, setTestIdentifier] = useState<string>('');
+  const [testRange, setTestRange] = useState<string>('');
   const [answersPageNumber, setAnswersPageNumber] = useState<string>('');
   const [customExamName, setCustomExamName] = useState<string>('');
+
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateResolution, setDuplicateResolution] = useState<'replace' | 'add' | 'skip' | null>(null);
+  const [pendingUploadPayloads, setPendingUploadPayloads] = useState<any[]>([]);
+  const [duplicateConflicts, setDuplicateConflicts] = useState<any[]>([]);
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const answersInputRef = useRef<HTMLInputElement>(null);
 
-  const targetTestInstructions = (testIdentifier || answersPageNumber) ? `
-4. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
-${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
+  const targetTestInstructions = (testRange || answersPageNumber) ? `
+4. The provided document contains multiple tests. Please extract the tests into an array.
+${testRange ? `- Test Range to Extract: ${testRange}` : ''}
 ${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
-If both are provided, use the page number to locate the answers, and verify they belong to the test identifier. Do NOT extract answers from other tests.` : '';
+If both are provided, use the page number to locate the answers. You MUST output an Array of JSON objects, one for each test in the range.` : '';
 
   const grammarPrompt = `Please act as an expert English examiner converting grammar questions into a strict JSON format for my app.
 
@@ -69,11 +74,11 @@ SCHEMA:
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
-  const targetTestInstructionsForPdf = (testIdentifier || answersPageNumber) ? `
-5. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
-${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
+  const targetTestInstructionsForPdf = (testRange || answersPageNumber) ? `
+5. The provided document contains multiple tests. Please extract the tests into an array.
+${testRange ? `- Test Range to Extract: ${testRange}` : ''}
 ${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
-If both are provided, use the page number to locate the answers, and verify they belong to the test identifier. Do NOT extract answers from other tests.` : '';
+If both are provided, use the page number to locate the answers. You MUST output an Array of JSON objects, one for each test in the range.` : '';
 
   const grammarPdfPrompt = `Please act as an expert English examiner converting an exam PDF into a strict JSON format for my app.
 You DO NOT need to extract the question texts or passages, because the student will view the PDF directly.
@@ -219,184 +224,175 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
     try {
       const text = await selected.text();
-      let json = JSON.parse(text);
+      let parsedRaw = JSON.parse(text);
       
-      // Auto-wrap array if LLM returns just the parts array (very common)
-      if (examMode === 'reading' || examMode === 'listening') {
-        // If it's a simple GrammarPdfExamSchema-like payload (has answers object)
-        if (json.answers && typeof json.answers === 'object') {
-           const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
-              question_number: parseInt(qNum),
-              type: val.type || "MULTIPLE_CHOICE",
-              question_text: "Question " + qNum,
-              correct_answer: val.correct_answer || val
-           }));
-           json = {
-              title: json.title || "Extracted Exam",
-              exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
-              programme: 'GRAMMAR',
-              grammar_level: json.grammar_level || grammarLevel,
-              time_limit: json.time_limit || 3600,
-              parts: [
-                {
-                  part_number: 1,
-                  title: "Part 1",
-                  questions: questions
-                }
-              ]
-           };
-        } 
-        // If it's just an array
-        else if (Array.isArray(json)) {
-           // check if it's array of parts or questions
-           if (json.length > 0 && json[0].question_number !== undefined) {
-              json = {
-                title: "Extracted Exam",
-                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
-                programme: 'GRAMMAR',
-                grammar_level: grammarLevel,
-                time_limit: 3600,
-                parts: [
-                  {
-                    part_number: 1,
-                    title: "Part 1",
-                    questions: json
-                  }
-                ]
-              };
-           } else if (json.length > 0 && (json[0].part_number !== undefined || json[0].questions !== undefined)) {
-              json = {
-                title: "Extracted Exam",
-                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
-                programme: 'GRAMMAR',
-                grammar_level: grammarLevel,
-                time_limit: 3600,
-                parts: json
-              };
-           } else {
-              // The array contains unknown objects, try to map them to questions if they look like answer maps
-              let mappedQuestions: any[] = [];
-              json.forEach((item: any, i: number) => {
-                 if (typeof item === 'object') {
-                    // if it's like {"1": "B", "2": "A"}
-                    const keys = Object.keys(item);
-                    keys.forEach(k => {
-                       const num = parseInt(k);
-                       if (!isNaN(num)) {
-                          mappedQuestions.push({
-                             question_number: num,
-                             correct_answer: typeof item[k] === 'object' ? item[k].correct_answer : item[k],
-                             type: (typeof item[k] === 'object' ? item[k].type : null) || 'MULTIPLE_CHOICE',
-                             question_text: `Question ${num}`
-                          });
-                       } else {
-                          // just push the item as a question and hope it matches schema
-                          if (!mappedQuestions.includes(item)) {
-                             mappedQuestions.push(item);
-                          }
-                       }
-                    });
-                 }
-              });
-              
-              if (mappedQuestions.length === 0) mappedQuestions = json; // fallback
+      if (parsedRaw.tests && Array.isArray(parsedRaw.tests)) parsedRaw = parsedRaw.tests;
+      else if (parsedRaw.exams && Array.isArray(parsedRaw.exams)) parsedRaw = parsedRaw.exams;
 
-              json = {
-                title: "Extracted Exam",
-                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
-                programme: 'GRAMMAR',
-                grammar_level: grammarLevel,
-                time_limit: 3600,
-                parts: [
-                  {
-                    part_number: 1,
-                    title: "Part 1",
-                    questions: mappedQuestions
-                  }
-                ]
-              };
-           }
-        }
-
-        // Lastly, ensure all questions have a question_text and type
-        if (json.parts && Array.isArray(json.parts)) {
-           json.parts.forEach((p: any) => {
-              if (p.questions && Array.isArray(p.questions)) {
-                 p.questions.forEach((q: any, i: number) => {
-                    // Force question_number to exist
-                    if (q.question_number === undefined) {
-                       q.question_number = i + 1;
-                    } else if (typeof q.question_number === 'string') {
-                       q.question_number = parseInt(q.question_number) || i + 1;
-                    }
-                    if (!q.question_text) {
-                       q.question_text = `Question ${q.question_number}`;
-                    }
-                    if (!q.type) {
-                       q.type = 'MULTIPLE_CHOICE';
-                    }
-                    if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                       let maxCode = 68; // 'D'
-                       if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
-                         const code = q.correct_answer.toUpperCase().charCodeAt(0);
-                         if (code >= 65 && code <= 74) { // 'A' to 'J'
-                           maxCode = Math.max(maxCode, code);
-                         }
-                       }
-                       const opts = [];
-                       for (let c = 65; c <= maxCode; c++) {
-                         opts.push(String.fromCharCode(c));
-                       }
-                       q.options = opts;
-                    }
-                 });
-              }
-           });
+      let isArrayOfExams = Array.isArray(parsedRaw);
+      // Fallback: If it's an array but looks like an array of questions or parts, wrap it in one exam
+      if (isArrayOfExams && parsedRaw.length > 0) {
+        const first = parsedRaw[0];
+        if (first.question_number !== undefined || first.part_number !== undefined || (first.questions && Array.isArray(first.questions))) {
+          isArrayOfExams = false; // it's just parts/questions for a single exam
         }
       }
-      
-      json.level = grammarLevel;
-      json.grammar_level = grammarLevel;
-      setCustomExamName(json.title || '');
-      
-      if (examMode === 'grammar_json') {
-        const valResult = GrammarExamSchema.safeParse(json);
-        if (!valResult.success) {
-          setValidationErrors(valResult.error.issues);
-          setErrorMsg('Validation Failed for Grammar Exam.');
-          setPreviewData(null);
-        } else {
-          setPreviewData(valResult.data);
-        }
-      } else if (examMode === 'grammar_pdf') {
-        if (!json.answers && Array.isArray(json.questions)) {
-           json.answers = {};
-           json.questions.forEach((q: any) => {
-              if (q.question_number !== undefined && q.correct_answer !== undefined) {
-                 json.answers[q.question_number.toString()] = {
-                    correct_answer: q.correct_answer,
-                    type: q.type || 'MULTIPLE_CHOICE'
-                 };
-              }
-           });
+
+      const rawExamsList = isArrayOfExams ? parsedRaw : [parsedRaw];
+      const validatedExams: any[] = [];
+      let allValidationErrors: any[] = [];
+
+      for (let i = 0; i < rawExamsList.length; i++) {
+        let json = rawExamsList[i];
+        
+        // Auto-wrap array if LLM returns just the parts array (very common)
+        if (examMode === 'reading' || examMode === 'listening') {
+          if (json.answers && typeof json.answers === 'object') {
+             const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
+                question_number: parseInt(qNum),
+                type: val.type || "MULTIPLE_CHOICE",
+                question_text: "Question " + qNum,
+                correct_answer: val.correct_answer || val
+             }));
+             json = {
+                title: json.title || "Extracted Exam",
+                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                programme: 'GRAMMAR',
+                grammar_level: json.grammar_level || grammarLevel,
+                time_limit: json.time_limit || 3600,
+                parts: [
+                  {
+                    part_number: 1,
+                    title: "Part 1",
+                    questions: questions
+                  }
+                ]
+             };
+          } 
+          else if (Array.isArray(json)) {
+             if (json.length > 0 && json[0].question_number !== undefined) {
+                json = {
+                  title: "Extracted Exam",
+                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  programme: 'GRAMMAR',
+                  grammar_level: grammarLevel,
+                  time_limit: 3600,
+                  parts: [{ part_number: 1, title: "Part 1", questions: json }]
+                };
+             } else if (json.length > 0 && (json[0].part_number !== undefined || json[0].questions !== undefined)) {
+                json = {
+                  title: "Extracted Exam",
+                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  programme: 'GRAMMAR',
+                  grammar_level: grammarLevel,
+                  time_limit: 3600,
+                  parts: json
+                };
+             } else {
+                let mappedQuestions: any[] = [];
+                json.forEach((item: any, idx: number) => {
+                   if (typeof item === 'object') {
+                      const keys = Object.keys(item);
+                      keys.forEach(k => {
+                         const num = parseInt(k);
+                         if (!isNaN(num)) {
+                            mappedQuestions.push({
+                               question_number: num,
+                               correct_answer: typeof item[k] === 'object' ? item[k].correct_answer : item[k],
+                               type: (typeof item[k] === 'object' ? item[k].type : null) || 'MULTIPLE_CHOICE',
+                               question_text: `Question ${num}`
+                            });
+                         } else {
+                            if (!mappedQuestions.includes(item)) mappedQuestions.push(item);
+                         }
+                      });
+                   }
+                });
+                if (mappedQuestions.length === 0) mappedQuestions = json;
+                json = {
+                  title: "Extracted Exam",
+                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  programme: 'GRAMMAR',
+                  grammar_level: grammarLevel,
+                  time_limit: 3600,
+                  parts: [{ part_number: 1, title: "Part 1", questions: mappedQuestions }]
+                };
+             }
+          }
+
+          if (json.parts && Array.isArray(json.parts)) {
+             json.parts.forEach((p: any) => {
+                if (p.questions && Array.isArray(p.questions)) {
+                   p.questions.forEach((q: any, qi: number) => {
+                      if (q.question_number === undefined) {
+                         q.question_number = qi + 1;
+                      } else if (typeof q.question_number === 'string') {
+                         q.question_number = parseInt(q.question_number) || qi + 1;
+                      }
+                      if (!q.question_text) q.question_text = `Question ${q.question_number}`;
+                      if (!q.type) q.type = 'MULTIPLE_CHOICE';
+                      if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
+                         let maxCode = 68;
+                         if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
+                           const code = q.correct_answer.toUpperCase().charCodeAt(0);
+                           if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                         }
+                         const opts = [];
+                         for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
+                         q.options = opts;
+                      }
+                   });
+                }
+             });
+          }
         }
         
-        const valResult = GrammarPdfExamSchema.safeParse(json);
-        if (!valResult.success) {
-          setValidationErrors(valResult.error.issues);
-          setErrorMsg('Validation Failed for Grammar PDF Exam.');
-          setPreviewData(null);
+        json.level = grammarLevel;
+        json.grammar_level = grammarLevel;
+        
+        if (examMode === 'grammar_json') {
+          const valResult = GrammarExamSchema.safeParse(json);
+          if (!valResult.success) {
+            allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
+          } else {
+            validatedExams.push(valResult.data);
+          }
+        } else if (examMode === 'grammar_pdf') {
+          if (!json.answers && Array.isArray(json.questions)) {
+             json.answers = {};
+             json.questions.forEach((q: any) => {
+                if (q.question_number !== undefined && q.correct_answer !== undefined) {
+                   json.answers[q.question_number.toString()] = {
+                      correct_answer: q.correct_answer,
+                      type: q.type || 'MULTIPLE_CHOICE'
+                   };
+                }
+             });
+          }
+          const valResult = GrammarPdfExamSchema.safeParse(json);
+          if (!valResult.success) {
+            allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
+          } else {
+            validatedExams.push(valResult.data);
+          }
         } else {
-          setPreviewData(valResult.data);
+          const valResult = ExamCanonicalSchema.safeParse(json);
+          if (!valResult.success) {
+            allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
+          } else {
+            validatedExams.push(valResult.data);
+          }
         }
+      }
+
+      if (allValidationErrors.length > 0) {
+        setValidationErrors(allValidationErrors);
+        setErrorMsg(`Validation Failed in ${allValidationErrors.length} places across ${rawExamsList.length} exams.`);
+        setPreviewData(null);
       } else {
-        const valResult = ExamCanonicalSchema.safeParse(json);
-        if (!valResult.success) {
-          setValidationErrors(valResult.error.issues);
-          setErrorMsg('Validation Failed for Reading/Listening Exam.');
-          setPreviewData(null);
-        } else {
-          setPreviewData(valResult.data);
+        setPreviewData(isArrayOfExams ? validatedExams : validatedExams[0]);
+        if (!customExamName && validatedExams.length > 0) {
+           setCustomExamName(validatedExams[0]?.title || 'Extracted Exam');
         }
       }
     } catch (err: any) {
@@ -405,41 +401,17 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const uploadFileToSupabase = async (file: File): Promise<string> => {
-    const urlRes = await fetch('/api/admin/exams/get-upload-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileName: file.name, contentType: file.type || 'application/octet-stream' })
-    });
-    const urlData = await urlRes.json();
-    if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
-
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', urlData.signedUrl, true);
-      xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) resolve(true);
-        else reject(new Error('Upload failed'));
-      };
-      xhr.onerror = () => reject(new Error('Network error during upload'));
-      xhr.send(file);
-    });
-
-    return urlData.publicUrl;
-  };
-
-  const handleUpload = async () => {
+  const handleUploadClick = async () => {
     if (!previewData) return;
-    setIsUploading(true);
-    setErrorMsg(null);
-    setValidationErrors([]);
-    setUploadProgress(0);
-
-    try {
-      let finalPayload = { ...previewData };
-      if (customExamName) finalPayload.title = customExamName;
-
+    
+    let payloads = Array.isArray(previewData) ? previewData : [previewData];
+    
+    const finalPayloads = payloads.map((payload, index) => {
+      let finalPayload = { ...payload };
+      if (customExamName) {
+         finalPayload.title = payloads.length > 1 ? `${customExamName} ${index + 1}` : customExamName;
+      }
+      
       if (questionRange) {
         const [startQ, endQ] = questionRange.split('-').map(Number);
         if (!isNaN(startQ) && !isNaN(endQ) && startQ > 0 && endQ >= startQ) {
@@ -466,105 +438,95 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           }
         }
       }
-      if (examMode === 'grammar_json') {
-        
-        const res = await fetch('/api/admin/grammar/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(finalPayload),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-      } else if (examMode === 'grammar_pdf') {
-        if (!pdfFile) throw new Error("A PDF file is required for Grammar (PDF Mode)");
-        
-        setUploadProgress(30);
-        
-        let fileToUpload = pdfFile;
-        if (pageRange) {
-           const [start, end] = pageRange.split('-').map(Number);
-           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
-              const pdfBytes = await pdfFile.arrayBuffer();
-              const pdfDoc = await PDFDocument.load(pdfBytes);
-              const newPdf = await PDFDocument.create();
-              const indices = [];
-              for (let i = start - 1; i < end; i++) indices.push(i);
-              
-              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
-              copiedPages.forEach((page) => newPdf.addPage(page));
-              
-              const newPdfBytes = await newPdf.save();
-              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
-              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
-           }
-        }
-        
-        const pdfUrl = await uploadFileToSupabase(fileToUpload);
-        finalPayload.pdf_url = pdfUrl;
-        
-        setUploadProgress(60);
-        
-        const res = await fetch('/api/admin/grammar/upload-pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(finalPayload),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-      } else {
-        // Upload Reading / Listening
-        if (!pdfFile) throw new Error("A PDF file is required for Grammar Reading/Listening");
-        if (examMode === 'listening' && !audioFile) throw new Error("An audio file is required for Listening");
+      return finalPayload;
+    });
 
-        setUploadProgress(20);
+    setPendingUploadPayloads(finalPayloads);
+
+    setIsUploading(true);
+    try {
+       const [canRes, gramRes] = await Promise.all([
+          fetch('/api/admin/exams/canonical'),
+          fetch('/api/admin/grammar/exams')
+       ]);
+       const canData = await canRes.json();
+       const gramData = await gramRes.json();
+       
+       const allExisting = [...(canData || []), ...(gramData || [])];
+       const existingTitles = new Set(allExisting.map((e: any) => e.title?.toLowerCase()));
+
+       const conflicts = finalPayloads.filter(p => existingTitles.has(p.title?.toLowerCase()));
+
+       if (conflicts.length > 0) {
+          const conflictsWithIds = conflicts.map(p => {
+             const existing = allExisting.find((e: any) => e.title?.toLowerCase() === p.title?.toLowerCase());
+             return { ...p, existingId: existing?.id, existingType: existing?.exam_type ? 'canonical' : 'grammar' };
+          });
+          setDuplicateConflicts(conflictsWithIds);
+          setShowDuplicateModal(true);
+          setIsUploading(false);
+          return;
+       }
+
+       await executeUpload(finalPayloads);
+    } catch (err: any) {
+       setErrorMsg("Failed to check for duplicates: " + err.message);
+       setIsUploading(false);
+    }
+  };
+
+  const executeUpload = async (payloads: any[], resolution?: 'replace' | 'add' | 'skip') => {
+    setIsUploading(true);
+    setUploadProgress(0);
+    setErrorMsg(null);
+    setSuccess(false);
+
+    try {
+      const total = payloads.length;
+      for (let i = 0; i < total; i++) {
+        let finalPayload = payloads[i];
         
-        let fileToUpload: File | null = pdfFile;
-        if (pdfFile && pageRange) {
-           const [start, end] = pageRange.split('-').map(Number);
-           if (!isNaN(start) && !isNaN(end) && start > 0 && end >= start) {
-              const pdfBytes = await pdfFile.arrayBuffer();
-              const pdfDoc = await PDFDocument.load(pdfBytes);
-              const newPdf = await PDFDocument.create();
-              const indices = [];
-              for (let i = start - 1; i < end; i++) indices.push(i);
-              
-              const copiedPages = await newPdf.copyPages(pdfDoc, indices);
-              copiedPages.forEach((page) => newPdf.addPage(page));
-              
-              const newPdfBytes = await newPdf.save();
-              const newPdfBlob = new Blob([newPdfBytes as any], { type: 'application/pdf' });
-              fileToUpload = new File([newPdfBlob], `${pdfFile.name.replace('.pdf', '')}_pages_${start}-${end}.pdf`, { type: 'application/pdf' });
+        if (resolution === 'skip' && duplicateConflicts.some(c => c.title?.toLowerCase() === finalPayload.title?.toLowerCase())) {
+           continue;
+        }
+        if (resolution === 'add' && duplicateConflicts.some(c => c.title?.toLowerCase() === finalPayload.title?.toLowerCase())) {
+           finalPayload.title = finalPayload.title + ` (${Date.now().toString().slice(-4)})`;
+        }
+        if (resolution === 'replace') {
+           const conflict = duplicateConflicts.find(c => c.title?.toLowerCase() === finalPayload.title?.toLowerCase());
+           if (conflict && conflict.existingId) {
+              const endpoint = conflict.existingType === 'canonical' ? `/api/admin/exams/canonical/${conflict.existingId}` : `/api/admin/grammar/exams/${conflict.existingId}`;
+              await fetch(endpoint, { method: 'DELETE' });
            }
         }
 
-        let pdfUrl = null;
-        if (fileToUpload) {
-          pdfUrl = await uploadFileToSupabase(fileToUpload);
+        if (examMode === 'grammar_json') {
+          const res = await fetch('/api/admin/grammar/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalPayload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(`Exam ${i+1}: ${data.error}`);
+        } else if (examMode === 'grammar_pdf') {
+          const res = await fetch('/api/admin/grammar/upload-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalPayload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(`Exam ${i+1}: ${data.error}`);
+        } else {
+          const res = await fetch('/api/admin/exams/upload-canonical', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalPayload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(`Exam ${i+1}: ${data.error}`);
         }
         
-        // Inject PDF URL into part 1
-        if (pdfUrl && finalPayload.parts && finalPayload.parts.length > 0) {
-          finalPayload.parts[0].pdf_url = pdfUrl;
-        }
-
-        setUploadProgress(60);
-
-        if (examMode === 'listening' && audioFile) {
-          const audioUrl = await uploadFileToSupabase(audioFile);
-          if (finalPayload.parts && finalPayload.parts.length > 0) {
-            finalPayload.parts[0].audio_urls = [audioUrl];
-          }
-        }
-        
-        setUploadProgress(80);
-
-        const res = await fetch('/api/admin/exams/upload-canonical', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(finalPayload),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        setUploadProgress(Math.round(((i + 1) / total) * 100));
       }
 
       setUploadProgress(100);
@@ -573,6 +535,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       setPdfFile(null);
       setAudioFile(null);
       setPreviewData(null);
+      setShowDuplicateModal(false);
     } catch (err: any) {
       setErrorMsg(err.message || 'Network error');
     } finally {
@@ -580,7 +543,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || (examMode !== 'grammar_json' && !pdfFile) || (examMode === 'listening' && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || (examMode === 'listening' && !audioFile);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -601,48 +564,40 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-8 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-2 rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-2 mb-8 p-1.5 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-2xl w-fit">
         <button
-          onClick={() => { setExamMode('grammar_json'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); setAnswersFile(null); }}
-          className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_json' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
-          }`}
+          onClick={() => { setExamMode('grammar_json'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'grammar_json' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
           Grammar (JSON Mode)
         </button>
         <button
-          onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); setAnswersFile(null); }}
-          className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'grammar_pdf' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
-          }`}
+          onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'grammar_pdf' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
           Grammar (PDF Mode)
         </button>
         <button
-          onClick={() => { setExamMode('reading'); setPreviewData(null); setJsonFile(null); setAudioFile(null); setAnswersFile(null); }}
-          className={`px-6 py-2 rounded-xl font-bold transition-all ${
-            examMode === 'reading' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-fuchsia-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
-          }`}
+          onClick={() => { setExamMode('reading'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'reading' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-fuchsia-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
           Reading (PDF Mode)
         </button>
         <button
-          onClick={() => { setExamMode('listening'); setPreviewData(null); setJsonFile(null); setAnswersFile(null); }}
-          className={`px-6 py-2 rounded-xl font-bold transition-all flex items-center gap-2 ${
-            examMode === 'listening' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700'
-          }`}
+          onClick={() => { setExamMode('listening'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
           Listening (PDF Mode)
         </button>
       </div>
 
-      <div className="mb-8 flex flex-col md:flex-row gap-6">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Select Grammar Level</label>
-          <select
-            value={grammarLevel}
+          <select 
+            value={grammarLevel} 
             onChange={(e) => setGrammarLevel(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           >
             <option value="elementary">Elementary</option>
             <option value="pre-intermediate">Pre-Intermediate</option>
@@ -657,12 +612,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             type="text"
             placeholder="e.g. Unit 1 Test"
             value={customExamName}
-            onChange={(e) => {
-              setCustomExamName(e.target.value);
-              if (previewData) {
-                setPreviewData({ ...previewData, title: e.target.value || 'Extracted Exam' });
-              }
-            }}
+            onChange={(e) => setCustomExamName(e.target.value)}
             className="w-full md:w-64 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Overrides the title from JSON.</p>
@@ -708,15 +658,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       <div className="mb-8 flex flex-col md:flex-row gap-6">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Test Target (Optional)</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Test Range (Optional)</label>
           <input
             type="text"
-            placeholder="e.g. Test 1"
-            value={testIdentifier}
-            onChange={(e) => setTestIdentifier(e.target.value)}
+            placeholder="e.g. 1-10"
+            value={testRange}
+            onChange={(e) => setTestRange(e.target.value)}
             className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           />
-          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Helps Claude find the right test in a multi-test PDF.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Tells Claude to extract this batch of tests.</p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Claude Answer Page (Optional)</label>
@@ -748,13 +698,13 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 {examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf' ? grammarPdfPrompt : canonicalPdfPrompt)}
               </pre>
               <button 
-                onClick={handleCopyPrompt}
-                className="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
+                onClick={() => navigator.clipboard.writeText(examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf' ? grammarPdfPrompt : canonicalPdfPrompt))}
+                className="absolute top-4 right-4 p-2 bg-indigo-800/80 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
               >
-                <Copy className="w-4 h-4" /> Copy Prompt
+                <Copy className="w-4 h-4" />
+                Copy
               </button>
             </div>
-          </div>
         </div>
       )}
 
@@ -847,6 +797,44 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700">
              <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
              <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
+          </div>
+        </div>
+      )}
+
+      {showDuplicateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col max-w-lg w-full mx-4 animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4">Duplicate Tests Found</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm">
+              The following tests already exist in the database with the exact same name:
+            </p>
+            <ul className="mb-6 bg-slate-50 dark:bg-slate-800 rounded-lg p-4 max-h-48 overflow-y-auto">
+              {duplicateConflicts.map((c, i) => (
+                <li key={i} className="text-sm font-semibold text-slate-700 dark:text-slate-300 py-1 border-b border-slate-200 dark:border-slate-700 last:border-0 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-500" />
+                  {c.title}
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">How would you like to handle them?</p>
+            
+            <div className="flex flex-col gap-3">
+              <button onClick={() => executeUpload(pendingUploadPayloads, 'replace')} className="px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-xl font-semibold transition-colors text-left flex items-center justify-between">
+                <span>Replace Existing</span>
+                <span className="text-xs opacity-80 font-normal">Deletes old versions</span>
+              </button>
+              <button onClick={() => executeUpload(pendingUploadPayloads, 'add')} className="px-4 py-2.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-xl font-semibold transition-colors text-left flex items-center justify-between">
+                <span>Add As Copies</span>
+                <span className="text-xs opacity-80 font-normal">Appends ID to name</span>
+              </button>
+              <button onClick={() => executeUpload(pendingUploadPayloads, 'skip')} className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-semibold transition-colors text-left flex items-center justify-between">
+                <span>Skip Duplicates</span>
+                <span className="text-xs opacity-80 font-normal">Only uploads new ones</span>
+              </button>
+              <button onClick={() => setShowDuplicateModal(false)} className="px-4 py-2.5 mt-2 bg-transparent text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium transition-colors text-center">
+                Cancel Upload
+              </button>
+            </div>
           </div>
         </div>
       )}
