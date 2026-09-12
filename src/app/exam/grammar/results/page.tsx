@@ -44,10 +44,10 @@ export default function GrammarResultsPage() {
             </div>
             <h2 className="text-xl font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Final Score</h2>
             <div className="text-7xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 tracking-tighter mb-4">
-              {result.percentage}%
+              {result.totalScore} / {result.maxScore}
             </div>
             <p className="text-lg font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300">
-              You scored <span className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{result.totalScore}</span> out of <span className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{result.maxScore}</span> questions correct.
+              You scored <span className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{result.percentage}%</span> overall.
             </p>
           </div>
         </section>
