@@ -6,7 +6,7 @@ import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonic
 import { PDFDocument } from 'pdf-lib';
 import { Button } from '@/components/ui/button';
 
-type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening' | 'native_text';
+type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 
 export default function GrammarUploadPage() {
   const [examMode, setExamMode] = useState<ExamMode>('grammar_pdf');
@@ -151,50 +151,12 @@ SCHEMA:
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
-  const nativeTextPrompt = `Please act as an expert English examiner converting an exam into a strict JSON format for my app.
-Extract the main reading passage into HTML format with blanks like (1)_____ if applicable. Extract all questions.
-If a question relies on an image/visual (like a sign or photo), set its "image_url" field to "NEEDS_IMAGE".
 
-CRITICAL INSTRUCTIONS:
-1. Save the JSON to a file named 'exam.json'.
-2. EVERY question MUST have a "correct_answer".
-3. Provide the full text for each option in the "options" array.
-4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.${targetTestInstructionsForPdf}
-
-SCHEMA:
-{
-  "title": "String - e.g., 'Grammar Reading Test 1'",
-  "exam_type": "${examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING'}",
-  "programme": "GRAMMAR",
-  "grammar_level": "pre-intermediate",
-  "time_limit": 3600,
-  "parts": [
-    {
-      "part_number": 1,
-      "title": "Part 1",
-      "passage_html": "<p>This is the passage with a (1)_____.</p>",
-      "questions": [
-        {
-          "question_number": 1,
-          "type": "MULTIPLE_CHOICE",
-          "question_text": "What goes in blank 1?",
-          "image_url": "NEEDS_IMAGE",
-          "options": ["A) cat", "B) dog", "C) bird"],
-          "correct_answer": "B) dog"
-        }
-      ]
-    }
-  ]
-}
-
-OUTPUT FORMAT INSTRUCTION:
-Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
 
   const handleCopyPrompt = () => {
     let promptText = canonicalPdfPrompt;
     if (examMode === 'grammar_json') promptText = grammarPrompt;
     if (examMode === 'grammar_pdf') promptText = grammarPdfPrompt;
-    if (examMode === 'native_text') promptText = nativeTextPrompt;
     
     navigator.clipboard.writeText(promptText);
     alert('Prompt copied to clipboard! Paste this into Claude.');
@@ -260,7 +222,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       let json = JSON.parse(text);
       
       // Auto-wrap array if LLM returns just the parts array (very common)
-      if (examMode === 'reading' || examMode === 'listening' || examMode === 'native_text') {
+      if (examMode === 'reading' || examMode === 'listening') {
         // If it's a simple GrammarPdfExamSchema-like payload (has answers object)
         if (json.answers && typeof json.answers === 'object') {
            const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
@@ -477,26 +439,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     try {
       let finalPayload = { ...previewData };
       if (customExamName) finalPayload.title = customExamName;
-      
-      if (examMode === 'native_text' && answersFile) {
-        try {
-          const ansText = await answersFile.text();
-          const ansJson = JSON.parse(ansText);
-          if (ansJson.answers && finalPayload.parts) {
-            finalPayload.parts.forEach((p: any) => {
-              if (p.questions) {
-                p.questions.forEach((q: any) => {
-                  if (ansJson.answers[q.question_number]) {
-                    q.correct_answer = ansJson.answers[q.question_number].correct_answer || ansJson.answers[q.question_number];
-                  }
-                });
-              }
-            });
-          }
-        } catch (e) {
-          console.error("Failed to parse answers file", e);
-        }
-      }
 
       if (questionRange) {
         const [startQ, endQ] = questionRange.split('-').map(Number);
@@ -570,8 +512,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
       } else {
-        // Upload Reading / Listening / Native Text
-        if (!pdfFile && examMode !== 'native_text') throw new Error("A PDF file is required for Grammar Reading/Listening");
+        // Upload Reading / Listening
+        if (!pdfFile) throw new Error("A PDF file is required for Grammar Reading/Listening");
         if (examMode === 'listening' && !audioFile) throw new Error("An audio file is required for Listening");
 
         setUploadProgress(20);
@@ -623,11 +565,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        
-        if (examMode === 'native_text' && data.examId) {
-          window.location.href = `/admin/exams/\${data.examId}/edit`;
-          return;
-        }
       }
 
       setUploadProgress(100);
@@ -643,7 +580,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || (examMode !== 'grammar_json' && examMode !== 'native_text' && !pdfFile) || (examMode === 'listening' && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || (examMode !== 'grammar_json' && !pdfFile) || (examMode === 'listening' && !audioFile);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -696,14 +633,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           }`}
         >
           Listening (PDF Mode)
-        </button>
-        <button
-          onClick={() => { setExamMode('native_text'); setPreviewData(null); setJsonFile(null); setPdfFile(null); setAudioFile(null); setAnswersFile(null); }}
-          className={`px-6 py-2 rounded-xl font-bold transition-all \${
-            examMode === 'native_text' ? 'bg-white dark:bg-slate-900 shadow-sm text-amber-600' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-          }`}
-        >
-          Native Text (Draft)
         </button>
       </div>
 
@@ -870,18 +799,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         </div>
 
-        {examMode === 'native_text' && (
-          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
-            <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Answer Key (JSON) Optional</h3>
-            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
-              <input type="file" accept=".json" ref={answersInputRef} onChange={(e) => setAnswersFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
-              <div className="w-12 h-12 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
-                <FileJson className="w-5 h-5 text-amber-500" />
-              </div>
-              {answersFile ? <p className="text-xs font-bold text-amber-700 bg-amber-50 dark:bg-amber-950 px-2 py-1 rounded truncate w-full">{answersFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Select Answers JSON</p>}
-            </div>
-          </div>
-        )}
+
 
         {examMode !== 'grammar_json' && (
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
