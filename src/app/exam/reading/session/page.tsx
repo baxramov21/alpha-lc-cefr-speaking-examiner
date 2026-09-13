@@ -257,6 +257,22 @@ export default function ReadingSessionPage() {
   const currentTask = tasks[currentTaskIndex];
   const activePdfUrl = currentTask?.pdf_url || tasks.find(t => t.pdf_url)?.pdf_url;
 
+  // Auto-detect if we should split extremely long matching options into a Reference Bank Left Pane
+  let referenceBank: string[] = [];
+  let isMatchingWithoutPassage = false;
+
+  if (!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) {
+    const qWithLongOpts = currentTask.questions?.find((q: any) => {
+      const opts = getDisplayOptions(q);
+      return opts.length >= 4 && opts.some((o: string) => o.trim().length > 30);
+    });
+
+    if (qWithLongOpts) {
+      isMatchingWithoutPassage = true;
+      referenceBank = getDisplayOptions(qWithLongOpts);
+    }
+  }
+
   const formatQuestionText = (text: string) => {
     if (!text) return '';
     if (text.includes('<br') || text.includes('<b>') || text.includes('<strong>')) {
@@ -349,14 +365,14 @@ export default function ReadingSessionPage() {
 
       {/* Main Split Screen Area */}
       <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ">
-        <div className={`h-full w-full max-w-[1700px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.3fr_1fr]'} gap-6`}>
+        <div className={`h-full w-full max-w-[1700px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url && !isMatchingWithoutPassage) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.3fr_1fr]'} gap-6`}>
           
           {/* Left Column: Passage */}
-          {(activePdfUrl || currentTask.passage_html || currentTask.image_url) && (
+          {(activePdfUrl || currentTask.passage_html || currentTask.image_url || isMatchingWithoutPassage) && (
             <div className="flex flex-col h-full bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden">
               <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - Text
+                  <BookOpen className="w-5 h-5" /> {currentTask.partLabel} - {isMatchingWithoutPassage ? 'Options Reference' : 'Text'}
                 </h2>
               </div>
               
@@ -367,6 +383,19 @@ export default function ReadingSessionPage() {
                     className="absolute inset-0 w-full h-full border-0"
                     title="Reading PDF"
                   />
+                </div>
+              ) : isMatchingWithoutPassage ? (
+                <div 
+                  id="reading-text-container" 
+                  className="flex-1 overflow-y-auto p-6 lg:p-10 relative outline-none"
+                >
+                  <div className="space-y-4">
+                    {referenceBank.map((opt, i) => (
+                      <div key={i} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-200 text-sm md:text-base leading-relaxed">
+                        {opt}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div 
@@ -424,7 +453,7 @@ export default function ReadingSessionPage() {
                         <div className="space-y-3 relative">
                           {(() => {
                             const displayOpts = getDisplayOptions(q);
-                            const isDropdown = displayOpts.length >= 4 && displayOpts.every((o: string) => o.trim().length <= 4);
+                            const isDropdown = displayOpts.length >= 4 && (isMatchingWithoutPassage || displayOpts.every((o: string) => o.trim().length <= 4));
                             
                             if (isDropdown) {
                               return (
@@ -440,7 +469,7 @@ export default function ReadingSessionPage() {
                                     }`}
                                   >
                                     <span className={`font-medium ${answers[q.id] ? 'text-indigo-900 dark:text-indigo-300' : 'text-slate-500 dark:text-slate-400'}`}>
-                                      {answers[q.id] ? `Selected: ${answers[q.id]}` : 'Select an answer...'}
+                                      {answers[q.id] ? `Selected: ${isMatchingWithoutPassage ? String.fromCharCode(65 + displayOpts.indexOf(answers[q.id])) : answers[q.id]}` : 'Select an answer...'}
                                     </span>
                                     <ChevronRight className={`w-5 h-5 transition-transform text-slate-400 ${openDropdown === q.id ? 'rotate-90' : ''}`} />
                                   </button>
@@ -449,7 +478,9 @@ export default function ReadingSessionPage() {
                                     <>
                                       <div className="fixed inset-0 z-[5]" onClick={() => setOpenDropdown(null)} />
                                       <div className="absolute z-[10] top-[calc(100%+0.5rem)] left-0 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-64 overflow-y-auto">
-                                        {displayOpts.map((opt: string) => (
+                                        {displayOpts.map((opt: string, idx: number) => {
+                                          const shortOpt = isMatchingWithoutPassage ? String.fromCharCode(65 + idx) : opt;
+                                          return (
                                           <button
                                             key={opt}
                                             onClick={() => {
@@ -462,9 +493,10 @@ export default function ReadingSessionPage() {
                                                 : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                                             }`}
                                           >
-                                            {opt}
+                                            {shortOpt}
                                           </button>
-                                        ))}
+                                          );
+                                        })}
                                       </div>
                                     </>
                                   )}
