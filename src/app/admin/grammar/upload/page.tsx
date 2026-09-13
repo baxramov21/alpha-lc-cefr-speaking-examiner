@@ -4,6 +4,10 @@ import { useState, useRef } from 'react';
 import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { GrammarExamSchema, GrammarExamPayload, ExamCanonicalSchema, ExamCanonicalPayload, GrammarPdfExamSchema } from '@/lib/schemas/examSchema';
 import { PDFDocument } from 'pdf-lib';
+import { supabase } from '@/lib/supabase';
+import { pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import { Button } from '@/components/ui/button';
 
 type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
@@ -210,6 +214,149 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       
     } catch (err: any) {
       alert("Error extracting PDF: " + err.message);
+    }
+  };
+
+  const uploadFileToSupabase = async (file: File): Promise<string> => {
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data: uploadData, error } = await supabase.storage.from('exam_materials').upload(fileName, file);
+    if (error) throw new Error("Supabase upload failed: " + error.message);
+    const { data: { publicUrl } } = supabase.storage.from('exam_materials').getPublicUrl(fileName);
+    return publicUrl;
+  };
+
+  const [isExtractingImages, setIsExtractingImages] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState('');
+
+  const handleAutoExtractImages = async () => {
+    if (!pdfFile || !previewData) {
+      alert("Please upload the PDF file and generate the JSON first.");
+      return;
+    }
+    
+    setIsExtractingImages(true);
+    setExtractionProgress('Loading PDF...');
+    
+    try {
+      // Find all questions that need an image
+      const questionsNeedingImages: any[] = [];
+      const dataToScan = Array.isArray(previewData) ? previewData : [previewData];
+      
+      dataToScan.forEach(payload => {
+        if (payload.parts) {
+          payload.parts.forEach((part: any) => {
+            if (part.questions) {
+              part.questions.forEach((q: any) => {
+                if (q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                  questionsNeedingImages.push(q);
+                }
+              });
+            }
+          });
+        }
+      });
+
+      if (questionsNeedingImages.length === 0) {
+        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE].");
+        setIsExtractingImages(false);
+        return;
+      }
+
+      // Read PDF
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      const newPreviewData = JSON.parse(JSON.stringify(previewData));
+      
+      // Process page by page
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        setExtractionProgress(`Analyzing Page ${pageNum}/${pdf.numPages}...`);
+        
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR/crop quality
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        // @ts-ignore
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        
+        const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Ask Gemini to find bounding boxes on this page
+        setExtractionProgress(`Asking Gemini for bounding boxes on Page ${pageNum}...`);
+        
+        const res = await fetch('/api/admin/exams/gemini-crop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            imageBase64: base64Image,
+            questions: questionsNeedingImages 
+          })
+        });
+        
+        const data = await res.json();
+        if (data.boundingBoxes && Array.isArray(data.boundingBoxes)) {
+          for (const boxInfo of data.boundingBoxes) {
+            const { question_number, box_2d } = boxInfo;
+            if (!box_2d || box_2d.length !== 4) continue;
+            
+            setExtractionProgress(`Cropping image for Question ${question_number}...`);
+            
+            // box_2d is [ymin, xmin, ymax, xmax] normalized 0-1000
+            const [ymin, xmin, ymax, xmax] = box_2d;
+            
+            const sx = (xmin / 1000) * canvas.width;
+            const sy = (ymin / 1000) * canvas.height;
+            const sw = ((xmax - xmin) / 1000) * canvas.width;
+            const sh = ((ymax - ymin) / 1000) * canvas.height;
+            
+            // Create crop canvas
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = sw;
+            cropCanvas.height = sh;
+            const cropCtx = cropCanvas.getContext('2d');
+            if (!cropCtx) continue;
+            
+            cropCtx.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+            
+            // Export and upload
+            const blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (blob) {
+              const file = new File([blob], `q${question_number}_image.jpg`, { type: 'image/jpeg' });
+              const url = await uploadFileToSupabase(file);
+              
+              // Replace in schema
+              const updateData = Array.isArray(newPreviewData) ? newPreviewData : [newPreviewData];
+              updateData.forEach((payload: any) => {
+                if (payload.parts) {
+                  payload.parts.forEach((p: any) => {
+                    if (p.questions) {
+                      p.questions.forEach((q: any) => {
+                        if (q.question_number == question_number && q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                          q.image_url = url;
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
+      }
+      
+      setPreviewData(newPreviewData);
+      setExtractionProgress('');
+      alert("Images extracted and updated successfully!");
+    } catch (err: any) {
+      alert("Error auto-extracting images: " + err.message);
+    } finally {
+      setIsExtractingImages(false);
     }
   };
 
@@ -469,6 +616,20 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           setShowDuplicateModal(true);
           setIsUploading(false);
           return;
+       }
+
+       if (audioFile && examMode === 'listening') {
+         const fileName = `listening_${Date.now()}.mp3`;
+         const { data: storageData, error: storageError } = await supabase.storage.from('exam_audio').upload(fileName, audioFile);
+         if (storageError) throw new Error("Audio upload failed: " + storageError.message);
+         const { data: { publicUrl } } = supabase.storage.from('exam_audio').getPublicUrl(fileName);
+         
+         // Attach to the first part
+         finalPayloads.forEach(p => {
+           if (p.parts && p.parts.length > 0) {
+             p.parts[0].audio_urls = [publicUrl];
+           }
+         });
        }
 
        await executeUpload(finalPayloads);
@@ -787,20 +948,40 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       {previewData && (
         <div className="mt-8 border-t border-slate-100 dark:border-slate-800 dark:border-slate-800 pt-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Review the extracted content before submitting.</p>
             </div>
-            <button 
-              onClick={handleUploadClick}
-              disabled={isSubmitDisabled}
-              className="w-full max-w-[200px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-              Submit
-            </button>
+            
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {(examMode === 'listening' || examMode === 'reading') && (
+                <Button 
+                  onClick={handleAutoExtractImages}
+                  disabled={isExtractingImages || !pdfFile}
+                  type="button"
+                  className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-xl h-[52px] px-6 shadow-sm flex items-center gap-2"
+                >
+                  {isExtractingImages ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bot className="w-5 h-5" />}
+                  {isExtractingImages ? 'Extracting Images...' : 'Auto-Extract Images'}
+                </Button>
+              )}
+              <button 
+                onClick={handleUploadClick}
+                disabled={isSubmitDisabled}
+                className="w-full sm:w-[200px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 h-[52px]"
+              >
+                {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Submit
+              </button>
+            </div>
           </div>
+          {extractionProgress && (
+            <div className="text-sm text-fuchsia-700 bg-fuchsia-50 p-3 rounded-lg mb-6 border border-fuchsia-100 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {extractionProgress}
+            </div>
+          )}
           <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700">
              <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
              <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
