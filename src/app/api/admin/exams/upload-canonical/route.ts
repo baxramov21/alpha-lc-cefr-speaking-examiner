@@ -49,9 +49,6 @@ export async function POST(req: NextRequest) {
       let currentContextText: string | null = null;
       
       for (const q of part.questions) {
-        if (q.image_url) {
-          finalPassageHtml += `\n<img src="${q.image_url}" class="w-full max-w-lg mx-auto rounded-xl shadow-sm my-4 border border-slate-200 dark:border-slate-700 dark:border-slate-700" alt="Question Diagram" />`;
-        }
         if (q.context_text) {
           currentContextText = q.context_text;
           finalPassageHtml += `\n<div class="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 border-l-4 border-indigo-500 rounded-r-2xl p-6 mt-8 mb-4 text-xl text-slate-800 dark:text-slate-200 dark:text-slate-200 shadow-sm leading-relaxed font-medium">\n  <div class="text-sm font-bold text-indigo-500 uppercase tracking-wider mb-2">Options / Context</div>\n  ${q.context_text.replace(/\n/g, '<br/>')}\n</div>`;
@@ -100,6 +97,7 @@ export async function POST(req: NextRequest) {
           question_text: finalQuestionText,
           options: q.options ? JSON.stringify(q.options) : null,
           correct_answer: q.correct_answer || "",
+          image_url: q.image_url || null,
         };
       });
 

@@ -555,7 +555,7 @@ export default function ListeningSessionPage() {
                                                   : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                                               }`}
                                             >
-                                              {opt}
+                                              {opt.replace(/^[A-Z][.)]\s*/, '')}
                                             </button>
                                           ))}
                                         </div>
@@ -585,7 +585,7 @@ export default function ListeningSessionPage() {
                                     className="hidden"
                                   />
                                   <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900 dark:text-teal-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                                    <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
+                                    <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt.replace(/^[A-Z][.)]\s*/, '')}
                                   </span>
                                 </label>
                               ));

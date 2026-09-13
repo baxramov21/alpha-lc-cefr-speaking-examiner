@@ -97,7 +97,7 @@ export default function ListeningResultsPage() {
                         if (!q.options || q.options.length === 0) return answer;
                         const idx = q.options.indexOf(answer);
                         if (idx !== -1) {
-                          return `${String.fromCharCode(65 + idx)}) ${answer}`;
+                          return `${String.fromCharCode(65 + idx)}) ${answer.replace(/^[A-Z][.)]\s*/, '')}`;
                         }
                         return answer;
                       };

@@ -479,7 +479,7 @@ export default function ReadingSessionPage() {
                                       <div className="fixed inset-0 z-[5]" onClick={() => setOpenDropdown(null)} />
                                       <div className="absolute z-[10] top-[calc(100%+0.5rem)] left-0 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-64 overflow-y-auto">
                                         {displayOpts.map((opt: string, idx: number) => {
-                                          const shortOpt = isMatchingWithoutPassage ? String.fromCharCode(65 + idx) : opt;
+                                          const shortOpt = isMatchingWithoutPassage ? String.fromCharCode(65 + idx) : opt.replace(/^[A-Z][.)]\s*/, '');
                                           return (
                                           <button
                                             key={opt}
@@ -524,7 +524,7 @@ export default function ReadingSessionPage() {
                                   className="hidden"
                                 />
                                 <span className={`font-medium ${answers[q.id] === opt ? 'text-indigo-900 dark:text-indigo-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                                  <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
+                                  <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt.replace(/^[A-Z][.)]\s*/, '')}
                                 </span>
                               </label>
                             ));
