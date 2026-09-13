@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones, Loader2, Bot, Copy, ChevronDown, ChevronUp, FileText, Image as ImageIcon } from 'lucide-react';
 import { ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
 import DOMPurify from 'dompurify';
 import { PDFDocument } from 'pdf-lib';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import { Button } from '@/components/ui/button';
 
 export default function CanonicalUploadPage() {
+  if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }
   const [file, setFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -191,6 +195,126 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     } catch (err: any) {
       setErrorMsg('Invalid JSON file: ' + err.message);
       setPreviewData(null);
+    }
+  };
+  const [isExtractingImages, setIsExtractingImages] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState('');
+
+  const handleAutoExtractImages = async () => {
+    if (!pdfFile || !previewData) {
+      alert("Please upload the PDF file and generate the JSON first.");
+      return;
+    }
+    
+    setIsExtractingImages(true);
+    setExtractionProgress('Loading PDF...');
+    
+    try {
+      // Find all questions that need an image
+      const questionsNeedingImages: any[] = [];
+      previewData.parts.forEach((part) => {
+        part.questions.forEach((q) => {
+          if (q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+            questionsNeedingImages.push(q);
+          }
+        });
+      });
+
+      if (questionsNeedingImages.length === 0) {
+        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE].");
+        setIsExtractingImages(false);
+        return;
+      }
+
+      // Read PDF
+      const arrayBuffer = await pdfFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
+      const newPreviewData = JSON.parse(JSON.stringify(previewData));
+      
+      // Process page by page
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        setExtractionProgress(`Analyzing Page ${pageNum}/${pdf.numPages}...`);
+        
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR/crop quality
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        
+        const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Ask Gemini to find bounding boxes on this page
+        setExtractionProgress(`Asking Gemini for bounding boxes on Page ${pageNum}...`);
+        
+        const res = await fetch('/api/admin/exams/gemini-crop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            imageBase64: base64Image,
+            questions: questionsNeedingImages 
+          })
+        });
+        
+        const data = await res.json();
+        if (data.boundingBoxes && Array.isArray(data.boundingBoxes)) {
+          for (const boxInfo of data.boundingBoxes) {
+            const { question_number, box_2d } = boxInfo;
+            if (!box_2d || box_2d.length !== 4) continue;
+            
+            setExtractionProgress(`Cropping image for Question ${question_number}...`);
+            
+            // box_2d is [ymin, xmin, ymax, xmax] normalized 0-1000
+            const [ymin, xmin, ymax, xmax] = box_2d;
+            
+            const sx = (xmin / 1000) * canvas.width;
+            const sy = (ymin / 1000) * canvas.height;
+            const sw = ((xmax - xmin) / 1000) * canvas.width;
+            const sh = ((ymax - ymin) / 1000) * canvas.height;
+            
+            // Create crop canvas
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = sw;
+            cropCanvas.height = sh;
+            const cropCtx = cropCanvas.getContext('2d');
+            if (!cropCtx) continue;
+            
+            cropCtx.drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+            
+            // Export and upload
+            const blob = await new Promise<Blob | null>(resolve => cropCanvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (blob) {
+              const file = new File([blob], `q${question_number}_image.jpg`, { type: 'image/jpeg' });
+              const url = await uploadFileToSupabase(file);
+              
+              // Replace in schema
+              newPreviewData.parts.forEach((p: any) => {
+                p.questions.forEach((q: any) => {
+                  if (q.question_number === question_number && q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                    q.image_url = url;
+                  }
+                });
+              });
+            }
+          }
+        }
+      }
+      
+      setPreviewData(newPreviewData);
+      setExtractionProgress('');
+      alert("Image extraction complete! Placeholders have been replaced.");
+      
+    } catch (err: any) {
+      alert("Error during image extraction: " + err.message);
+      setExtractionProgress('');
+    } finally {
+      setIsExtractingImages(false);
     }
   };
 
@@ -558,14 +682,26 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 <h3 className="text-lg font-bold text-slate-900">Live Preview</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400">Review the extracted content before submitting.</p>
               </div>
-              <button 
-                onClick={handleUpload}
-                disabled={isUploading}
-                className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-50"
-              >
-                {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                Submit to Database
-              </button>
+              <div className="flex gap-4">
+                {programme === 'GRAMMAR' && examMode === 'listening' && (
+                  <button 
+                    onClick={handleAutoExtractImages}
+                    disabled={isUploading || isExtractingImages}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-50"
+                  >
+                    {isExtractingImages ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                    {isExtractingImages ? extractionProgress || 'Extracting...' : 'Auto-Extract Images'}
+                  </button>
+                )}
+                <button 
+                  onClick={handleUpload}
+                  disabled={isUploading || isExtractingImages}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-50"
+                >
+                  {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  Submit to Database
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
