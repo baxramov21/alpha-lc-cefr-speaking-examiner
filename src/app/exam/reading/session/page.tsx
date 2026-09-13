@@ -256,6 +256,25 @@ export default function ReadingSessionPage() {
   const currentTask = tasks[currentTaskIndex];
   const activePdfUrl = currentTask?.pdf_url || tasks.find(t => t.pdf_url)?.pdf_url;
 
+  const formatQuestionText = (text: string) => {
+    if (!text) return '';
+    if (text.includes('<br') || text.includes('<b>') || text.includes('<strong>')) {
+      return text;
+    }
+    
+    const regex = /\b(what|why|how|which|who|where|when|do|does|did|is|are|was|were|can|could|should|would|will|choose|select)\b[^.?!]*\?['"]?\s*$/i;
+    const match = text.match(regex);
+    
+    if (match && match.index !== undefined && match.index > 0) {
+      const before = text.substring(0, match.index).trim();
+      const question = text.substring(match.index).trim();
+      if (before.length > 5) {
+        return `${before}<br/><br/><b>${question}</b>`;
+      }
+    }
+    return text;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
       {/* Floating Highlighter Toolbar */}
@@ -392,7 +411,7 @@ export default function ReadingSessionPage() {
                       {q.number}
                     </div>
                     <div className="flex-1">
-                      <div className="text-lg text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: q.text }} />
+                      <div className="text-lg text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: formatQuestionText(q.text) }} />
                       
                       {q.image_url && (
                         <div className="mb-4 flex justify-center">
