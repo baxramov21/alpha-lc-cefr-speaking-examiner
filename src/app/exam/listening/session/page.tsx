@@ -469,34 +469,24 @@ export default function ListeningSessionPage() {
               </div>
             </div>
 
-            {/* Passage Content */}
-            {currentTask.pdf_url ? (
-              <div className={`w-full relative border-t border-slate-200 dark:border-slate-700 dark:border-slate-700 ${hasImage ? 'flex-1' : 'h-[600px]'}`}>
-                <iframe 
-                  src={`${currentTask.pdf_url}#toolbar=0&navpanes=0&scrollbar=0`} 
-                  className="absolute inset-0 w-full h-full border-0"
-                  title="Listening PDF"
-                />
+            {/* Passage Content (Fully Native UI) */}
+            <div id="listening-text-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto relative' : ''}`}>
+              <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 ">
+                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">{currentTask.partLabel} Context</h2>
+                <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
               </div>
-            ) : (
-              <div id="listening-text-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto relative' : ''}`}>
-                <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 ">
-                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">{currentTask.partLabel} Context</h2>
-                  <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
+              {currentTask.image_url && (
+                <div className="mb-6 flex justify-center">
+                  <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" />
                 </div>
-                {currentTask.image_url && (
-                  <div className="mb-6 flex justify-center">
-                    <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" />
-                  </div>
-                )}
-                {currentTask.passage_html && (
-                  <div 
-                    className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 dark:text-slate-200 "
-                    dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
-                  />
-                )}
-              </div>
-            )}
+              )}
+              {currentTask.passage_html && (
+                <div 
+                  className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 dark:text-slate-200 "
+                  dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
+                />
+              )}
+            </div>
           </div>
 
           {/* Bottom Block: Questions */}
