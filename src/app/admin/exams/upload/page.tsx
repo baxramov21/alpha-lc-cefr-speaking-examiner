@@ -5,12 +5,12 @@ import { UploadCloud, FileJson, CheckCircle2, AlertCircle, RefreshCw, Headphones
 import { ExamCanonicalSchema, ExamCanonicalPayload } from '@/lib/schemas/examSchema';
 import DOMPurify from 'dompurify';
 import { PDFDocument } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import { pdfjs } from 'react-pdf';
 import { Button } from '@/components/ui/button';
 
 export default function CanonicalUploadPage() {
-  if (typeof window !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  if (typeof window !== 'undefined' && pdfjs.GlobalWorkerOptions) {
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   }
   const [file, setFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -21,7 +21,7 @@ export default function CanonicalUploadPage() {
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [pageRange, setPageRange] = useState<string>('');
-  const [programme, setProgramme] = useState<'CEFR'|'IELTS'>('CEFR');
+  const [programme, setProgramme] = useState<'CEFR'|'IELTS'|'GRAMMAR'>('CEFR');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -228,7 +228,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       // Read PDF
       const arrayBuffer = await pdfFile.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
       
       const newPreviewData = JSON.parse(JSON.stringify(previewData));
       
