@@ -246,6 +246,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         
+        // @ts-ignore - TS requires canvasFactory but this works in browser natively
         await page.render({ canvasContext: ctx, viewport }).promise;
         
         const base64Image = canvas.toDataURL('image/jpeg', 0.8);
