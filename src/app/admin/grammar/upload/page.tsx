@@ -976,12 +976,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </button>
             </div>
           </div>
-          {extractionProgress && (
-            <div className="text-sm text-fuchsia-700 bg-fuchsia-50 p-3 rounded-lg mb-6 border border-fuchsia-100 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              {extractionProgress}
-            </div>
-          )}
           <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700">
              <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
              <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
@@ -1033,6 +1027,16 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Uploading Exam</h3>
             <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">Saving data to the database... {uploadProgress > 0 && `(${uploadProgress}%)`}</p>
+          </div>
+        </div>
+      )}
+
+      {isExtractingImages && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+            <Loader2 className="w-12 h-12 text-fuchsia-600 animate-spin mb-4" />
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Extracting Images</h3>
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">{extractionProgress || 'Analyzing PDF...'}</p>
           </div>
         </div>
       )}

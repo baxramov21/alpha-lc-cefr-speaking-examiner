@@ -699,8 +699,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   disabled={isUploading || isExtractingImages}
                   className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all disabled:opacity-50"
                 >
-                  {isUploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                  Submit to Database
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+                  {isUploading ? 'Uploading...' : 'Submit to Database'}
                 </button>
               </div>
             </div>
@@ -770,6 +770,16 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             ) : (
               <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">Saving canonical exam data to the database...</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {isExtractingImages && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+            <Loader2 className="w-12 h-12 text-fuchsia-600 animate-spin mb-4" />
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Extracting Images</h3>
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">{extractionProgress || 'Analyzing PDF...'}</p>
           </div>
         </div>
       )}
