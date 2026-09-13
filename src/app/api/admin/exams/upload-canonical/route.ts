@@ -86,8 +86,13 @@ export async function POST(req: NextRequest) {
         }
 
         let finalQuestionText = q.question_text;
+        
+        if (q.image_url) {
+          finalQuestionText = `<div class="mb-4 flex justify-center"><img src="${q.image_url}" class="max-h-[400px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" alt="Question Image" /></div>` + finalQuestionText;
+        }
+
         if (currentContextText) {
-          finalQuestionText = `<div class="bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl p-4 mb-4 text-sm text-slate-700 dark:text-slate-300 dark:text-slate-300 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">${q.question_text}</div>`;
+          finalQuestionText = `<div class="bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl p-4 mb-4 text-sm text-slate-700 dark:text-slate-300 dark:text-slate-300 shadow-sm leading-relaxed">${currentContextText.replace(/\n/g, '<br/>')}</div><div class="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">${finalQuestionText}</div>`;
         }
 
         return {
@@ -97,7 +102,6 @@ export async function POST(req: NextRequest) {
           question_text: finalQuestionText,
           options: q.options ? JSON.stringify(q.options) : null,
           correct_answer: q.correct_answer || "",
-          image_url: q.image_url || null,
         };
       });
 
