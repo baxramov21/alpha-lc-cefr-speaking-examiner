@@ -641,10 +641,29 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
        }
 
        if (audioFile && examMode === 'listening') {
-         const fileName = `listening_${Date.now()}.mp3`;
-         const { data: storageData, error: storageError } = await supabase.storage.from('exam_audio').upload(fileName, audioFile);
-         if (storageError) throw new Error("Audio upload failed: " + storageError.message);
-         const { data: { publicUrl } } = supabase.storage.from('exam_audio').getPublicUrl(fileName);
+         // 1. Get Presigned URL
+         const urlRes = await fetch('/api/admin/exams/get-upload-url', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ fileName: audioFile.name, contentType: audioFile.type || 'audio/mpeg' })
+         });
+         const urlData = await urlRes.json();
+         if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
+
+         // 2. Upload file to signed URL
+         const uploadRes = await fetch(urlData.signedUrl, {
+           method: 'PUT',
+           headers: {
+             'Content-Type': audioFile.type || 'audio/mpeg'
+           },
+           body: audioFile
+         });
+
+         if (!uploadRes.ok) {
+           throw new Error(`Failed to upload audio to S3: ${uploadRes.statusText}`);
+         }
+         
+         const publicUrl = urlData.publicUrl;
          
          // Attach to the first part
          finalPayloads.forEach(p => {
