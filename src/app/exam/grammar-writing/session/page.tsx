@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, ArrowLeft, Clock, Send, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Clock, Send, AlertCircle, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function WritingSessionInner() {
@@ -18,6 +18,47 @@ function WritingSessionInner() {
   
   const [timeLeft, setTimeLeft] = useState<number>(1200);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectionRect, setSelectionRect] = useState<{ top: number, left: number, width: number } | null>(null);
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        setSelectionRect(null);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
+
+  const handleTextMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  };
+
+  const applyHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, '#fef08a');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
+
+  const removeHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, 'transparent');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
 
   useEffect(() => {
     const rawSession = sessionStorage.getItem('examSession');
@@ -110,7 +151,38 @@ function WritingSessionInner() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] dark:bg-slate-950 flex flex-col">
+    <div 
+      className="min-h-screen bg-[#F7F8FA] dark:bg-slate-950 flex flex-col"
+      onMouseUp={handleTextMouseUp}
+      onTouchEnd={handleTextMouseUp}
+    >
+      {/* Floating Highlighter Toolbar */}
+      {selectionRect && (
+        <div 
+          className="fixed z-50 flex items-center gap-1 bg-slate-900 text-white px-2 py-1.5 rounded-lg shadow-xl border border-slate-700 animate-in fade-in zoom-in duration-100"
+          style={{ 
+            top: `${Math.max(10, selectionRect.top - 50)}px`, 
+            left: `${selectionRect.left + (selectionRect.width / 2)}px`,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <button 
+            onClick={applyHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Highlight Text"
+          >
+            <Highlighter className="w-4 h-4 text-yellow-400" />
+          </button>
+          <button 
+            onClick={removeHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Remove Highlight"
+          >
+            <Eraser className="w-4 h-4 text-slate-300" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

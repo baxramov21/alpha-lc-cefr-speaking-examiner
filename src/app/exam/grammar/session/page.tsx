@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, ChevronRight, ChevronLeft, CheckCircle2, Loader2, AlertTriangle } from 'lucide-react';
+import { Clock, ChevronRight, ChevronLeft, CheckCircle2, Loader2, AlertTriangle, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface GrammarQuestion {
@@ -29,6 +29,47 @@ function GrammarSessionContent() {
   
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [selectionRect, setSelectionRect] = useState<{ top: number, left: number, width: number } | null>(null);
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        setSelectionRect(null);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
+
+  const handleTextMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  };
+
+  const applyHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, '#fef08a');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
+
+  const removeHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, 'transparent');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
 
   useEffect(() => {
     const rawSession = sessionStorage.getItem('examSession');
@@ -151,7 +192,38 @@ function GrammarSessionContent() {
   const isTimeLow = timeRemaining < 300; // Less than 5 minutes
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] pb-24">
+    <div 
+      className="min-h-screen bg-[#F7F8FA] pb-24"
+      onMouseUp={handleTextMouseUp}
+      onTouchEnd={handleTextMouseUp}
+    >
+      {/* Floating Highlighter Toolbar */}
+      {selectionRect && (
+        <div 
+          className="fixed z-50 flex items-center gap-1 bg-slate-900 text-white px-2 py-1.5 rounded-lg shadow-xl border border-slate-700 animate-in fade-in zoom-in duration-100"
+          style={{ 
+            top: `${Math.max(10, selectionRect.top - 50)}px`, 
+            left: `${selectionRect.left + (selectionRect.width / 2)}px`,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <button 
+            onClick={applyHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Highlight Text"
+          >
+            <Highlighter className="w-4 h-4 text-yellow-400" />
+          </button>
+          <button 
+            onClick={removeHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Remove Highlight"
+          >
+            <Eraser className="w-4 h-4 text-slate-300" />
+          </button>
+        </div>
+      )}
+
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />

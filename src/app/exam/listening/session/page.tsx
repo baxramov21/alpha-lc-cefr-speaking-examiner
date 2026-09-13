@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Headphones, Shield, Loader2, ArrowRight, CheckCircle, AlertTriangle, Volume2, ChevronRight } from 'lucide-react';
+import { Headphones, Shield, Loader2, ArrowRight, CheckCircle, AlertTriangle, Volume2, ChevronRight, Highlighter, Eraser } from 'lucide-react';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Button } from '@/components/ui/button';
 import { ListeningTask } from '@/lib/types';
@@ -67,6 +67,47 @@ export default function ListeningSessionPage() {
   const [allowSkip, setAllowSkip] = useState(true);
   const [isRestoring, setIsRestoring] = useState(true);
   const [showExitWarning, setShowExitWarning] = useState(false);
+  const [selectionRect, setSelectionRect] = useState<{ top: number, left: number, width: number } | null>(null);
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        setSelectionRect(null);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
+
+  const handleTextMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  };
+
+  const applyHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, '#fef08a');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
+
+  const removeHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, 'transparent');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
 
   useEffect(() => {
     const initSession = async () => {
@@ -335,8 +376,39 @@ export default function ListeningSessionPage() {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}>
+      {/* Floating Highlighter Toolbar */}
+      {selectionRect && (
+        <div 
+          className="fixed z-50 flex items-center gap-1 bg-slate-900 text-white px-2 py-1.5 rounded-lg shadow-xl border border-slate-700 animate-in fade-in zoom-in duration-100"
+          style={{ 
+            top: `${Math.max(10, selectionRect.top - 50)}px`, 
+            left: `${selectionRect.left + (selectionRect.width / 2)}px`,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <button 
+            onClick={applyHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Highlight Text"
+          >
+            <Highlighter className="w-4 h-4 text-yellow-400" />
+          </button>
+          <button 
+            onClick={removeHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Remove Highlight"
+          >
+            <Eraser className="w-4 h-4 text-slate-300" />
+          </button>
+        </div>
+      )}
+
+      {/* Main Split Screen Area */}
+      <main 
+        className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}
+        onMouseUp={handleTextMouseUp}
+        onTouchEnd={handleTextMouseUp}
+      >
         <div className={`w-full mx-auto ${hasImage ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
           {/* Top Block: Audio & Passage */}

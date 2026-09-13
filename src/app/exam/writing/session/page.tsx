@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock, Send, AlertCircle, Loader2, PenTool } from 'lucide-react';
+import { Clock, Send, AlertCircle, Loader2, PenTool, Highlighter, Eraser } from 'lucide-react';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Button } from '@/components/ui/button';
 import { saveExamState, loadExamState, clearExamState } from '@/lib/examState';
@@ -20,6 +20,47 @@ export default function WritingSessionPage() {
   const [isRestoring, setIsRestoring] = useState(true);
   const isSubmittingRef = useRef(false);
   const endTimeRef = useRef<number | null>(null);
+  const [selectionRect, setSelectionRect] = useState<{ top: number, left: number, width: number } | null>(null);
+
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        setSelectionRect(null);
+      }
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, []);
+
+  const handleTextMouseUp = () => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectionRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  };
+
+  const applyHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, '#fef08a');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
+
+  const removeHighlight = () => {
+    document.designMode = "on";
+    document.execCommand('hiliteColor', false, 'transparent');
+    document.designMode = "off";
+    window.getSelection()?.removeAllRanges();
+    setSelectionRect(null);
+  };
 
   useEffect(() => {
     const initSession = async () => {
@@ -247,7 +288,38 @@ export default function WritingSessionPage() {
   const isWarning = timeLeft < 300;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
+    <div 
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 flex flex-col h-screen overflow-hidden"
+      onMouseUp={handleTextMouseUp}
+      onTouchEnd={handleTextMouseUp}
+    >
+      {/* Floating Highlighter Toolbar */}
+      {selectionRect && (
+        <div 
+          className="fixed z-50 flex items-center gap-1 bg-slate-900 text-white px-2 py-1.5 rounded-lg shadow-xl border border-slate-700 animate-in fade-in zoom-in duration-100"
+          style={{ 
+            top: `${Math.max(10, selectionRect.top - 50)}px`, 
+            left: `${selectionRect.left + (selectionRect.width / 2)}px`,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <button 
+            onClick={applyHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Highlight Text"
+          >
+            <Highlighter className="w-4 h-4 text-yellow-400" />
+          </button>
+          <button 
+            onClick={removeHighlight}
+            className="p-1.5 hover:bg-slate-800 rounded-md transition-colors"
+            title="Remove Highlight"
+          >
+            <Eraser className="w-4 h-4 text-slate-300" />
+          </button>
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm shrink-0">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
