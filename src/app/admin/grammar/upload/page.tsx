@@ -243,21 +243,30 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       const dataToScan = Array.isArray(previewData) ? previewData : [previewData];
       
       dataToScan.forEach(payload => {
+        // Check standard CEFR parts
         if (payload.parts) {
           payload.parts.forEach((part: any) => {
             if (part.questions) {
               part.questions.forEach((q: any) => {
-                if (q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                if (q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
                   questionsNeedingImages.push(q);
                 }
               });
             }
           });
         }
+        // Check direct questions (Grammar structure)
+        if (payload.questions) {
+          payload.questions.forEach((q: any) => {
+            if (q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
+              questionsNeedingImages.push(q);
+            }
+          });
+        }
       });
 
       if (questionsNeedingImages.length === 0) {
-        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE].");
+        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE] or [UPLOAD_IMAGE_HERE].");
         setIsExtractingImages(false);
         return;
       }
@@ -337,10 +346,17 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                   payload.parts.forEach((p: any) => {
                     if (p.questions) {
                       p.questions.forEach((q: any) => {
-                        if (q.question_number == question_number && q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                        if (q.question_number == question_number && q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
                           q.image_url = url;
                         }
                       });
+                    }
+                  });
+                }
+                if (payload.questions) {
+                  payload.questions.forEach((q: any) => {
+                    if (q.question_number == question_number && q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
+                      q.image_url = url;
                     }
                   });
                 }

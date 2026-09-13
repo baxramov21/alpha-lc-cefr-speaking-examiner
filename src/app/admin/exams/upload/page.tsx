@@ -214,14 +214,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       const questionsNeedingImages: any[] = [];
       previewData.parts.forEach((part) => {
         part.questions.forEach((q) => {
-          if (q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+          if (q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
             questionsNeedingImages.push(q);
           }
         });
       });
 
       if (questionsNeedingImages.length === 0) {
-        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE].");
+        alert("No questions found with placeholder [UPLOAD_MAP_IMAGE_HERE] or [UPLOAD_IMAGE_HERE].");
         setIsExtractingImages(false);
         return;
       }
@@ -297,7 +297,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               // Replace in schema
               newPreviewData.parts.forEach((p: any) => {
                 p.questions.forEach((q: any) => {
-                  if (q.question_number === question_number && q.image_url === '[UPLOAD_MAP_IMAGE_HERE]') {
+                  if (q.question_number === question_number && q.image_url && typeof q.image_url === 'string' && q.image_url.includes('[UPLOAD_')) {
                     q.image_url = url;
                   }
                 });
