@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Headphones, Shield, Loader2, ArrowRight, CheckCircle, AlertTriangle, Volume2 } from 'lucide-react';
+import { Headphones, Shield, Loader2, ArrowRight, CheckCircle, AlertTriangle, Volume2, ChevronRight } from 'lucide-react';
 import { handleExamCompletion } from '@/lib/fullExamSequence';
 import { Button } from '@/components/ui/button';
 import { ListeningTask } from '@/lib/types';
@@ -58,6 +58,7 @@ export default function ListeningSessionPage() {
   const [prepCountdown, setPrepCountdown] = useState(10);
   const [maxPlays, setMaxPlays] = useState(1);
   const [currentPlayCount, setCurrentPlayCount] = useState(1);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [audioIndex, setAudioIndex] = useState(0);
   const [audioBlocked, setAudioBlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -451,31 +452,82 @@ export default function ListeningSessionPage() {
                         )}
                         
                         {(q.type === 'multiple_choice' || q.type === 'matching') && (
-                          <div className="space-y-3">
-                            {getDisplayOptions(q).map((opt: string, i: number) => (
-                              <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
-                                answers[q.id] === opt 
-                                  ? 'border-teal-500 bg-teal-50 shadow-sm' 
-                                  : 'border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-teal-300 hover:bg-slate-50 '
-                              }`}>
-                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
-                                  answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300 dark:border-slate-600 dark:border-slate-600'
+                          <div className="space-y-3 relative">
+                            {(() => {
+                              const displayOpts = getDisplayOptions(q);
+                              const isDropdown = displayOpts.length >= 4 && displayOpts.every((o: string) => o.trim().length <= 4);
+                              
+                              if (isDropdown) {
+                                return (
+                                  <div className="mt-2">
+                                    <button 
+                                      onClick={() => setOpenDropdown(openDropdown === q.id ? null : q.id)}
+                                      className={`w-full flex items-center justify-between p-4 border rounded-xl transition-all outline-none ${
+                                        openDropdown === q.id 
+                                          ? 'border-teal-500 ring-4 ring-teal-500/10 bg-white dark:bg-slate-900' 
+                                          : answers[q.id]
+                                            ? 'border-teal-200 bg-teal-50/50 dark:bg-teal-950/50 dark:border-teal-800'
+                                            : 'border-slate-200 dark:border-slate-700 hover:border-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                      }`}
+                                    >
+                                      <span className={`font-medium ${answers[q.id] ? 'text-teal-900 dark:text-teal-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                                        {answers[q.id] ? `Selected: ${answers[q.id]}` : 'Select an answer...'}
+                                      </span>
+                                      <ChevronRight className={`w-5 h-5 transition-transform text-slate-400 ${openDropdown === q.id ? 'rotate-90' : ''}`} />
+                                    </button>
+                                    
+                                    {openDropdown === q.id && (
+                                      <>
+                                        <div className="fixed inset-0 z-[5]" onClick={() => setOpenDropdown(null)} />
+                                        <div className="absolute z-[10] top-[calc(100%+0.5rem)] left-0 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden max-h-64 overflow-y-auto">
+                                          {displayOpts.map((opt: string) => (
+                                            <button
+                                              key={opt}
+                                              onClick={() => {
+                                                setAnswers(prev => ({ ...prev, [q.id]: opt }));
+                                                setOpenDropdown(null);
+                                              }}
+                                              className={`w-full text-left px-5 py-3.5 font-medium transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 ${
+                                                answers[q.id] === opt 
+                                                  ? 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300' 
+                                                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                              }`}
+                                            >
+                                              {opt}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              return displayOpts.map((opt: string, i: number) => (
+                                <label key={i} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
+                                  answers[q.id] === opt 
+                                    ? 'border-teal-500 bg-teal-50 shadow-sm dark:bg-teal-950' 
+                                    : 'border-slate-200 dark:border-slate-700 hover:border-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                                 }`}>
-                                  {answers[q.id] === opt && <div className="w-2.5 h-2.5 bg-teal-500 rounded-full" />}
-                                </div>
-                                <input 
-                                  type="radio" 
-                                  name={q.id} 
-                                  value={opt} 
-                                  checked={answers[q.id] === opt}
-                                  onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
-                                  className="hidden"
-                                />
-                                <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300 '}`}>
-                                  <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
-                                </span>
-                              </label>
-                            ))}
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${
+                                    answers[q.id] === opt ? 'border-teal-500' : 'border-slate-300 dark:border-slate-600'
+                                  }`}>
+                                    {answers[q.id] === opt && <div className="w-2.5 h-2.5 bg-teal-500 rounded-full" />}
+                                  </div>
+                                  <input 
+                                    type="radio" 
+                                    name={q.id} 
+                                    value={opt} 
+                                    checked={answers[q.id] === opt}
+                                    onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                                    className="hidden"
+                                  />
+                                  <span className={`font-medium ${answers[q.id] === opt ? 'text-teal-900 dark:text-teal-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                                    <span className="font-bold mr-2 opacity-60">{String.fromCharCode(65 + i)})</span> {opt}
+                                  </span>
+                                </label>
+                              ));
+                            })()}
                           </div>
                         )}
 
