@@ -95,7 +95,7 @@ CRITICAL INSTRUCTIONS:
 5. If the exam requires images (e.g., questions referring to a specific diagram/picture), include the "image_url" field on the question and set it to "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
 
 SCHEMA:
-{
+${(testRange || answersPageNumber) ? '[\n  ' : ''}{
   "title": "String - The title of the grammar test (e.g. Unit 1 Grammar)",
   "level": "elementary or pre-intermediate or intermediate",
   "time_limit": 1800,
@@ -112,7 +112,7 @@ SCHEMA:
       "type": "FILL_IN"
     }
   ]
-}
+}${(testRange || answersPageNumber) ? '\n]' : ''}
 
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
@@ -129,7 +129,7 @@ CRITICAL INSTRUCTIONS:
 6. If a question requires an image (e.g., a diagram or map), use the "image_url" field in the question and set its value to exactly "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
 
 SCHEMA:
-{
+${(testRange || answersPageNumber) ? '[\n  ' : ''}{
   "title": "String - e.g., 'Grammar Reading Test 1'",
   "exam_type": "${examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING'}",
   "programme": "GRAMMAR",
@@ -161,7 +161,7 @@ SCHEMA:
       ]
     }
   ]
-}
+}${(testRange || answersPageNumber) ? '\n]' : ''}
 
 OUTPUT FORMAT INSTRUCTION:
 Please provide the final JSON output as a downloadable file (or Artifact) so I can click and download it with one click.`;
