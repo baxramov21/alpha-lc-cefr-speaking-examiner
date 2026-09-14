@@ -127,7 +127,7 @@ CRITICAL INSTRUCTIONS:
 4. "correct_answer" MUST exactly match one of the items in the "options" array.
 5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
 6. If a question requires an image (e.g., a diagram or map), use the "image_url" field in the question and set its value to exactly "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
-7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.
+${examMode === 'listening' ? '7. DO NOT extract passage texts, since the PDF will be shown to the user. ONLY extract the questions and answer options.' : '7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.'}
 
 SCHEMA:
 ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
@@ -140,8 +140,7 @@ ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
     {
       "part_number": 1,
       "title": "Part 1",
-      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",
-      "questions": [
+${examMode === 'listening' ? '' : '      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",\n'}      "questions": [
         {
           "question_number": 1,
           "type": "MULTIPLE_CHOICE",
