@@ -11,8 +11,8 @@ export default function WritingSessionPage() {
   const router = useRouter();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(60 * 60); // Default to 60 until config loads
-  const [currentTask, setCurrentTask] = useState<1 | 1.2 | 2>(1);
-  const [task1Text, setTask1Text] = useState('');
+  const [currentTask, setCurrentTask] = useState<1.1 | 1.2 | 2>(1.1);
+  const [task1_1Text, setTask1_1Text] = useState('');
   const [task1_2Text, setTask1_2Text] = useState('');
   const [task2Text, setTask2Text] = useState('');
   const [questions, setQuestions] = useState<any[]>([]);
@@ -97,10 +97,10 @@ export default function WritingSessionPage() {
       // Load persistence
       const savedState = await loadExamState(session.sessionToken, 'writing');
       if (savedState && savedState.endTime) {
-        setTask1Text(savedState.task1Text || '');
+        setTask1_1Text(savedState.task1_1Text || '');
         setTask1_2Text(savedState.task1_2Text || '');
         setTask2Text(savedState.task2Text || '');
-        setCurrentTask(savedState.currentTask || 1);
+        setCurrentTask(savedState.currentTask || 1.1);
         
         const remaining = Math.max(0, Math.floor((savedState.endTime - Date.now()) / 1000));
         setTimeLeft(remaining);
@@ -121,13 +121,13 @@ export default function WritingSessionPage() {
   useEffect(() => {
     if (isRestoring || !sessionToken || !endTimeRef.current) return;
     saveExamState(sessionToken, 'writing', {
-      task1Text,
+      task1_1Text,
       task1_2Text,
       task2Text,
       currentTask,
       endTime: endTimeRef.current
     });
-  }, [task1Text, task1_2Text, task2Text, currentTask, isRestoring, sessionToken]);
+  }, [task1_1Text, task1_2Text, task2Text, currentTask, isRestoring, sessionToken]);
 
   const submitExam = useCallback(async () => {
     if (isSubmittingRef.current || !sessionToken) return;
@@ -135,21 +135,21 @@ export default function WritingSessionPage() {
     setIsSubmitting(true);
 
     try {
-      if (!task1Text.trim() && !task1_2Text.trim() && !task2Text.trim()) {
+      if (!task1_1Text.trim() && !task1_2Text.trim() && !task2Text.trim()) {
         const evaluation = {
           total_score: 0,
           cefr_level: 'Below B1',
-          task_scores: { task_1_score: 0, task_1_2_score: 0, task_2_score: 0 },
+          task_scores: { task_1_1_score: 0, task_1_2_score: 0, task_2_score: 0 },
           criteria_ratings: {
             task_achievement: 'Below B1',
             coherence_cohesion: 'Below B1',
             lexical_resource: 'Below B1',
             grammar_accuracy: 'Below B1'
           },
-          task_1_eval: {
+          task_1_1_eval: {
             word_count: 0,
             corrected_text_html: "<span class='text-red-500'>[Empty response submitted]</span>",
-            feedback: "The candidate did not enter any text for Task 1."
+            feedback: "The candidate did not enter any text for Task 1.1."
           },
           task_1_2_eval: {
             word_count: 0,
@@ -195,10 +195,10 @@ export default function WritingSessionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionToken,
-          task1Text,
+          task1_1Text,
           task1_2Text,
           task2Text,
-          task1Prompt: questions[0]?.instructions || '',
+          task1_1Prompt: questions[0]?.instructions || '',
           task1_2Prompt: questions[1]?.instructions || '',
           task2Prompt: questions[2]?.instructions || '',
         })
@@ -240,7 +240,7 @@ export default function WritingSessionPage() {
       isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
-  }, [sessionToken, task1Text, task1_2Text, task2Text, questions, router]);
+  }, [sessionToken, task1_1Text, task1_2Text, task2Text, questions, router]);
 
   useEffect(() => {
     if (isRestoring) return;
@@ -268,12 +268,12 @@ export default function WritingSessionPage() {
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   };
 
-  const t1Words = getWordCount(task1Text);
+  const t1_1Words = getWordCount(task1_1Text);
   const t1_2Words = getWordCount(task1_2Text);
   const t2Words = getWordCount(task2Text);
   
   let activeQuestion;
-  if (currentTask === 1) activeQuestion = questions[0];
+  if (currentTask === 1.1) activeQuestion = questions[0];
   else if (currentTask === 1.2) activeQuestion = questions[1];
   else activeQuestion = questions[2];
 
@@ -327,12 +327,12 @@ export default function WritingSessionPage() {
             <h1 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 text-lg">Writing Assessment</h1>
             <div className="flex bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-1 rounded-lg">
               <button
-                onClick={() => setCurrentTask(1)}
+                onClick={() => setCurrentTask(1.1)}
                 className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
-                  currentTask === 1 ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 '
+                  currentTask === 1.1 ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 '
                 }`}
               >
-                Task 1
+                Task 1.1
               </button>
               {questions.length > 2 && (
                 <button
@@ -399,9 +399,9 @@ export default function WritingSessionPage() {
         {/* Right Panel: Editor */}
         <div className="w-2/3 flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm overflow-hidden">
           <textarea
-            value={currentTask === 1 ? task1Text : currentTask === 1.2 ? task1_2Text : task2Text}
+            value={currentTask === 1.1 ? task1_1Text : currentTask === 1.2 ? task1_2Text : task2Text}
             onChange={(e) => {
-              if (currentTask === 1) setTask1Text(e.target.value);
+              if (currentTask === 1.1) setTask1_1Text(e.target.value);
               else if (currentTask === 1.2) setTask1_2Text(e.target.value);
               else setTask2Text(e.target.value);
             }}
@@ -413,11 +413,11 @@ export default function WritingSessionPage() {
           <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 dark:border-slate-800 px-6 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
               <span className={`text-sm font-semibold ${
-                (currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords ? 'text-amber-500' : 'text-emerald-500'
+                (currentTask === 1.1 ? t1_1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords ? 'text-amber-500' : 'text-emerald-500'
               }`}>
-                {currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words} words
+                {currentTask === 1.1 ? t1_1Words : currentTask === 1.2 ? t1_2Words : t2Words} words
               </span>
-              {((currentTask === 1 ? t1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords) && (
+              {((currentTask === 1.1 ? t1_1Words : currentTask === 1.2 ? t1_2Words : t2Words) < activeQuestion.minWords) && (
                 <div className="flex items-center gap-1.5 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 dark:bg-amber-950 px-2 py-1 rounded-md">
                   <AlertCircle className="w-3 h-3" />
                   Below minimum

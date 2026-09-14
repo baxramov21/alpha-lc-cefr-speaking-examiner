@@ -521,7 +521,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       if (activeTab === 'part3') return q.part === 'part3';
       return false;
     } else {
-      if (activeTab === 'task1') return q.part === 'task1';
+      if (activeTab === 'task1_1') return q.part === 'task1_1';
       if (activeTab === 'task1_2') return q.part === 'task1_2';
       if (activeTab === 'task2') return q.part === 'task2';
       return false;
@@ -739,7 +739,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (skillTab === 'speaking') {
           setNewQ({ part: 'part1', question_type: 'standard', text: '', prep_seconds: 30, speak_seconds: 120, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
         } else {
-          setNewQ({ part: 'task1', question_type: 'standard', text: '', prep_seconds: 20, speak_seconds: 150, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
+          setNewQ({ part: 'task1_1', question_type: 'standard', text: '', prep_seconds: 10, speak_seconds: 50, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
         }
         fetchQuestions();
       } else if (res.status === 409) {
@@ -781,7 +781,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (skillTab === 'speaking') {
           setNewQ({ part: 'part1', question_type: 'standard', text: '', prep_seconds: 30, speak_seconds: 120, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
         } else {
-          setNewQ({ part: 'task1', question_type: 'standard', text: '', prep_seconds: 20, speak_seconds: 150, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
+          setNewQ({ part: 'task1_1', question_type: 'standard', text: '', prep_seconds: 10, speak_seconds: 50, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
         }
         fetchQuestions();
       } else {
@@ -959,9 +959,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </>
             ) : (
               <>
-                <option value="task1">Task 1 (Letter/Chart)</option>
-                {programme === 'CEFR' && <option value="task1_2">Task 1.2 (Additional Short Prompt)</option>}
-                <option value="task2">Task 2 (Essay)</option>
+                <option value="task1_1">Task 1.1 (Informal Letter)</option>
+                {programme === 'CEFR' && <option value="task1_2">Task 1.2 (Formal Letter)</option>}
+                <option value="task2">Task 2 (Discussion)</option>
               </>
             )}
           </select>
@@ -1340,8 +1340,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <button
           onClick={() => {
             setSkillTab('writing');
-            setActiveTab('task1');
-            setNewQ({ part: 'task1', question_type: 'standard', text: '', prep_seconds: 20, speak_seconds: 150, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
+            setActiveTab('task1_1');
+            setNewQ({ part: 'task1_1', question_type: 'standard', text: '', prep_seconds: 10, speak_seconds: 50, image_url: '', table_data: { forPoints: [], againstPoints: [] } });
           }}
           className={`px-5 py-3 text-sm font-bold transition-all relative ${
             skillTab === 'writing' 
@@ -1693,7 +1693,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 {tab.label}
               </button>
             )) : [
-              { id: 'task1', label: 'Task 1' },
+              { id: 'task1_1', label: 'Task 1.1' },
               { id: 'task1_2', label: 'Task 1.2' },
               { id: 'task2', label: 'Task 2' }
             ].map(tab => (

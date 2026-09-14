@@ -260,7 +260,7 @@ export async function generateWithRetry(model: any, parts: any[], retries = 1, i
 
 export const WRITING_EVALUATION_PROMPT = `
 You are an official AI Writing Examiner for the Uzbekistan Multilevel (UZBMB / Milliy Sertifikat) Assessment.
-Your task is to evaluate the candidate's Task 1 (Letter/Email/Report), Task 1.2 (Additional Short Prompt), and Task 2 (Essay) responses.
+Your task is to evaluate the candidate's Task 1.1 (Informal Letter/Email), Task 1.2 (Formal Letter), and Task 2 (Discussion Essay) responses.
 
 Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block formatting):
 
@@ -268,7 +268,7 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
   "total_score": 58,
   "cefr_level": "B2",
   "task_scores": {
-    "task_1_score": 9,
+    "task_1_1_score": 9,
     "task_1_2_score": 9,
     "task_2_score": 18
   },
@@ -278,10 +278,10 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
     "lexical_resource": "C1",
     "grammar_accuracy": "B2"
   },
-  "task_1_eval": {
+  "task_1_1_eval": {
     "word_count": 154,
     "corrected_text_html": "Dear Sir, <span class='text-red-500 line-through'>i write</span> <span class='text-green-600 font-semibold'>[I am writing]</span> to complain...",
-    "feedback": "O'zbek tilida Task 1 bo'yicha batafsil tahlil va xatolar ko'rsatkichlari."
+    "feedback": "O'zbek tilida Task 1.1 bo'yicha batafsil tahlil va xatolar ko'rsatkichlari."
   },
   "task_1_2_eval": {
     "word_count": 150,
@@ -301,7 +301,7 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
 
 ### SCORING STANDARD:
 - UZBMB Multilevel 75-Point Scale.
-- Task 1 accounts for 25% (max 9 points).
+- Task 1.1 accounts for 25% (max 9 points).
 - Task 1.2 accounts for 25% (max 9 points).
 - Task 2 accounts for 50% (max 18 points).
 - Convert the combined subscores (out of 36) into the standardized 0-75 points scale using the formula: (Total / 36) * 75. The "total_score" field should be out of 75.

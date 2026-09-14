@@ -37,7 +37,7 @@ export default function WritingSetupPage() {
         const { data, error } = await supabase
           .from('questions')
           .select('*')
-          .in('part', ['task1', 'task1_2', 'task2'])
+          .in('part', ['task1_1', 'task1_2', 'task2'])
           .eq('is_active', true);
 
         if (error) throw error;
@@ -52,31 +52,31 @@ export default function WritingSetupPage() {
           return result;
         };
         
-        const task1Questions = shuffle(data.filter(q => q.part === 'task1')).slice(0, 1);
+        const task1_1Questions = shuffle(data.filter(q => q.part === 'task1_1')).slice(0, 1);
         const task1_2Questions = shuffle(data.filter(q => q.part === 'task1_2')).slice(0, 1);
         const task2Questions = shuffle(data.filter(q => q.part === 'task2')).slice(0, 1);
 
-        if (task1Questions.length === 0 || task2Questions.length === 0) {
+        if (task1_1Questions.length === 0 || task2Questions.length === 0) {
           setQuestionsError('Not enough questions available in the database. Please contact the administrator.');
           return;
         }
 
-        const selectedQuestions = [...task1Questions, ...task1_2Questions, ...task2Questions].map(q => {
-          let taskNumber: number | string = 1;
-          let title = 'Task 1';
-          let minW = 150;
-          let recMin = 20;
+        const selectedQuestions = [...task1_1Questions, ...task1_2Questions, ...task2Questions].map(q => {
+          let taskNumber: number | string = 1.1;
+          let title = 'Task 1.1';
+          let minW = 50;
+          let recMin = 10;
 
           if (q.part === 'task1_2') {
             taskNumber = 1.2;
             title = 'Task 1.2';
-            minW = 150;
-            recMin = 20;
+            minW = 120;
+            recMin = 15;
           } else if (q.part === 'task2') {
             taskNumber = 2;
             title = 'Task 2';
-            minW = 250;
-            recMin = 40;
+            minW = 180;
+            recMin = 35;
           }
 
           return {
@@ -144,7 +144,7 @@ export default function WritingSetupPage() {
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Time Limit: 60 Minutes</h3>
                 <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 leading-relaxed">
-                  You have exactly 60 minutes to complete both Task 1 and Task 2. You should spend about 20 minutes on Task 1 and 40 minutes on Task 2.
+                  You have exactly 60 minutes to complete Task 1.1, Task 1.2, and Task 2. You should spend about 10 minutes on Task 1.1, 15 minutes on Task 1.2, and 35 minutes on Task 2.
                 </p>
               </div>
             </div>
@@ -156,7 +156,7 @@ export default function WritingSetupPage() {
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Word Requirements</h3>
                 <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 leading-relaxed">
-                  Task 1 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">150 words</span>. Task 2 requires a minimum of <span className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">250 words</span>.
+                  Task 1.1 requires at least <span className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">50 words</span>, Task 1.2 requires at least <span className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">120 words</span>, and Task 2 requires at least <span className="font-semibold text-slate-800 dark:text-slate-200 dark:text-slate-200">180 words</span>.
                 </p>
               </div>
             </div>

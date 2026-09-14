@@ -21,7 +21,7 @@ export interface PasscodeEntry {
 }
 
 // ----- Exam Structure -----
-export type ExamPart = 'part1' | 'part1_2' | 'part2' | 'part3' | 'task1' | 'task1_2' | 'task2';
+export type ExamPart = 'part1' | 'part1_2' | 'part2' | 'part3' | 'task1_1' | 'task1_2' | 'task2';
 export type QuestionPhase = 'prep' | 'speak' | 'complete';
 
 export interface ExamQuestion {
@@ -197,7 +197,7 @@ export interface ExamSessionState {
 // ----- Writing Types -----
 export interface WritingQuestion {
   id: string;
-  taskNumber: 1 | 2;
+  taskNumber: number | string;
   title: string;
   instructions: string;
   imageUrl?: string;
@@ -215,7 +215,7 @@ export interface WritingEvaluation {
   total_score: number;
   cefr_level: CefrBand;
   task_scores: {
-    task_1_score: number;
+    task_1_1_score: number;
     task_1_2_score?: number;
     task_2_score: number;
   };
@@ -225,7 +225,7 @@ export interface WritingEvaluation {
     lexical_resource: CefrBand;
     grammar_accuracy: CefrBand;
   };
-  task_1_eval: WritingTaskEval;
+  task_1_1_eval: WritingTaskEval;
   task_1_2_eval?: WritingTaskEval;
   task_2_eval: WritingTaskEval;
   global_feedback: {
