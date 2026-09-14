@@ -10,7 +10,7 @@ import { WritingEvaluation } from '@/lib/types';
 export default function WritingResultsPage() {
   const router = useRouter();
   const [evaluation, setEvaluation] = useState<WritingEvaluation | null>(null);
-  const [activeTask, setActiveTask] = useState<1 | 1.2 | 2>(1);
+  const [activeTask, setActiveTask] = useState<1.1 | 1.2 | 2>(1.1);
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -36,14 +36,14 @@ export default function WritingResultsPage() {
   if (!evaluation) return null;
 
   let activeEval;
-  if (activeTask === 1) activeEval = evaluation.task_1_eval;
+  if (activeTask === 1.1) activeEval = evaluation.task_1_1_eval;
   else if (activeTask === 1.2) activeEval = evaluation.task_1_2_eval;
   else activeEval = evaluation.task_2_eval;
 
   if (!activeEval) return null;
 
   let activePrompt;
-  if (activeTask === 1) activePrompt = questions[0];
+  if (activeTask === 1.1) activePrompt = questions[0];
   else if (activeTask === 1.2) activePrompt = questions[1];
   else activePrompt = questions[2];
 
@@ -86,8 +86,8 @@ export default function WritingResultsPage() {
 
           <div className="flex-1 w-full grid grid-cols-3 gap-x-6 gap-y-4">
             <div>
-              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase mb-1">Task 1 (25%)</div>
-              <div className="text-2xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{evaluation.task_scores.task_1_score}</div>
+              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase mb-1">Task 1.1 (25%)</div>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{evaluation.task_scores.task_1_1_score}</div>
             </div>
             <div>
               <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase mb-1">Task 1.2 (25%)</div>
@@ -150,12 +150,12 @@ export default function WritingResultsPage() {
         <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-[var(--radius-lg)] shadow-sm border border-slate-100 dark:border-slate-800 dark:border-slate-800 overflow-hidden">
           <div className="flex border-b border-slate-100 dark:border-slate-800 dark:border-slate-800">
             <button
-              onClick={() => setActiveTask(1)}
+              onClick={() => setActiveTask(1.1)}
               className={`flex-1 py-4 text-sm font-semibold transition-colors ${
-                activeTask === 1 ? 'bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50'
+                activeTask === 1.1 ? 'bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50'
               }`}
             >
-              Task 1 Review
+              Task 1.1 Review
             </button>
             {questions.length > 2 && (
               <button
