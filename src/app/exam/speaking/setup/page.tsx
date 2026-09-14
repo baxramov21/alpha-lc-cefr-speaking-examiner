@@ -108,7 +108,7 @@ export default function ExamSetupPage() {
           const p1ImageSource = shuffle(data.filter(q => q.part === 'part1_2'))[0];
           const p1ImageQuestions = p1ImageSource ? (() => {
             const tFirst = timingsMap['part1_2_first'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
-            const tRest = timingsMap['part1_2_rest'] || { prep_seconds: p1ImageSource.prep_seconds, speak_seconds: p1ImageSource.speak_seconds };
+            const tRest = timingsMap['part1_2_rest'] || { prep_seconds: 5, speak_seconds: 30 };
 
             const subQs = (p1ImageSource.table_data as any)?.sub_questions;
             if (subQs && Array.isArray(subQs) && subQs.length === 3) {
