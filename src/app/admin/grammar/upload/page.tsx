@@ -139,10 +139,12 @@ ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
     {
       "part_number": 1,
       "title": "Part 1",
+      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",
       "questions": [
         {
           "question_number": 1,
           "type": "MULTIPLE_CHOICE",
+          "context_text": "String (Optional) - If this question belongs to an extract or specific paragraph, put the extract text here. Only put this on the FIRST question of the extract.",
           "image_url": "String (Optional) - If this question requires an image, put [UPLOAD_IMAGE_HERE]",
           "question_text": "Look at the text. What does it say?",
           "options": [
