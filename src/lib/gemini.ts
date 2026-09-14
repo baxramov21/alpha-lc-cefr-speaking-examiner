@@ -221,7 +221,7 @@ NEVER refuse to evaluate and NEVER return anything other than the JSON object.
 export function cleanJsonResponse(rawText: string): any {
   try {
     // Strip markdown formatting if the model accidentally included it
-    const cleanedText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const cleanedText = rawText.replace(/[`]{3}json/gi, '').replace(/[`]{3}/g, '').trim();
     const parsed = JSON.parse(cleanedText);
     return parsed;
   } catch (error) {
