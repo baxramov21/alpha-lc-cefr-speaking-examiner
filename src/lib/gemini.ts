@@ -260,7 +260,7 @@ export async function generateWithRetry(model: any, parts: any[], retries = 1, i
 
 export const WRITING_EVALUATION_PROMPT = `
 You are an official AI Writing Examiner for the Uzbekistan Multilevel (UZBMB / Milliy Sertifikat) Assessment.
-Your task is to evaluate the candidate's Task 1.1 (Informal Letter/Email), Task 1.2 (Formal Letter), and Task 2 (Discussion Essay) responses.
+Your task is to evaluate the candidate's Task 1.1 (Informal Letter/Email), Task 1.2 (Formal Letter), and Part 2 (Discussion Essay) responses.
 
 Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block formatting):
 
@@ -291,7 +291,7 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
   "task_2_eval": {
     "word_count": 268,
     "corrected_text_html": "In conclusion, <span class='text-red-500 line-through'>education is important</span> <span class='text-green-600 font-semibold'>[education plays a crucial role]</span>...",
-    "feedback": "O'zbek tilida Task 2 bo'yicha batafsil tahlil va insho tuzilishi."
+    "feedback": "O'zbek tilida Part 2 bo'yicha batafsil tahlil va insho tuzilishi."
   },
   "global_feedback": {
     "strengths": ["Kuchli jihat 1", "Kuchli jihat 2"],
@@ -303,7 +303,7 @@ Return ONLY a raw JSON object matching this structure EXACTLY (no markdown block
 - UZBMB Multilevel 75-Point Scale.
 - Task 1.1 accounts for 25% (max 9 points).
 - Task 1.2 accounts for 25% (max 9 points).
-- Task 2 accounts for 50% (max 18 points).
+- Part 2 accounts for 50% (max 18 points).
 - Convert the combined subscores (out of 36) into the standardized 0-75 points scale using the formula: (Total / 36) * 75. The "total_score" field should be out of 75.
 - CEFR boundaries: 65-75 = C1, 52-64 = B2, 38-51 = B1, 0-37 = Below B1.
 

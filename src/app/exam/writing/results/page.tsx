@@ -94,7 +94,7 @@ export default function WritingResultsPage() {
               <div className="text-2xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{evaluation.task_scores.task_1_2_score}</div>
             </div>
             <div>
-              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase mb-1">Task 2 (50%)</div>
+              <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase mb-1">Part 2 (50%)</div>
               <div className="text-2xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{evaluation.task_scores.task_2_score}</div>
             </div>
             <div className="col-span-3 h-px bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 my-2" />
@@ -173,7 +173,7 @@ export default function WritingResultsPage() {
                 activeTask === 2 ? 'bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 text-teal-600 border-b-2 border-teal-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-50'
               }`}
             >
-              Task 2 Review
+              Part 2 Review
             </button>
           </div>
 

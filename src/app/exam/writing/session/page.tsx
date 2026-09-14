@@ -159,7 +159,7 @@ export default function WritingSessionPage() {
           task_2_eval: {
             word_count: 0,
             corrected_text_html: "<span class='text-red-500'>[Empty response submitted]</span>",
-            feedback: "The candidate did not enter any text for Task 2."
+            feedback: "The candidate did not enter any text for Part 2."
           },
           global_feedback: {
             strengths: ["No response"],
@@ -350,7 +350,7 @@ export default function WritingSessionPage() {
                   currentTask === 2 ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-teal-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 '
                 }`}
               >
-                Task 2
+                Part 2
               </button>
             </div>
           </div>

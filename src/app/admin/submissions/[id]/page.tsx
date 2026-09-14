@@ -224,7 +224,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
             <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{ev.task_scores?.task_1_2_score || 0} <span className="text-base text-slate-400 dark:text-slate-500 dark:text-slate-500 font-medium">/ 9</span></div>
           </div>
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 dark:border-slate-800 text-center">
-            <h3 className="text-slate-400 dark:text-slate-500 dark:text-slate-500 text-sm font-semibold mb-2 uppercase tracking-wide">Task 2 (Essay)</h3>
+            <h3 className="text-slate-400 dark:text-slate-500 dark:text-slate-500 text-sm font-semibold mb-2 uppercase tracking-wide">Part 2 (Essay)</h3>
             <div className="text-3xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{ev.task_scores?.task_2_score || 0} <span className="text-base text-slate-400 dark:text-slate-500 dark:text-slate-500 font-medium">/ 18</span></div>
           </div>
         </div>
@@ -334,7 +334,7 @@ ${ev.question_responses ? ev.question_responses.map((qr: any) => `[Question: ${q
           {[
             { id: 'Task 1.1', title: 'Informal Letter', eval: ev.task_1_1_eval },
             { id: 'Task 1.2', title: 'Formal Letter', eval: ev.task_1_2_eval },
-            { id: 'Task 2', title: 'Essay', eval: ev.task_2_eval }
+            { id: 'Part 2', title: 'Essay', eval: ev.task_2_eval }
           ].map((task) => (
             <div key={task.id} className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 dark:border-slate-800 flex flex-col gap-4">
               <div className="flex justify-between items-start">

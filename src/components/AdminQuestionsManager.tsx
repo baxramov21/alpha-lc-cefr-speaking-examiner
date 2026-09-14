@@ -219,7 +219,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
   const handleSaveAllTimings = async () => {
     setIsSavingTimings(true);
     try {
-      const parts = ['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3'];
+      const parts = ['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3', 'task1_1', 'task1_2', 'task2'];
       await Promise.all(parts.map(part => {
         const timing = partTimings[part] || { prep_seconds: 0, speak_seconds: 0 };
         return fetch('/api/admin/questions/timings', {
@@ -961,7 +961,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <>
                 <option value="task1_1">Task 1.1 (Informal Letter)</option>
                 {programme === 'CEFR' && <option value="task1_2">Task 1.2 (Formal Letter)</option>}
-                <option value="task2">Task 2 (Discussion)</option>
+                <option value="task2">Part 2 (Discussion)</option>
               </>
             )}
           </select>
@@ -1613,7 +1613,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         ) : (
         <>
-          {skillTab === 'speaking' && !isCreating && (
+          {(skillTab === 'speaking' || skillTab === 'writing') && !isCreating && (
             <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 mb-6 shadow-sm">
               <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 text-lg mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-teal-600" />
@@ -1622,9 +1622,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400 mb-4">
                 Update the prep and speaking times for entire parts. This instantly applies to all existing and future questions.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3'].map(p => {
-                  const label = p === 'part1' ? 'Part 1' : p === 'part1_2_first' ? 'Part 1.2 (Q1)' : p === 'part1_2_rest' ? 'Part 1.2 (Q2 & Q3)' : p === 'part2' ? 'Part 2' : 'Part 3';
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {(skillTab === 'speaking' 
+                  ? ['part1', 'part1_2_first', 'part1_2_rest', 'part2', 'part3']
+                  : ['task1_1', 'task1_2', 'task2']
+                ).map(p => {
+                  const label = skillTab === 'speaking' 
+                    ? (p === 'part1' ? 'Part 1' : p === 'part1_2_first' ? 'Part 1.2 (Q1)' : p === 'part1_2_rest' ? 'Part 1.2 (Q2 & Q3)' : p === 'part2' ? 'Part 2' : 'Part 3')
+                    : (p === 'task1_1' ? 'Task 1.1' : p === 'task1_2' ? 'Task 1.2' : 'Part 2');
                   const timing = partTimings[p] || { prep_seconds: 0, speak_seconds: 0 };
                   return (
                     <div key={p} className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 flex flex-col gap-3">
@@ -1695,7 +1700,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             )) : [
               { id: 'task1_1', label: 'Task 1.1' },
               { id: 'task1_2', label: 'Task 1.2' },
-              { id: 'task2', label: 'Task 2' }
+              { id: 'task2', label: 'Part 2' }
             ].map(tab => (
               <button
                 key={tab.id}
