@@ -215,7 +215,7 @@ Your output MUST be a valid JSON object matching this structure exactly (NO mark
 }
 
 NEVER refuse to evaluate and NEVER return anything other than the JSON object.
-\`;
+`;
 }
 
 export function cleanJsonResponse(rawText: string): any {
