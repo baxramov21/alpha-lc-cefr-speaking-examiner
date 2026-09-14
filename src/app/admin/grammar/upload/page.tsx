@@ -647,38 +647,73 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           return;
        }
 
-       if (audioFile && examMode === 'listening') {
-         // 1. Get Presigned URL
-         const urlRes = await fetch('/api/admin/exams/get-upload-url', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ fileName: audioFile.name, contentType: audioFile.type || 'audio/mpeg' })
-         });
-         const urlData = await urlRes.json();
-         if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
+        if (audioFile && examMode === 'listening') {
+          // 1. Get Presigned URL
+          const urlRes = await fetch('/api/admin/exams/get-upload-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName: audioFile.name, contentType: audioFile.type || 'audio/mpeg' })
+          });
+          const urlData = await urlRes.json();
+          if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
 
-         // 2. Upload file to signed URL
-         const uploadRes = await fetch(urlData.signedUrl, {
-           method: 'PUT',
-           headers: {
-             'Content-Type': audioFile.type || 'audio/mpeg'
-           },
-           body: audioFile
-         });
+          // 2. Upload file to signed URL
+          const uploadRes = await fetch(urlData.signedUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': audioFile.type || 'audio/mpeg'
+            },
+            body: audioFile
+          });
 
-         if (!uploadRes.ok) {
-           throw new Error(`Failed to upload audio to S3: ${uploadRes.statusText}`);
-         }
-         
-         const publicUrl = urlData.publicUrl;
-         
-         // Attach to the first part
-         finalPayloads.forEach(p => {
-           if (p.parts && p.parts.length > 0) {
-             p.parts[0].audio_urls = [publicUrl];
-           }
-         });
-       }
+          if (!uploadRes.ok) {
+            throw new Error(`Failed to upload audio to S3: ${uploadRes.statusText}`);
+          }
+          
+          const publicUrl = urlData.publicUrl;
+          
+          // Attach to the first part
+          finalPayloads.forEach(p => {
+            if (p.parts && p.parts.length > 0) {
+              p.parts[0].audio_urls = [publicUrl];
+            }
+          });
+        }
+
+        if (pdfFile && examMode === 'listening') {
+          // 1. Get Presigned URL
+          const urlRes = await fetch('/api/admin/exams/get-upload-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileName: pdfFile.name, contentType: pdfFile.type || 'application/pdf' })
+          });
+          const urlData = await urlRes.json();
+          if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
+
+          // 2. Upload file to signed URL
+          const uploadRes = await fetch(urlData.signedUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': pdfFile.type || 'application/pdf'
+            },
+            body: pdfFile
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error(`Failed to upload PDF to S3: ${uploadRes.statusText}`);
+          }
+          
+          const publicPdfUrl = urlData.publicUrl;
+          
+          // Attach to EVERY part so it shows up for all questions
+          finalPayloads.forEach(p => {
+            if (p.parts && Array.isArray(p.parts)) {
+              p.parts.forEach((part: any) => {
+                part.pdf_url = publicPdfUrl;
+              });
+            }
+          });
+        }
 
        await executeUpload(finalPayloads);
     } catch (err: any) {

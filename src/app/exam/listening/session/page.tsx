@@ -302,7 +302,8 @@ export default function ListeningSessionPage() {
   if (!sessionToken || tasks.length === 0 || isRestoring) return null;
 
   const currentTask = tasks[currentTaskIndex];
-  const hasImage = currentTask?.passage_html?.includes('<img') || currentTask?.image_url;
+  const activePdfUrl = currentTask?.pdf_url || tasks.find(t => t.pdf_url)?.pdf_url;
+  const isSplitScreen = activePdfUrl || currentTask?.passage_html?.includes('<img') || currentTask?.image_url;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 flex flex-col h-screen overflow-hidden">
@@ -339,12 +340,12 @@ export default function ListeningSessionPage() {
 
       {/* Floating Highlighter Toolbar */}
       <main 
-        className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${hasImage ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}
+        className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${isSplitScreen ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}
       >
-        <div className={`w-full mx-auto ${hasImage ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
+        <div className={`w-full mx-auto ${isSplitScreen ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
           {/* Top Block: Audio & Passage */}
-          <div className={`flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
+          <div className={`flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden ${isSplitScreen ? 'h-full' : ''}`}>
             
             {/* Audio Player Card (Sticky at top) */}
             <div className="bg-slate-900 p-6 shrink-0 border-b border-slate-800 sticky top-0 z-20">
@@ -402,33 +403,43 @@ export default function ListeningSessionPage() {
             </div>
 
             {/* Passage Content (Fully Native UI) */}
-            <div id="listening-text-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto relative' : ''}`}>
-              <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 ">
-                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">{currentTask.partLabel} Context</h2>
-                <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
-              </div>
-              {currentTask.image_url && (
-                <div className="mb-6 flex justify-center">
-                  <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" />
-                </div>
-              )}
-              {currentTask.passage_html && (
-                <div 
-                  className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 dark:text-slate-200 "
-                  dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
+            {activePdfUrl ? (
+              <div className="flex-1 w-full relative">
+                <iframe 
+                  src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} 
+                  className="absolute inset-0 w-full h-full border-0"
+                  title="Listening PDF"
                 />
-              )}
-            </div>
+              </div>
+            ) : (
+              <div id="listening-text-container" className={`p-6 lg:p-10 ${isSplitScreen ? 'flex-1 overflow-y-auto relative' : ''}`}>
+                <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 ">
+                  <h2 className="text-2xl font-black text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">{currentTask.partLabel} Context</h2>
+                  <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
+                </div>
+                {currentTask.image_url && (
+                  <div className="mb-6 flex justify-center">
+                    <img src={currentTask.image_url} alt="Passage Image" className="max-h-[500px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" />
+                  </div>
+                )}
+                {currentTask.passage_html && (
+                  <div 
+                    className="prose prose-sm md:prose-base max-w-none text-slate-800 dark:text-slate-200 dark:text-slate-200 "
+                    dangerouslySetInnerHTML={{ __html: currentTask.passage_html }}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {/* Bottom Block: Questions */}
-          <div className={`flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden ${hasImage ? 'h-full' : ''}`}>
+          <div className={`flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden ${isSplitScreen ? 'h-full' : ''}`}>
             <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 shrink-0 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 ">
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 ">Questions</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400 dark:text-slate-400  ">Answer all questions based on the audio.</p>
             </div>
             
-            <div id="listening-questions-container" className={`p-6 lg:p-10 ${hasImage ? 'flex-1 overflow-y-auto' : ''}`}>
+            <div id="listening-questions-container" className={`p-6 lg:p-10 ${isSplitScreen ? 'flex-1 overflow-y-auto' : ''}`}>
               <div className="space-y-10 pb-8">
                 {currentTask.questions.map((q) => (
                   <div key={q.id} className="group">
