@@ -408,6 +408,12 @@ export default function ExamSessionPage() {
           const examMode = sessionStorage.getItem('examMode') || 'full';
           formData.append('examMode', examMode);
           
+          const examSessionStr = sessionStorage.getItem('examSession');
+          if (examSessionStr) {
+            const examSessionObj = JSON.parse(examSessionStr);
+            formData.append('programme', examSessionObj.programme || 'CEFR');
+          }
+          
           const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
           formData.append('questionsData', JSON.stringify(questionsData));
 
@@ -520,6 +526,12 @@ export default function ExamSessionPage() {
       formData.append('studentName', studentName);
       const examMode = sessionStorage.getItem('examMode') || 'full';
       formData.append('examMode', examMode);
+      
+      const examSessionStr = sessionStorage.getItem('examSession');
+      if (examSessionStr) {
+        const examSessionObj = JSON.parse(examSessionStr);
+        formData.append('programme', examSessionObj.programme || 'CEFR');
+      }
       
       const questionsData = examQuestions.map(q => ({ id: q.id, text: q.text, part: q.part, imageUrl: q.imageUrl }));
       formData.append('questionsData', JSON.stringify(questionsData));

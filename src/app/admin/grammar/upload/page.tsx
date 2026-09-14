@@ -518,6 +518,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         
         json.level = grammarLevel;
         json.grammar_level = grammarLevel;
+        json.programme = 'GRAMMAR';
+        if (json.exam_type) {
+           json.exam_type = json.exam_type.toUpperCase();
+        }
         
         if (examMode === 'grammar_json') {
           const valResult = GrammarExamSchema.safeParse(json);

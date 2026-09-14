@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
 
     const questionsDataStr = formData.get('questionsData') as string;
     const examMode = (formData.get('examMode') as string) || 'full';
+    const programme = (formData.get('programme') as string) || 'CEFR';
     
     if (!questionsDataStr) {
       return NextResponse.json({ error: 'Missing questions data.' }, { status: 400 });
@@ -141,7 +142,7 @@ export async function POST(req: NextRequest) {
       generativeParts.push(`\n\n=== EARLY FINISH TIMING CONTEXT ===\n${earlyFinishNotes.join('\n')}\n=== END TIMING CONTEXT ===\n`);
     }
 
-    generativeParts.push(`\n\n${generateSpeakingPrompt(examMode)}`);
+    generativeParts.push(`\n\n${generateSpeakingPrompt(examMode, programme)}`);
 
     const result = await generateWithRetry(model, generativeParts);
     const response = await result.response;
@@ -149,14 +150,24 @@ export async function POST(req: NextRequest) {
 
     const evaluationJSON = cleanJsonResponse(rawText);
 
-    // Calculate total score based on the 4 criteria
-    const totalScore = Math.round(
-      ((evaluationJSON.fluency_score || 0) +
-       (evaluationJSON.lexical_score || 0) +
-       (evaluationJSON.grammar_score || 0) +
-       (evaluationJSON.pronunciation_score || 0)) / 4
-    );
-    evaluationJSON.total_score = totalScore;
+    if (programme === 'IELTS') {
+      // Normalize IELTS format to internal format
+      evaluationJSON.fluency_score = evaluationJSON.fluency_band;
+      evaluationJSON.lexical_score = evaluationJSON.lexical_band;
+      evaluationJSON.grammar_score = evaluationJSON.grammar_band;
+      evaluationJSON.pronunciation_score = evaluationJSON.pronunciation_band;
+      evaluationJSON.total_score = evaluationJSON.overall_band;
+      evaluationJSON.cefr_level = evaluationJSON.cefr_equivalent;
+    } else {
+      // Calculate total score based on the 4 criteria
+      const totalScore = Math.round(
+        ((evaluationJSON.fluency_score || 0) +
+         (evaluationJSON.lexical_score || 0) +
+         (evaluationJSON.grammar_score || 0) +
+         (evaluationJSON.pronunciation_score || 0)) / 4
+      );
+      evaluationJSON.total_score = totalScore;
+    }
 
     // Dispatch to Telegram (run in background using waitUntil to prevent 504 timeouts)
     const studentName = formData.get('studentName') as string || 'Unknown Student';
