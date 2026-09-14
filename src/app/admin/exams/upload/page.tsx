@@ -111,7 +111,6 @@ CRITICAL INSTRUCTIONS:
 6. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
 7. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
 8. If the exam requires images (e.g., map questions, diagrams), use the "image_url" field. You should set its value to a placeholder like "[UPLOAD_MAP_IMAGE_HERE]" and the administrator will replace it with the real URL later.
-8. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.
 ${(testIdentifier || answersPageNumber) ? `9. The provided document contains multiple tests. You MUST ONLY extract answers for the test matching:
 ${testIdentifier ? `- Test Identifier: ${testIdentifier}` : ''}
 ${answersPageNumber ? `- Answer Key Page: ${answersPageNumber}` : ''}
