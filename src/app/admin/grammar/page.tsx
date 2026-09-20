@@ -295,6 +295,7 @@ export default function AdminGrammarExamsPage() {
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Level</label>
                   <select value={tripleForm.level} onChange={e => setTripleForm({...tripleForm, level: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-lg px-3 py-2">
+                    <option value="Beginner">Beginner</option>
                     <option value="Elementary">Elementary</option>
                     <option value="Pre-Intermediate">Pre-Intermediate</option>
                     <option value="Intermediate">Intermediate</option>
@@ -384,9 +385,11 @@ export default function AdminGrammarExamsPage() {
             <div>
               <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Level</label>
               <select required value={writingForm.level} onChange={e => setWritingForm({...writingForm, level: e.target.value})} className="w-full border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-950">
-                <option value="Elementary">Elementary</option>
-                <option value="Pre-Intermediate">Pre-Intermediate</option>
-                <option value="Intermediate">Intermediate</option>
+                    <option value="All Levels">All Levels</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Elementary">Elementary</option>
+                    <option value="Pre-Intermediate">Pre-Intermediate</option>
+                    <option value="Intermediate">Intermediate</option>
                 <option value="Upper-Intermediate">Upper-Intermediate</option>
               </select>
             </div>
@@ -462,6 +465,7 @@ export default function AdminGrammarExamsPage() {
                               onChange={(e) => setEditingExam(prev => prev ? {...prev, level: e.target.value} : null)}
                               className="border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 dark:bg-slate-900"
                             >
+                              <option value="Beginner">Beginner</option>
                               <option value="Elementary">Elementary</option>
                               <option value="Pre-Intermediate">Pre-Intermediate</option>
                               <option value="Intermediate">Intermediate</option>

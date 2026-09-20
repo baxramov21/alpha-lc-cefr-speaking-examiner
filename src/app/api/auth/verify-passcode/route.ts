@@ -21,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const schema = z.object({
   passcode: z.string().min(4).max(64),
   fullName: z.string().min(1).optional(),
-  grammarLevel: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
+  grammarLevel: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']).optional(),
 });
 
 export async function POST(req: NextRequest) {

@@ -107,7 +107,7 @@ CRITICAL INSTRUCTIONS:
 2. The JSON must exactly match the schema below.
 3. For Reading exams, set "exam_type" to "CEFR_READING". For Listening exams, set it to "CEFR_LISTENING".
 4. Set "programme" to "CEFR" or "IELTS" or "GRAMMAR" depending on the exam format.
-5. If "programme" is "GRAMMAR", you MUST include "grammar_level" (elementary, pre-intermediate, or intermediate).
+5. If "programme" is "GRAMMAR", you MUST include "grammar_level" (beginner, elementary, pre-intermediate, or intermediate).
 6. EVERY question MUST have a "correct_answer". DO NOT LEAVE IT BLANK.
 7. If there are multiple questions that refer to a specific sub-text or extract (e.g., "Extract 1", "Paragraph A"), you MUST include a "context_text" field on the VERY FIRST question of that extract/group. Include the extract label and text. Use \\n for line breaks.
 8. If the exam requires images (e.g., map questions, diagrams), use the "image_url" field. You should set its value to a placeholder like "[UPLOAD_MAP_IMAGE_HERE]" and the administrator will replace it with the real URL later.
@@ -122,7 +122,7 @@ SCHEMA:
   "title": "String - The title of the exam",
   "exam_type": "CEFR_READING or CEFR_LISTENING",
   "programme": "CEFR or IELTS or GRAMMAR",
-  "grammar_level": "elementary or pre-intermediate or intermediate (Optional - ONLY for GRAMMAR programme)",
+  "grammar_level": "beginner or elementary or pre-intermediate or intermediate (Optional - ONLY for GRAMMAR programme)",
   "parts": [
     {
       "part_number": 1,

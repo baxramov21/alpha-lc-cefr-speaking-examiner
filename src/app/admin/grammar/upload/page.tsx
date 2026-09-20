@@ -61,7 +61,7 @@ CRITICAL INSTRUCTIONS:
 SCHEMA:
 {
   "title": "String - The title of the grammar test (e.g. Unit 1 Grammar)",
-  "level": "elementary or pre-intermediate or intermediate",
+  "level": "beginner or elementary or pre-intermediate or intermediate",
   "time_limit": 1800,
   "questions": [
     {
@@ -97,7 +97,7 @@ CRITICAL INSTRUCTIONS:
 SCHEMA:
 ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
   "title": "String - The title of the grammar test (e.g. Unit 1 Grammar)",
-  "level": "elementary or pre-intermediate or intermediate",
+  "level": "beginner or elementary or pre-intermediate or intermediate",
   "time_limit": 1800,
   "questions": [
     {
@@ -845,6 +845,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             onChange={(e) => setGrammarLevel(e.target.value)}
             className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
           >
+            <option value="beginner">Beginner</option>
             <option value="elementary">Elementary</option>
             <option value="pre-intermediate">Pre-Intermediate</option>
             <option value="intermediate">Intermediate</option>

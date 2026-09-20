@@ -17,7 +17,7 @@ const schema = z.object({
   groupName: z.string().trim().min(1, 'Group name is required'),
   teacherName: z.string().trim().min(2, 'Teacher name is required'),
   passcode: z.string().trim().min(4, 'Passcode is required'),
-  grammarLevel: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
+  grammarLevel: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -301,6 +301,7 @@ export default function StudentLoginPage() {
                       {...register('grammarLevel', { required: 'Please select a level' })}
                     >
                       <option value="">Choose a level...</option>
+                      <option value="beginner">Beginner</option>
                       <option value="elementary">Elementary</option>
                       <option value="pre-intermediate">Pre-Intermediate</option>
                       <option value="intermediate">Intermediate</option>
