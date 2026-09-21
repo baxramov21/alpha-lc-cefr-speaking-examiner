@@ -338,9 +338,61 @@ export default function ListeningSessionPage() {
         </div>
       </header>
 
+      {/* Action Bar (Thin and at top) */}
+      <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 px-4 py-2 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 z-30 shadow-sm shrink-0">
+        <div className="max-w-[1800px] mx-auto flex justify-between items-center">
+          <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
+                disabled={currentTaskIndex === 0}
+                className="font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 rounded-lg"
+              >
+                Previous Part
+              </Button>
+              
+              <div className="flex items-center">
+                {(!allowSkip && phase === 'initial_play') && (
+                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-xs font-medium mr-4 hidden md:block">
+                    Audio must finish before continuing.
+                  </p>
+                )}
+                
+                {currentTaskIndex < tasks.length - 1 ? (
+                  <Button 
+                    size="sm"
+                    onClick={() => setCurrentTaskIndex(i => i + 1)}
+                    className="bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-sm rounded-lg transition-all"
+                  >
+                    Next Part
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={submitExam}
+                    disabled={isSubmitting || (!allowSkip && phase !== 'finalizing')}
+                    className="rounded-lg font-bold bg-teal-600 hover:bg-teal-700 shadow-sm transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Finishing...
+                      </>
+                    ) : (
+                      <>
+                        Finish Exam
+                        <CheckCircle className="w-4 h-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                )}
+          </div>
+        </div>
+      </div>
+
       {/* Floating Highlighter Toolbar */}
       <main 
-        className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${isSplitScreen ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}
+        className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${isSplitScreen ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-8'}`}
       >
         <div className={`w-full mx-auto ${isSplitScreen ? 'max-w-[1800px] h-full grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
@@ -406,7 +458,7 @@ export default function ListeningSessionPage() {
             {activePdfUrl ? (
               <div className="flex-1 w-full relative">
                 <iframe 
-                  src={`${activePdfUrl}#toolbar=1&view=FitH`} 
+                  src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
                   className="absolute inset-0 w-full h-full border-0"
                   title="Listening PDF"
                 />
@@ -561,54 +613,6 @@ export default function ListeningSessionPage() {
         </div>
       </main>
 
-      {/* Action Bar (Fixed at bottom of screen) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 dark:bg-slate-900 p-4 lg:p-6 border-t border-slate-200 dark:border-slate-700 dark:border-slate-700 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <Button 
-                variant="outline" 
-                onClick={() => setCurrentTaskIndex(i => Math.max(0, i - 1))}
-                disabled={currentTaskIndex === 0}
-                className="font-semibold text-slate-600 dark:text-slate-300 dark:text-slate-300 h-11 px-6 rounded-xl"
-              >
-                Previous Part
-              </Button>
-              
-              <div className="flex items-center">
-                {(!allowSkip && phase === 'initial_play') && (
-                  <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm font-medium mr-4 hidden md:block">
-                    Audio must finish before continuing.
-                  </p>
-                )}
-                
-                {currentTaskIndex < tasks.length - 1 ? (
-                  <Button 
-                    onClick={() => setCurrentTaskIndex(i => i + 1)}
-                    className="bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-sm h-11 px-6 rounded-xl transition-all"
-                  >
-                    Next Part
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={submitExam}
-                    disabled={isSubmitting || (!allowSkip && phase !== 'finalizing')}
-                    className="h-11 px-8 rounded-xl font-bold bg-teal-600 hover:bg-teal-700 shadow-md transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Finishing...
-                      </>
-                    ) : (
-                      <>
-                        Finish Exam
-                        <CheckCircle className="w-5 h-5 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                )}
-          </div>
-        </div>
-      </div>
 
       {/* Exit Warning Modal */}
       {showExitWarning && (

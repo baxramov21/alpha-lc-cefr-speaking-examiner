@@ -304,7 +304,7 @@ export default function ReadingSessionPage() {
               {activePdfUrl ? (
                 <div className="flex-1 w-full relative">
                   <iframe 
-                    src={`${activePdfUrl}#toolbar=1&view=FitH`} 
+                    src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`} 
                     className="absolute inset-0 w-full h-full border-0"
                     title="Reading PDF"
                   />
