@@ -189,7 +189,7 @@ function GrammarSessionContent() {
           </div>
 
           {/* Right Side: Questions Scrollable */}
-          <div className="w-1/2 h-full overflow-y-auto p-8 pb-32 space-y-6 custom-scrollbar">
+          <div className="w-1/2 h-full overflow-y-auto p-8 pb-64 space-y-6 custom-scrollbar">
             {questions.map((q, idx) => (
               <div key={q.id} className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm relative">
                 <div className="flex gap-4">
@@ -241,7 +241,7 @@ function GrammarSessionContent() {
           </div>
         </main>
       ) : (
-        <main className="max-w-4xl mx-auto px-6 mt-8 space-y-6 pb-32">
+        <main className="max-w-4xl mx-auto px-6 mt-8 space-y-6 pb-64">
           {questions.map((q, idx) => (
             <div key={q.id} className="bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
               <div className="flex gap-4">

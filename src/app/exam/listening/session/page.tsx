@@ -440,7 +440,7 @@ export default function ListeningSessionPage() {
             </div>
             
             <div id="listening-questions-container" className={`p-6 lg:p-10 ${isSplitScreen ? 'flex-1 overflow-y-auto' : ''}`}>
-              <div className="space-y-10 pb-8">
+              <div className="space-y-10 pb-64">
                 {currentTask.questions.map((q) => (
                   <div key={q.id} className="group">
                     <div className="flex gap-4">

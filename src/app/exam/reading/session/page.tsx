@@ -356,7 +356,7 @@ export default function ReadingSessionPage() {
               <p className="text-slate-600 dark:text-slate-300 dark:text-slate-300 font-medium">{currentTask.instructions}</p>
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-10 pb-64">
               {currentTask.questions?.map((q: any) => (
                 <div key={q.id} className="group bg-white dark:bg-slate-900 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm hover:border-fuchsia-300 transition-colors">
                   <div className="flex gap-4">
