@@ -10,6 +10,7 @@ interface GrammarQuestion {
   id: string;
   question_number: number;
   type: string;
+  topic?: string | null;
   question_text: string;
   options: string[];
 }
