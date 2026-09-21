@@ -248,7 +248,7 @@ export default function ReadingSessionPage() {
 
       {/* Top Header */}
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <h1 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 text-lg flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-fuchsia-600" /> Reading Exam
@@ -290,7 +290,7 @@ export default function ReadingSessionPage() {
 
       {/* Main Split Screen Area */}
       <main className="flex-1 overflow-hidden p-4 lg:p-6 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ">
-        <div className={`h-full w-full max-w-[1700px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url && !isMatchingWithoutPassage) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.3fr_1fr]'} gap-6`}>
+        <div className={`h-full w-full max-w-[1800px] mx-auto grid grid-cols-1 ${(!activePdfUrl && !currentTask.passage_html && !currentTask.image_url && !isMatchingWithoutPassage) ? 'lg:max-w-4xl' : 'lg:grid-cols-[1.5fr_1fr]'} gap-6`}>
           
           {/* Left Column: Passage */}
           {(activePdfUrl || currentTask.passage_html || currentTask.image_url || isMatchingWithoutPassage) && (
@@ -304,7 +304,7 @@ export default function ReadingSessionPage() {
               {activePdfUrl ? (
                 <div className="flex-1 w-full relative">
                   <iframe 
-                    src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} 
+                    src={`${activePdfUrl}#toolbar=1&view=FitH`} 
                     className="absolute inset-0 w-full h-full border-0"
                     title="Reading PDF"
                   />

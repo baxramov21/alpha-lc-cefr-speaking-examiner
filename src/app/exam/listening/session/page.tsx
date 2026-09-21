@@ -310,7 +310,7 @@ export default function ListeningSessionPage() {
       <Highlighter />
       {/* Top Header */}
       <header className="bg-white dark:bg-slate-900 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm shrink-0">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <h1 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 text-lg">Listening Exam</h1>
             <div className="flex bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-1 rounded-lg">
@@ -342,7 +342,7 @@ export default function ListeningSessionPage() {
       <main 
         className={`flex-1 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 ${isSplitScreen ? 'overflow-hidden p-4 lg:p-6' : 'overflow-y-auto p-4 lg:p-6 pb-32'}`}
       >
-        <div className={`w-full mx-auto ${isSplitScreen ? 'max-w-[1400px] h-full grid grid-cols-1 lg:grid-cols-2 gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
+        <div className={`w-full mx-auto ${isSplitScreen ? 'max-w-[1800px] h-full grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6' : 'max-w-4xl flex flex-col gap-6'}`}>
           
           {/* Top Block: Audio & Passage */}
           <div className={`flex flex-col bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 overflow-hidden ${isSplitScreen ? 'h-full' : ''}`}>
@@ -406,7 +406,7 @@ export default function ListeningSessionPage() {
             {activePdfUrl ? (
               <div className="flex-1 w-full relative">
                 <iframe 
-                  src={`${activePdfUrl}#toolbar=0&navpanes=0&scrollbar=0`} 
+                  src={`${activePdfUrl}#toolbar=1&view=FitH`} 
                   className="absolute inset-0 w-full h-full border-0"
                   title="Listening PDF"
                 />
