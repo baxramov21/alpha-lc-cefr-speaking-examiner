@@ -104,6 +104,19 @@ export default function AdminGrammarExamsPage() {
     }
   };
 
+  const toggleFillIn = async (id: string, currentVal: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/grammar/exams/${id}/toggle-fill-in`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_fill_in_only: !currentVal })
+      });
+      if (res.ok) fetchExams();
+    } catch (err) {
+      console.error('Failed to toggle fill in', err);
+    }
+  };
+
   const handleUpdateLevel = async () => {
     if (!editingExam) return;
     try {
@@ -578,6 +591,16 @@ export default function AdminGrammarExamsPage() {
                               Edit
                             </Button>
                           </Link>
+                          {activeTab === 'grammar' && (
+                            <Button 
+                              onClick={() => toggleFillIn(exam.id, exam.is_fill_in_only)}
+                              variant="outline" 
+                              size="sm"
+                              className={exam.is_fill_in_only ? 'text-fuchsia-600 hover:text-fuchsia-700 hover:bg-fuchsia-50 border-fuchsia-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 border-slate-200'}
+                            >
+                              Fill-in Mode: {exam.is_fill_in_only ? 'ON' : 'OFF'}
+                            </Button>
+                          )}
                           <Button 
                             onClick={() => toggleStatus(exam.id, exam.is_active, activeTab !== 'grammar')}
                             variant="outline" 

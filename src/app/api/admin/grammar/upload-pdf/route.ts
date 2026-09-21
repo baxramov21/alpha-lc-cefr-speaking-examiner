@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
         level: data.level,
         study_month: data.study_month || null,
         time_limit: data.time_limit,
+        is_fill_in_only: data.is_fill_in_only || false,
         pdf_url: data.pdf_url,
         is_active: true
       })
@@ -41,7 +42,8 @@ export async function POST(req: NextRequest) {
         question_number: parseInt(qNum, 10) || 0,
         question_text: `Question ${qNum}`,
         type: qData.type || 'MULTIPLE_CHOICE',
-        correct_answer: qData.correct_answer
+        correct_answer: qData.correct_answer,
+        points: qData.points || 1
       };
     });
 

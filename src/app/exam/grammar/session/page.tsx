@@ -205,7 +205,7 @@ function GrammarSessionContent() {
                       />
                     )}
                     
-                    {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 ? (
+                    {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 && !exam.is_fill_in_only ? (
                       <div className="space-y-2 mt-4">
                         {q.options.map((opt, oIdx) => {
                           const isSelected = answers[q.id] === opt;
@@ -254,8 +254,8 @@ function GrammarSessionContent() {
                     dangerouslySetInnerHTML={{ __html: q.question_text }}
                   />
                   
-                  {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 ? (
-                    <div className="space-y-2 mt-4">
+                  {q.type === 'MULTIPLE_CHOICE' && q.options && q.options.length > 0 && !exam.is_fill_in_only ? (
+                    <div className="space-y-3 mt-4">
                       {q.options.map((opt, oIdx) => {
                         const isSelected = answers[q.id] === opt;
                         return (

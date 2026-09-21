@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     // 1. Fetch correct answers from DB
     const { data: questions, error: qError } = await supabaseAdmin
       .from('grammar_questions')
-      .select('id, question_number, question_text, correct_answer, explanation')
+      .select('id, question_number, question_text, correct_answer, explanation, points')
       .eq('exam_id', examId);
 
     if (qError || !questions) {
@@ -34,15 +34,28 @@ export async function POST(req: NextRequest) {
 
     // 2. Grade the answers
     let totalScore = 0;
-    const maxScore = questions.length;
+    const maxScore = questions.reduce((acc, q) => acc + (q.points || 1), 0);
     const questionResults = [];
+
+    const cleanAnswer = (ans: string) => {
+      // Remove a) b) c) or (a) (b) (c) prefixes
+      let cleaned = ans.replace(/^[\s\(]*[a-zA-Z][\)\.]\s*/i, '');
+      // Remove all non-alphanumeric chars (keep spaces)
+      cleaned = cleaned.replace(/[^a-zA-Z0-9\s]/g, '');
+      // Collapse multiple spaces to single
+      cleaned = cleaned.replace(/\s+/g, ' ').trim().toLowerCase();
+      return cleaned;
+    };
 
     for (const q of questions) {
       const userAnswer = answers[q.id] || '';
-      // Simple case-insensitive exact string match. We can improve this for fill_in if needed.
-      const isCorrect = userAnswer.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+      const cleanedUserAnswer = cleanAnswer(userAnswer);
+      const cleanedCorrectAnswer = cleanAnswer(q.correct_answer);
+      
+      const isCorrect = cleanedUserAnswer === cleanedCorrectAnswer || userAnswer.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+      
       if (isCorrect) {
-        totalScore++;
+        totalScore += (q.points || 1);
       }
       
       questionResults.push({

@@ -12,6 +12,7 @@ export async function GET() {
         level,
         study_month,
         is_active,
+        is_fill_in_only,
         time_limit,
         grammar_questions ( count )
       `)

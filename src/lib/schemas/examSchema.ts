@@ -41,6 +41,7 @@ export const GrammarQuestionSchema = z.object({
   options: z.array(z.string()).nullable().optional(),
   correct_answer: z.string().min(1, 'Correct answer cannot be empty'),
   explanation: z.string().nullable().optional(),
+  points: z.number().optional().default(1),
 });
 
 export const GrammarExamSchema = z.object({
@@ -48,6 +49,7 @@ export const GrammarExamSchema = z.object({
   level: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']),
   study_month: z.number().min(1).max(6).nullable().optional(),
   time_limit: z.number().int().positive().optional().default(1800),
+  is_fill_in_only: z.boolean().optional().default(false),
   questions: z.array(GrammarQuestionSchema).min(1, 'At least one question is required'),
 });
 
@@ -59,6 +61,7 @@ export const GrammarPdfExamSchema = z.object({
   level: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']),
   study_month: z.number().min(1).max(6).nullable().optional(),
   time_limit: z.number().int().positive().optional().default(1800),
+  is_fill_in_only: z.boolean().optional().default(false),
   pdf_url: z.string().optional(),
   answers: z.record(
     z.string(), // question_number (e.g. "1")

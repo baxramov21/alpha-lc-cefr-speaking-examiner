@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
         level: data.level,
         study_month: data.study_month || null,
         time_limit: data.time_limit,
+        is_fill_in_only: data.is_fill_in_only || false,
         is_active: true,
       })
       .select()
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
       options: q.options ? JSON.stringify(q.options) : null,
       correct_answer: q.correct_answer,
       explanation: q.explanation || null,
+      points: q.points || 1,
     }));
 
     const { error: questionsError } = await supabase

@@ -57,7 +57,8 @@ If both are provided, use the page number to locate the answers. You MUST output
 CRITICAL INSTRUCTIONS:
 1. Save the JSON to a file named 'exam.json' and provide a direct download link.
 2. EVERY question MUST have a "correct_answer".
-3. Provide a brief explanation for the correct answer if possible.${targetTestInstructions}
+3. Provide a brief explanation for the correct answer if possible.
+4. IMPORTANT: Look for section headers that assign points (e.g. "4. There is / There are — 10 pts"). Divide the total points by the number of questions in that section to calculate points per question (e.g. 10 pts / 10 questions = 1 point per question). Add this as a numeric "points" field to each question. If no points are mentioned, default to 1.${targetTestInstructions}
 
 SCHEMA:
 {
@@ -71,7 +72,8 @@ SCHEMA:
       "question_text": "String - The actual question",
       "options": ["Array of Strings - Optional, for multiple choice"],
       "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT",
-      "explanation": "String - Optional brief explanation"
+      "explanation": "String - Optional brief explanation",
+      "points": 1
     }
   ]
 }
@@ -93,7 +95,8 @@ CRITICAL INSTRUCTIONS:
 2. EVERY question MUST have a "correct_answer".
 3. Use question numbers as string keys in the answers object (e.g., "1", "2", "3").
 4. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
-5. If the exam requires images (e.g., questions referring to a specific diagram/picture), include the "image_url" field on the question and set it to "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
+5. If the exam requires images (e.g., questions referring to a specific diagram/picture), include the "image_url" field on the question and set it to "[UPLOAD_IMAGE_HERE]".
+6. IMPORTANT: Look for section headers that assign points (e.g. "4. There is / There are — 10 pts"). Divide the total points by the number of questions in that section to calculate points per question (e.g. 10 pts / 10 questions = 1 point per question). Add this as a numeric "points" field to each question. If no points are mentioned, default to 1.${targetTestInstructionsForPdf}
 
 SCHEMA:
 ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
@@ -105,12 +108,14 @@ ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
       "question_number": 1,
       "correct_answer": "B",
       "type": "MULTIPLE_CHOICE",
+      "points": 1,
       "image_url": "String (Optional) - If this question requires an image, put [UPLOAD_IMAGE_HERE]"
     },
     {
       "question_number": 2,
       "correct_answer": "is playing",
-      "type": "FILL_IN"
+      "type": "FILL_IN",
+      "points": 1
     }
   ]
 }${(testRange || answersPageNumber) ? '\n]' : ''}
