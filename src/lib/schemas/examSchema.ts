@@ -51,6 +51,7 @@ export const GrammarExamSchema = z.object({
   study_month: z.number().min(1).max(6).nullable().optional(),
   time_limit: z.number().int().positive().optional().default(1800),
   is_fill_in_only: z.boolean().optional().default(false),
+  pdf_url: z.string().optional(),
   questions: z.array(GrammarQuestionSchema).min(1, 'At least one question is required'),
 });
 

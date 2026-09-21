@@ -10,10 +10,10 @@ import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import { Button } from '@/components/ui/button';
 
-type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
+type ExamMode = "grammar_json" | "grammar_pdf_main" | "reading_native" | "listening_pdf_main";
 
 export default function GrammarUploadPage() {
-  const [examMode, setExamMode] = useState<ExamMode>('grammar_pdf');
+  const [examMode, setExamMode] = useState<ExamMode>("grammar_pdf_main");
   const [grammarLevel, setGrammarLevel] = useState<string>('pre-intermediate');
   const [studyMonth, setStudyMonth] = useState<number | ''>('');
   
@@ -41,6 +41,9 @@ export default function GrammarUploadPage() {
   const [duplicateResolution, setDuplicateResolution] = useState<'replace' | 'add' | 'skip' | null>(null);
   const [pendingUploadPayloads, setPendingUploadPayloads] = useState<any[]>([]);
   const [duplicateConflicts, setDuplicateConflicts] = useState<any[]>([]);
+
+  // Manual Answers State
+  const [manualAnswers, setManualAnswers] = useState<{question_number: number, correct_answer: string, points: number, topic: string}[]>([{question_number: 1, correct_answer: '', points: 1, topic: ''}]);
 
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -132,12 +135,12 @@ CRITICAL INSTRUCTIONS:
 4. "correct_answer" MUST exactly match one of the items in the "options" array.
 5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
 6. If a question requires an image (e.g., a diagram or map), use the "image_url" field in the question and set its value to exactly "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
-${examMode === 'listening' ? '7. DO NOT extract passage texts, since the PDF will be shown to the user. ONLY extract the questions and answer options.' : '7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.'}
+${examMode === 'listening_pdf_main' ? '7. DO NOT extract passage texts, since the PDF will be shown to the user. ONLY extract the questions and answer options.' : '7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.'}
 
 SCHEMA:
 ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
   "title": "String - e.g., 'Grammar Reading Test 1'",
-  "exam_type": "${examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING'}",
+  "exam_type": "${examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING'}",
   "programme": "GRAMMAR",
   "grammar_level": "pre-intermediate",
   "time_limit": 3600,
@@ -145,7 +148,7 @@ ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
     {
       "part_number": 1,
       "title": "Part 1",
-${examMode === 'listening' ? '' : '      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",\n'}      "questions": [
+${examMode === 'listening_pdf_main' ? '' : '      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",\n'}      "questions": [
         {
           "question_number": 1,
           "type": "MULTIPLE_CHOICE",
@@ -178,7 +181,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
   const handleCopyPrompt = () => {
     let promptText = canonicalPdfPrompt;
     if (examMode === 'grammar_json') promptText = grammarPrompt;
-    if (examMode === 'grammar_pdf') promptText = grammarPdfPrompt;
+    if (examMode === 'grammar_pdf_main') promptText = grammarPdfPrompt;
     
     navigator.clipboard.writeText(promptText);
     alert('Prompt copied to clipboard! Paste this into Claude.');
@@ -433,7 +436,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         let json = rawExamsList[i];
         
         // Auto-wrap array if LLM returns just the parts array (very common)
-        if (examMode === 'reading' || examMode === 'listening') {
+        if (examMode === 'reading_native' || examMode === 'listening_pdf_main') {
           if (json.answers && typeof json.answers === 'object') {
              const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
                 question_number: parseInt(qNum),
@@ -443,7 +446,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              }));
              json = {
                 title: json.title || "Extracted Exam",
-                exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
                 programme: 'GRAMMAR',
                 grammar_level: json.grammar_level || grammarLevel,
                 time_limit: json.time_limit || 3600,
@@ -460,7 +463,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              if (json.length > 0 && json[0].question_number !== undefined) {
                 json = {
                   title: "Extracted Exam",
-                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
                   programme: 'GRAMMAR',
                   grammar_level: grammarLevel,
                   time_limit: 3600,
@@ -469,7 +472,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              } else if (json.length > 0 && (json[0].part_number !== undefined || json[0].questions !== undefined)) {
                 json = {
                   title: "Extracted Exam",
-                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
                   programme: 'GRAMMAR',
                   grammar_level: grammarLevel,
                   time_limit: 3600,
@@ -498,7 +501,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                 if (mappedQuestions.length === 0) mappedQuestions = json;
                 json = {
                   title: "Extracted Exam",
-                  exam_type: examMode === 'listening' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
                   programme: 'GRAMMAR',
                   grammar_level: grammarLevel,
                   time_limit: 3600,
@@ -517,16 +520,18 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                          q.question_number = parseInt(q.question_number) || qi + 1;
                       }
                       if (!q.question_text) q.question_text = `Question ${q.question_number}`;
-                      if (!q.type) q.type = 'MULTIPLE_CHOICE';
+                      if (!q.type) q.type = (examMode === 'grammar_pdf_main' || examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
                       if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                         let maxCode = 68;
-                         if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
-                           const code = q.correct_answer.toUpperCase().charCodeAt(0);
-                           if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                         if (examMode !== 'grammar_pdf_main' && examMode !== 'listening_pdf_main') {
+                           let maxCode = 68;
+                           if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
+                             const code = q.correct_answer.toUpperCase().charCodeAt(0);
+                             if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                           }
+                           const opts = [];
+                           for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
+                           q.options = opts;
                          }
-                         const opts = [];
-                         for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
-                         q.options = opts;
                       }
                    });
                 }
@@ -550,46 +555,40 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                  q.question_number = parseInt(q.question_number) || qi + 1;
               }
               if (!q.question_text) q.question_text = `Question ${q.question_number}`;
-              if (!q.type) q.type = 'MULTIPLE_CHOICE';
+              if (!q.type) q.type = (examMode === 'grammar_pdf_main' || examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
               if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                 let maxCode = 68;
-                 if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
-                   const code = q.correct_answer.toUpperCase().charCodeAt(0);
-                   if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                 if (examMode !== 'grammar_pdf_main' && examMode !== 'listening_pdf_main') {
+                   let maxCode = 68;
+                   if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
+                     const code = q.correct_answer.toUpperCase().charCodeAt(0);
+                     if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                   }
+                   const opts = [];
+                   for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
+                   q.options = opts;
                  }
-                 const opts = [];
-                 for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
-                 q.options = opts;
               }
            });
         }
         
-        if (examMode === 'grammar_json') {
+        if (examMode === 'grammar_json' || examMode === 'grammar_pdf_main') {
           const valResult = GrammarExamSchema.safeParse(json);
           if (!valResult.success) {
             allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
           } else {
             validatedExams.push(valResult.data);
           }
-        } else if (examMode === 'grammar_pdf') {
-          if (!json.answers && Array.isArray(json.questions)) {
-             json.answers = {};
-             json.questions.forEach((q: any) => {
-                if (q.question_number !== undefined && q.correct_answer !== undefined) {
-                   json.answers[q.question_number.toString()] = {
-                      correct_answer: q.correct_answer,
-                      type: q.type || 'MULTIPLE_CHOICE'
-                   };
-                }
-             });
-          }
-          const valResult = GrammarPdfExamSchema.safeParse(json);
-          if (!valResult.success) {
-            allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
-          } else {
-            validatedExams.push(valResult.data);
-          }
         } else {
+          // For listening_pdf_main, map questions array into a single part
+          if (examMode === 'listening_pdf_main' && !json.parts && Array.isArray(json.questions)) {
+            json.parts = [{
+              part_number: 1,
+              title: "Listening Test",
+              questions: json.questions
+            }];
+            delete json.questions;
+          }
+          
           const valResult = ExamCanonicalSchema.safeParse(json);
           if (!valResult.success) {
             allValidationErrors = [...allValidationErrors, ...valResult.error.issues.map(e => ({...e, examIndex: i}))];
@@ -610,6 +609,54 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       setErrorMsg('Invalid JSON file: ' + err.message);
       setPreviewData(null);
     }
+  };
+
+  const handleGenerateManualPreview = () => {
+    const validAnswers = manualAnswers.filter(a => a.correct_answer.trim() !== '');
+    if (validAnswers.length === 0) {
+      setErrorMsg("Please enter at least one valid answer.");
+      return;
+    }
+
+    let payload: any;
+    if (examMode === 'listening_pdf_main') {
+       payload = {
+          title: customExamName || "Extracted Exam",
+          exam_type: 'CEFR_LISTENING',
+          programme: 'GRAMMAR',
+          grammar_level: grammarLevel,
+          time_limit: 3600,
+          parts: [{
+            part_number: 1, 
+            title: "Listening Test", 
+            questions: validAnswers.map(a => ({
+              question_number: a.question_number,
+              correct_answer: a.correct_answer.trim(),
+              type: 'FILL_IN',
+              question_text: `Question ${a.question_number}`
+            }))
+          }]
+        };
+    } else {
+       payload = {
+         title: customExamName || 'Manual Exam',
+         level: grammarLevel,
+         study_month: studyMonth || null,
+         time_limit: 1800,
+         questions: validAnswers.map(a => ({
+           question_number: a.question_number,
+           correct_answer: a.correct_answer.trim(),
+           points: a.points,
+           topic: a.topic.trim() || null,
+           type: 'FILL_IN',
+           question_text: `Question ${a.question_number}`
+         }))
+       };
+    }
+
+    setPreviewData(payload);
+    setValidationErrors([]);
+    setErrorMsg(null);
   };
 
   const handleUploadClick = async () => {
@@ -682,7 +729,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           return;
        }
 
-        if (audioFile && examMode === 'listening') {
+        if (audioFile && examMode === 'listening_pdf_main') {
           // 1. Get Presigned URL
           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
             method: 'POST',
@@ -715,7 +762,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           });
         }
 
-        if (pdfFile && examMode === 'listening') {
+        if (pdfFile && (examMode === 'listening_pdf_main' || examMode === 'grammar_pdf_main' || examMode === 'reading_native')) {
           // 1. Get Presigned URL
           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
             method: 'POST',
@@ -746,6 +793,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               p.parts.forEach((part: any) => {
                 part.pdf_url = publicPdfUrl;
               });
+            } else {
+              // for grammar_pdf_main
+              p.pdf_url = publicPdfUrl;
             }
           });
         }
@@ -782,16 +832,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
            }
         }
 
-        if (examMode === 'grammar_json') {
+        if (examMode === 'grammar_json' || examMode === 'grammar_pdf_main') {
           const res = await fetch('/api/admin/grammar/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(finalPayload),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(`Exam ${i+1}: ${data.error}`);
-        } else if (examMode === 'grammar_pdf') {
-          const res = await fetch('/api/admin/grammar/upload-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(finalPayload),
@@ -825,7 +867,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || (examMode === 'listening' && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || (examMode === 'listening_pdf_main' && !audioFile);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -854,22 +896,22 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           Grammar (JSON Mode)
         </button>
         <button
-          onClick={() => { setExamMode('grammar_pdf'); setPreviewData(null); }}
-          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'grammar_pdf' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
+          onClick={() => { setExamMode('grammar_pdf_main'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'grammar_pdf_main' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-indigo-700' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
-          Grammar (PDF Mode)
+          Grammar (PDF-Main)
         </button>
         <button
-          onClick={() => { setExamMode('reading'); setPreviewData(null); }}
-          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'reading' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-fuchsia-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
+          onClick={() => { setExamMode('reading_native'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'reading_native' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-fuchsia-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
-          Reading (PDF Mode)
+          Reading (Native)
         </button>
         <button
-          onClick={() => { setExamMode('listening'); setPreviewData(null); }}
-          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
+          onClick={() => { setExamMode('listening_pdf_main'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening_pdf_main' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
-          Listening (PDF Mode)
+          Listening (PDF-Main)
         </button>
       </div>
 
@@ -928,7 +970,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Overrides the title from JSON.</p>
         </div>
 
-        {(examMode === 'grammar_pdf' || examMode === 'reading' || examMode === 'listening') && (
+        {(examMode === 'grammar_pdf_main' || examMode === 'reading_native' || examMode === 'listening_pdf_main') && (
           <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">PDF Page Range (Optional)</label>
             <div className="flex gap-2 items-center">
@@ -953,7 +995,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         )}
         
-        {(examMode === 'grammar_json' || examMode === 'grammar_pdf') && (
+        {(examMode === 'grammar_json' || examMode === 'grammar_pdf_main') && (
           <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Question Range (Optional)</label>
             <input
@@ -1007,10 +1049,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </p>
             <div className="bg-slate-900 rounded-xl p-4 border border-indigo-800/50 mb-4 relative group">
               <pre className="text-xs text-indigo-200 font-mono whitespace-pre-wrap overflow-y-auto max-h-64 custom-scrollbar">
-                {examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf' ? grammarPdfPrompt : canonicalPdfPrompt)}
+                {examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf_main' ? grammarPdfPrompt : canonicalPdfPrompt)}
               </pre>
               <button 
-                onClick={() => navigator.clipboard.writeText(examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf' ? grammarPdfPrompt : canonicalPdfPrompt))}
+                onClick={() => navigator.clipboard.writeText(examMode === 'grammar_json' ? grammarPrompt : (examMode === 'grammar_pdf_main' ? grammarPdfPrompt : canonicalPdfPrompt))}
                 className="absolute top-4 right-4 p-2 bg-indigo-800/80 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-sm backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm font-semibold"
               >
                 <Copy className="w-4 h-4" />
@@ -1086,7 +1128,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         )}
 
-        {examMode === 'listening' && (
+        {examMode === 'listening_pdf_main' && (
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Audio (MP3)</h3>
             <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
@@ -1096,6 +1138,74 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </div>
               {audioFile ? <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full">{audioFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select Audio</p>}
             </div>
+          </div>
+        )}
+
+        {examMode !== 'grammar_json' && (
+          <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col md:col-span-3">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">OR: Manual Answer Entry</h3>
+            <p className="text-sm text-slate-500 mb-4">If you don't have a JSON file, type the answers manually here. The table will auto-expand.</p>
+            <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden mb-4">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Q#</th>
+                    <th className="px-4 py-3 font-semibold">Correct Answer</th>
+                    <th className="px-4 py-3 font-semibold">Points</th>
+                    <th className="px-4 py-3 font-semibold">Topic (Optional)</th>
+                    <th className="px-4 py-3 font-semibold w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  {manualAnswers.map((ans, idx) => (
+                    <tr key={idx} className="bg-white dark:bg-slate-900">
+                      <td className="px-4 py-2">
+                        <input type="number" value={ans.question_number} onChange={(e) => {
+                          const newAns = [...manualAnswers];
+                          newAns[idx].question_number = Number(e.target.value);
+                          setManualAnswers(newAns);
+                        }} className="w-16 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-indigo-500" />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input type="text" value={ans.correct_answer} placeholder="e.g. B or went" onChange={(e) => {
+                          const newAns = [...manualAnswers];
+                          newAns[idx].correct_answer = e.target.value;
+                          setManualAnswers(newAns);
+                        }} className="w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-indigo-500" />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input type="number" value={ans.points} onChange={(e) => {
+                          const newAns = [...manualAnswers];
+                          newAns[idx].points = Number(e.target.value);
+                          setManualAnswers(newAns);
+                        }} className="w-16 px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-indigo-500" />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input type="text" value={ans.topic} placeholder="e.g. Present Simple" onChange={(e) => {
+                          const newAns = [...manualAnswers];
+                          newAns[idx].topic = e.target.value;
+                          setManualAnswers(newAns);
+                        }} className="w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded outline-none focus:border-indigo-500" />
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <button onClick={() => {
+                          const newAns = manualAnswers.filter((_, i) => i !== idx);
+                          setManualAnswers(newAns);
+                        }} className="text-red-500 hover:text-red-700 font-bold px-2">&times;</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="bg-slate-50 dark:bg-slate-800 p-2 border-t border-slate-200 dark:border-slate-700">
+                 <button onClick={() => {
+                   const lastQ = manualAnswers.length > 0 ? manualAnswers[manualAnswers.length - 1].question_number : 0;
+                   setManualAnswers([...manualAnswers, {question_number: lastQ + 1, correct_answer: '', points: 1, topic: ''}]);
+                 }} className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold hover:underline px-2">+ Add Row</button>
+              </div>
+            </div>
+            
+            <Button onClick={handleGenerateManualPreview} className="self-start bg-slate-800 text-white hover:bg-slate-700">Generate Preview from Manual Entries</Button>
           </div>
         )}
       </div>
@@ -1109,7 +1219,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </div>
             
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              {(examMode === 'listening' || examMode === 'reading') && (
+              {(examMode === 'listening_pdf_main' || examMode === 'reading_native') && (
                 <Button 
                   onClick={handleAutoExtractImages}
                   disabled={isExtractingImages || !pdfFile}
@@ -1136,7 +1246,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                  <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.length} exams ready to upload</h4>
                  <ul className="list-disc pl-5">
                    {previewData.slice(0, 5).map((p: any, i: number) => (
-                     <li key={i}>{p.title || `Exam ${i+1}`} ({examMode === 'grammar_json' ? p.questions?.length : (examMode === 'grammar_pdf' ? Object.keys(p.answers || {}).length : p.parts?.[0]?.questions?.length)} questions)</li>
+                     <li key={i}>{p.title || `Exam ${i+1}`} ({examMode === 'grammar_json' ? p.questions?.length : (examMode === 'grammar_pdf_main' ? Object.keys(p.answers || {}).length : p.parts?.[0]?.questions?.length)} questions)</li>
                    ))}
                    {previewData.length > 5 && <li>...and {previewData.length - 5} more</li>}
                  </ul>
@@ -1144,7 +1254,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              ) : (
                <>
                  <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
-                 <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions?.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers || {}).length : previewData.parts?.[0]?.questions?.length)}</p>
+                 <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions?.length : (examMode === 'grammar_pdf_main' ? Object.keys(previewData.answers || {}).length : previewData.parts?.[0]?.questions?.length)}</p>
                </>
              )}
           </div>

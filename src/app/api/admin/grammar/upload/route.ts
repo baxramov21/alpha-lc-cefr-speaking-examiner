@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
         study_month: data.study_month || null,
         time_limit: data.time_limit,
         is_fill_in_only: data.is_fill_in_only || false,
+        pdf_url: data.pdf_url || null,
         is_active: true,
       })
       .select()
