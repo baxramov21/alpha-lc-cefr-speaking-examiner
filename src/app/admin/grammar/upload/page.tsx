@@ -520,9 +520,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                          q.question_number = parseInt(q.question_number) || qi + 1;
                       }
                       if (!q.question_text) q.question_text = `Question ${q.question_number}`;
-                      if (!q.type) q.type = (examMode === 'grammar_pdf_main' || examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
+                      if (!q.type) q.type = (examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
                       if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                         if (examMode !== 'grammar_pdf_main' && examMode !== 'listening_pdf_main') {
+                         if (examMode !== 'listening_pdf_main') {
                            let maxCode = 68;
                            if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
                              const code = q.correct_answer.toUpperCase().charCodeAt(0);
