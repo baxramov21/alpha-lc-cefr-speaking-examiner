@@ -412,9 +412,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           }
         }
 
+        const fallbackTitle = selected.name.replace(/\.json$/i, '');
+
         if (isArrayOfExams) {
-          rawExamsList = [...rawExamsList, ...parsedRaw];
+          rawExamsList = [...rawExamsList, ...parsedRaw.map((p: any, idx: number) => ({...p, title: p.title || `${fallbackTitle} Part ${idx + 1}`} ))];
         } else {
+          parsedRaw.title = parsedRaw.title || fallbackTitle;
           rawExamsList.push(parsedRaw);
         }
       }
@@ -575,9 +578,6 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         setPreviewData(null);
       } else {
         setPreviewData(validatedExams.length > 1 ? validatedExams : validatedExams[0]);
-        if (!customExamName && validatedExams.length > 0) {
-           setCustomExamName(validatedExams[0]?.title || 'Extracted Exam');
-        }
       }
     } catch (err: any) {
       setErrorMsg('Invalid JSON file: ' + err.message);
@@ -593,12 +593,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     const finalPayloads = payloads.map((payload, index) => {
       let finalPayload = { ...payload, grammar_level: grammarLevel, level: grammarLevel, study_month: studyMonth || null };
       if (customExamName) {
-         if (payloads.length > 1) {
-            const variantChar = String.fromCharCode(65 + index);
-            finalPayload.title = `${customExamName} Variant ${variantChar}`;
-         } else {
-            finalPayload.title = customExamName;
-         }
+         finalPayload.title = customExamName;
       }
       
       if (questionRange) {
