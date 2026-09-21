@@ -533,21 +533,24 @@ export default function AdminGrammarExamsPage() {
                       </td>
                       <td className="py-4">
                         {editingExam?.id === exam.id ? (
-                          <select
-                            value={editingExam!.month}
-                            onChange={(e) => setEditingExam(prev => prev ? {...prev, month: e.target.value ? parseInt(e.target.value) : ''} : null)}
-                            className="border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 w-32"
-                          >
-                            <option value="">Any</option>
-                            <option value={1}>Month 1</option>
-                            <option value={2}>Month 2</option>
-                            <option value={3}>Month 3</option>
-                            <option value={4}>Month 4</option>
-                            <option value={5}>Month 5</option>
-                            <option value={6}>Month 6</option>
-                          </select>
+                          <div className="flex gap-2 items-center">
+                            <select
+                              value={editingExam!.month}
+                              onChange={(e) => setEditingExam(prev => prev ? {...prev, month: e.target.value ? parseInt(e.target.value) : ''} : null)}
+                              className="border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 w-32"
+                            >
+                              <option value="">Any</option>
+                              <option value={1}>Month 1</option>
+                              <option value={2}>Month 2</option>
+                              <option value={3}>Month 3</option>
+                              <option value={4}>Month 4</option>
+                              <option value={5}>Month 5</option>
+                              <option value={6}>Month 6</option>
+                            </select>
+                            <Button onClick={handleUpdateLevel} size="sm" className="bg-indigo-600 text-white h-7 px-2 text-xs">Save</Button>
+                          </div>
                         ) : (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 group">
                             {exam.study_month ? (
                               <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-1 rounded">
                                 M{exam.study_month}
@@ -557,6 +560,9 @@ export default function AdminGrammarExamsPage() {
                                 No Month
                               </span>
                             )}
+                            <button onClick={() => setEditingExam({ id: exam.id, level: exam.level || exam.grammar_level || 'Elementary', month: exam.study_month || '', isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
                           </div>
                         )}
                       </td>
