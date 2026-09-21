@@ -542,6 +542,29 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         if (json.exam_type) {
            json.exam_type = json.exam_type.toUpperCase();
         }
+
+        // Normalize flat questions array (grammar_json uses questions[] not parts[].questions[])
+        if (json.questions && Array.isArray(json.questions)) {
+           json.questions.forEach((q: any, qi: number) => {
+              if (q.question_number === undefined) {
+                 q.question_number = qi + 1;
+              } else if (typeof q.question_number === 'string') {
+                 q.question_number = parseInt(q.question_number) || qi + 1;
+              }
+              if (!q.question_text) q.question_text = `Question ${q.question_number}`;
+              if (!q.type) q.type = 'MULTIPLE_CHOICE';
+              if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
+                 let maxCode = 68;
+                 if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
+                   const code = q.correct_answer.toUpperCase().charCodeAt(0);
+                   if (code >= 65 && code <= 74) maxCode = Math.max(maxCode, code);
+                 }
+                 const opts = [];
+                 for (let c = 65; c <= maxCode; c++) opts.push(String.fromCharCode(c));
+                 q.options = opts;
+              }
+           });
+        }
         
         if (examMode === 'grammar_json') {
           const valResult = GrammarExamSchema.safeParse(json);
