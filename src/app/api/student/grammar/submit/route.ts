@@ -37,9 +37,10 @@ export async function POST(req: NextRequest) {
     const maxScore = questions.reduce((acc, q) => acc + (q.points || 1), 0);
     const questionResults = [];
 
-    const cleanAnswer = (ans: string) => {
+    const cleanAnswer = (ans: string | null | undefined) => {
+      if (!ans) return '';
       // Remove a) b) c) or (a) (b) (c) prefixes
-      let cleaned = ans.replace(/^[\s\(]*[a-zA-Z][\)\.]\s*/i, '');
+      let cleaned = String(ans).replace(/^[\s\(]*[a-zA-Z][\)\.]\s*/i, '');
       // Remove all non-alphanumeric chars (keep spaces)
       cleaned = cleaned.replace(/[^a-zA-Z0-9\s]/g, '');
       // Collapse multiple spaces to single
@@ -48,11 +49,12 @@ export async function POST(req: NextRequest) {
     };
 
     for (const q of questions) {
-      const userAnswer = answers[q.id] || '';
+      const userAnswer = String(answers[q.id] || '');
+      const correctAnswer = String(q.correct_answer || '');
       const cleanedUserAnswer = cleanAnswer(userAnswer);
-      const cleanedCorrectAnswer = cleanAnswer(q.correct_answer);
+      const cleanedCorrectAnswer = cleanAnswer(correctAnswer);
       
-      const isCorrect = cleanedUserAnswer === cleanedCorrectAnswer || userAnswer.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+      const isCorrect = cleanedUserAnswer === cleanedCorrectAnswer || userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
       
       if (isCorrect) {
         totalScore += (q.points || 1);
@@ -69,7 +71,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const percentage = Math.round((totalScore / maxScore) * 100);
+    const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
     // 3. Save to grammar_submissions
     const { data: submission, error: subError } = await supabaseAdmin

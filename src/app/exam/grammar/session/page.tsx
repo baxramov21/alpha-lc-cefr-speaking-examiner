@@ -197,6 +197,11 @@ function GrammarSessionContent() {
                     {q.question_number}
                   </div>
                   <div className="flex-1 space-y-4">
+                    {q.topic && (
+                      <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2 mt-1 uppercase tracking-wider">
+                        {q.topic}
+                      </div>
+                    )}
                     {/* Only show question text if it's not a generic placeholder */}
                     {q.question_text !== `Question ${q.question_number}` && q.question_text !== `Question ${q.question_number}?` && (
                       <div 
@@ -249,6 +254,11 @@ function GrammarSessionContent() {
                   {q.question_number}
                 </div>
                 <div className="flex-1 space-y-4">
+                  {q.topic && (
+                    <div className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-2 mt-1 uppercase tracking-wider">
+                      {q.topic}
+                    </div>
+                  )}
                   <div 
                     className="text-lg font-medium text-slate-800 dark:text-slate-200 dark:text-slate-200 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: q.question_text }}

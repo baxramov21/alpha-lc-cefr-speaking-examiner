@@ -37,6 +37,7 @@ export type QuestionPayload = z.infer<typeof QuestionSchema>;
 export const GrammarQuestionSchema = z.object({
   question_number: z.number(),
   type: z.enum(['MULTIPLE_CHOICE', 'FILL_IN']),
+  topic: z.string().nullable().optional(),
   question_text: z.string().min(1, 'Question text cannot be empty'),
   options: z.array(z.string()).nullable().optional(),
   correct_answer: z.string().min(1, 'Correct answer cannot be empty'),

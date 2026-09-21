@@ -69,6 +69,7 @@ SCHEMA:
     {
       "question_number": 1,
       "type": "MULTIPLE_CHOICE or FILL_IN",
+      "topic": "String - Optional section header or topic (e.g. 'Present Simple' or 'Fill in the blanks')",
       "question_text": "String - The actual question",
       "options": ["Array of Strings - Optional, for multiple choice"],
       "correct_answer": "String - MUST BE EXACTLY ONE OF THE OPTIONS or EXACT TEXT",
@@ -850,6 +851,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           Listening (PDF Mode)
         </button>
       </div>
+
+      {examMode === 'grammar_json' && (
+        <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-200 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div>
+            <strong>Note on Large Tests:</strong> Generating massive tests (100+ questions) in JSON mode requires a <strong>Pro AI model</strong> (like Claude 3.5 Sonnet) because free models have strict output limits and will cut off the JSON halfway. If you use a free model, please process your test in chunks of ~50 questions at a time!
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 flex flex-wrap gap-6 items-start">
         <div>
