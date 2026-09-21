@@ -1099,9 +1099,23 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
               </button>
             </div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700">
-             <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
-             <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers).length : previewData.parts?.[0]?.questions?.length)}</p>
+          <div className="bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-4 rounded-xl font-mono text-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 max-h-64 overflow-y-auto">
+             {Array.isArray(previewData) ? (
+               <>
+                 <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.length} exams ready to upload</h4>
+                 <ul className="list-disc pl-5">
+                   {previewData.slice(0, 5).map((p: any, i: number) => (
+                     <li key={i}>{p.title || `Exam ${i+1}`} ({examMode === 'grammar_json' ? p.questions?.length : (examMode === 'grammar_pdf' ? Object.keys(p.answers || {}).length : p.parts?.[0]?.questions?.length)} questions)</li>
+                   ))}
+                   {previewData.length > 5 && <li>...and {previewData.length - 5} more</li>}
+                 </ul>
+               </>
+             ) : (
+               <>
+                 <h4 className="font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">{previewData.title}</h4>
+                 <p>Total Questions: {examMode === 'grammar_json' ? previewData.questions?.length : (examMode === 'grammar_pdf' ? Object.keys(previewData.answers || {}).length : previewData.parts?.[0]?.questions?.length)}</p>
+               </>
+             )}
           </div>
         </div>
       )}
