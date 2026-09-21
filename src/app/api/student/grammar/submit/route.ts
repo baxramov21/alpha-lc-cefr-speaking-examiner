@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
-    // 3. Save to grammar_submissions
+    // 3. Save to grammar_submissions (round scores to prevent integer type errors)
     const { data: submission, error: subError } = await supabaseAdmin
       .from('grammar_submissions')
       .insert({
@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
         teacher_name: session.teacherName || 'Unknown Teacher',
         passcode_used: session.passcode,
         grammar_level: session.grammarLevel || 'intermediate',
-        total_score: totalScore,
-        max_score: maxScore,
+        total_score: Math.round(totalScore),
+        max_score: Math.round(maxScore),
         percentage,
         question_results: JSON.stringify(questionResults)
       })
