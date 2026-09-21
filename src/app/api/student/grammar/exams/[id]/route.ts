@@ -46,7 +46,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         .order('question_number', { ascending: true });
         
       if (qError) return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 });
-      questions = qData;
+      
+      questions = qData.map(q => ({
+        ...q,
+        options: q.options ? (typeof q.options === 'string' ? JSON.parse(q.options) : q.options) : []
+      }));
     } else {
       // Try canonical_exams
       const { data: nativeExam, error: nativeError } = await supabaseAdmin
