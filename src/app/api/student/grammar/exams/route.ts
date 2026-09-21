@@ -34,8 +34,7 @@ export async function GET(req: NextRequest) {
       const { data: triples } = await tripleQuery;
 
       if (triples && triples.length > 0) {
-        const seededRand = getSeededRandom(sessionToken || 'default-seed');
-        const randomTriple = triples[Math.floor(seededRand() * triples.length)];
+        const randomTriple = triples[Math.floor(Math.random() * triples.length)];
         const { data: tripleExam } = await supabaseAdmin
           .from('grammar_exams')
           .select('id, title, level, time_limit')
@@ -65,8 +64,7 @@ export async function GET(req: NextRequest) {
       if (error) {
         console.error('Error fetching grammar exams:', error);
       } else if (fallbackExams && fallbackExams.length > 0) {
-        const seededRand = getSeededRandom(sessionToken || 'default-seed');
-        const randomFallback = fallbackExams[Math.floor(seededRand() * fallbackExams.length)];
+        const randomFallback = fallbackExams[Math.floor(Math.random() * fallbackExams.length)];
         exams = [randomFallback];
       }
     }
@@ -86,13 +84,19 @@ export async function GET(req: NextRequest) {
       
     const { data: nativeExams, error: nativeError } = await nativeQuery;
       
-    if (!nativeError && nativeExams) {
+    if (!nativeError && nativeExams && nativeExams.length > 0) {
       const nativeMapped = nativeExams.map((ex: any) => ({
         ...ex,
         isNative: true
       }));
-      // Append them to the list of available exams
-      exams = [...exams, ...nativeMapped];
+      
+      if (exams.length === 0) {
+         // Pick ONE random native exam if no legacy exams exist
+         const randomNative = nativeMapped[Math.floor(Math.random() * nativeMapped.length)];
+         exams = [randomNative];
+      } else {
+         exams = [...exams, ...nativeMapped];
+      }
     }
 
     return NextResponse.json({ exams }, { status: 200 });
