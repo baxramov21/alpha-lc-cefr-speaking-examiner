@@ -111,7 +111,7 @@ export default function ReadingResultsPage() {
                             {q.number}
                           </div>
                           <div className="flex-1">
-                            <div className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-3" dangerouslySetInnerHTML={{ __html: q.text }} />
+                            <div className="text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-3" dangerouslySetInnerHTML={{ __html: q.text.replace(/<div[^>]*>\s*<img[^>]*src="\[UPLOAD_IMAGE_HERE\]"[^>]*>\s*<\/div>/g, '') }} />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 rounded-lg p-3">
                                 <div className="text-xs font-bold text-slate-500 dark:text-slate-400 dark:text-slate-400 uppercase mb-1">Your Answer</div>
