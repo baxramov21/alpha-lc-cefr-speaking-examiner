@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
           .eq('is_active', true)
           .order('created_at', { ascending: false });
           
-        if (session.studyMonth) {
-          tripleQuery = tripleQuery.eq('study_month', session.studyMonth);
+        if (session?.studyMonth) {
+          tripleQuery = tripleQuery.eq('study_month', session!.studyMonth);
         }
         
         const { data: triples } = await tripleQuery;
@@ -54,8 +54,8 @@ export async function GET(req: NextRequest) {
         
       if (programme === 'GRAMMAR' && grammarLevel) {
         query = query.ilike('grammar_level', grammarLevel);
-        if (session.studyMonth) {
-          query = query.eq('study_month', session.studyMonth);
+        if (session?.studyMonth) {
+          query = query.eq('study_month', session!.studyMonth);
         }
       }
 

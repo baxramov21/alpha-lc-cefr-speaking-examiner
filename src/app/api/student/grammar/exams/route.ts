@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (session.studyMonth) {
-        tripleQuery = tripleQuery.eq('study_month', session.studyMonth);
+      if (session?.studyMonth) {
+        tripleQuery = tripleQuery.eq('study_month', session!.studyMonth);
       }
       
       const { data: triples } = await tripleQuery;
@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
         .ilike('level', grammarLevel)
         .order('created_at', { ascending: false });
 
-      if (session.studyMonth) {
-        fallbackQuery = fallbackQuery.eq('study_month', session.studyMonth);
+      if (session?.studyMonth) {
+        fallbackQuery = fallbackQuery.eq('study_month', session!.studyMonth);
       }
 
       const { data: fallbackExams, error } = await fallbackQuery;
@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
       .ilike('grammar_level', grammarLevel)
       .order('created_at', { ascending: false });
 
-    if (session.studyMonth) {
-      nativeQuery = nativeQuery.eq('study_month', session.studyMonth);
+    if (session?.studyMonth) {
+      nativeQuery = nativeQuery.eq('study_month', session!.studyMonth);
     }
       
     const { data: nativeExams, error: nativeError } = await nativeQuery;

@@ -20,6 +20,7 @@ export interface StudentSessionPayload {
   fullName?: string;
   programme?: string;
   grammarLevel?: string;
+  studyMonth?: number;
   groupName?: string;
   teacherName?: string;
 }
