@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       exam_id: examId,
       question_number: q.question_number,
       type: q.type,
+      topic: q.topic || null,
       question_text: q.question_text,
       options: q.options ? JSON.stringify(q.options) : null,
       correct_answer: q.correct_answer,

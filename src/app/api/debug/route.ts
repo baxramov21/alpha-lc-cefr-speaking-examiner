@@ -2,20 +2,23 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET() {
-  const { data, error } = await supabaseAdmin
-    .from('grammar_submissions')
-    .insert({
-      exam_id: '123e4567-e89b-12d3-a456-426614174000', // might violate fkey? Wait, grammar exams ID is uuid. We'll see.
-      student_name: 'Test',
-      group_name: 'Test',
-      teacher_name: 'Test',
-      passcode_used: '123',
-      grammar_level: 'beginner',
-      total_score: 10,
-      max_score: 10,
-      percentage: 100,
-      question_results: JSON.stringify([])
-    });
+  const { data, error } = await supabaseAdmin.rpc('exec_sql', {
+    sql: `ALTER TABLE grammar_questions ADD COLUMN IF NOT EXISTS topic TEXT DEFAULT NULL;`
+  });
 
-  return NextResponse.json({ data, error });
+  if (error) {
+    // Try raw query approach
+    const { error: error2 } = await supabaseAdmin
+      .from('grammar_questions')
+      .update({ topic: null })
+      .eq('id', '00000000-0000-0000-0000-000000000000');
+    
+    return NextResponse.json({ 
+      message: 'RPC failed, tried alternative', 
+      rpcError: error.message,
+      altError: error2?.message || 'no error (column may already exist)'
+    });
+  }
+
+  return NextResponse.json({ success: true, data });
 }

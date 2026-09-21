@@ -41,7 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       
       const { data: qData, error: qError } = await supabaseAdmin
         .from('grammar_questions')
-        .select('id, question_number, type, question_text, options')
+        .select('id, question_number, type, topic, question_text, options')
         .eq('exam_id', id)
         .order('question_number', { ascending: true });
         
