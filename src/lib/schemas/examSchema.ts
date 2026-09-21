@@ -67,7 +67,8 @@ export const GrammarPdfExamSchema = z.object({
     z.string(), // question_number (e.g. "1")
     z.object({
       correct_answer: z.string().min(1, 'Answer cannot be empty'),
-      type: z.enum(['MULTIPLE_CHOICE', 'FILL_IN']).optional().default('MULTIPLE_CHOICE')
+      type: z.enum(['MULTIPLE_CHOICE', 'FILL_IN']).optional().default('MULTIPLE_CHOICE'),
+      points: z.number().optional().default(1)
     })
   )
 });
