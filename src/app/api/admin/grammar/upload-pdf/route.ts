@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       .insert({
         title: data.title,
         level: data.level,
+        study_month: data.study_month || null,
         time_limit: data.time_limit,
         pdf_url: data.pdf_url,
         is_active: true
