@@ -10,7 +10,7 @@ import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import { Button } from '@/components/ui/button';
 
-type ExamMode = "grammar_json" | "grammar_pdf_main" | "reading_native" | "listening_pdf_main" | "reading_pdf_main";
+type ExamMode = "grammar_json" | "grammar_pdf_main" | "reading_native" | "listening_pdf_main" | "reading_pdf_main" | "listening_native";
 
 export default function GrammarUploadPage() {
   const [examMode, setExamMode] = useState<ExamMode>("grammar_pdf_main");
@@ -437,7 +437,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         let json = rawExamsList[i];
         
         // Auto-wrap array if LLM returns just the parts array (very common)
-        if (examMode === 'reading_native' || examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') {
+        if (examMode === 'reading_native' || examMode === 'listening_native' || examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') {
           if (json.answers && typeof json.answers === 'object') {
              const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
                 question_number: parseInt(qNum),
@@ -447,7 +447,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              }));
              json = {
                 title: json.title || "Extracted Exam",
-                exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                exam_type: (examMode === 'listening_pdf_main' || examMode === 'listening_native') ? 'CEFR_LISTENING' : 'CEFR_READING',
                 programme: 'GRAMMAR',
                 grammar_level: json.grammar_level || grammarLevel,
                 time_limit: json.time_limit || 3600,
@@ -464,7 +464,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              if (json.length > 0 && json[0].question_number !== undefined) {
                 json = {
                   title: "Extracted Exam",
-                  exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  exam_type: (examMode === 'listening_pdf_main' || examMode === 'listening_native') ? 'CEFR_LISTENING' : 'CEFR_READING',
                   programme: 'GRAMMAR',
                   grammar_level: grammarLevel,
                   time_limit: 3600,
@@ -473,7 +473,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
              } else if (json.length > 0 && (json[0].part_number !== undefined || json[0].questions !== undefined)) {
                 json = {
                   title: "Extracted Exam",
-                  exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
+                  exam_type: (examMode === 'listening_pdf_main' || examMode === 'listening_native') ? 'CEFR_LISTENING' : 'CEFR_READING',
                   programme: 'GRAMMAR',
                   grammar_level: grammarLevel,
                   time_limit: 3600,
@@ -730,7 +730,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           return;
        }
 
-        if (audioFile && examMode === 'listening_pdf_main') {
+        if (audioFile && (examMode === 'listening_pdf_main' || examMode === 'listening_native')) {
           setUploadStatusMessage('Uploading Audio to secure storage (this may take a moment)...');
           // 1. Get Presigned URL
           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
@@ -872,7 +872,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || (examMode === 'listening_pdf_main' && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || ((examMode === 'listening_pdf_main' || examMode === 'listening_native') && !audioFile);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -923,6 +923,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening_pdf_main' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
           Listening (PDF-Main)
+        </button>
+        <button
+          onClick={() => { setExamMode('listening_native'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening_native' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
+        >
+          Listening (Native)
         </button>
       </div>
 
@@ -1126,7 +1132,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
 
 
-        {examMode !== 'grammar_json' && (
+        {examMode !== 'grammar_json' && examMode !== 'listening_native' && (
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Questions (PDF)</h3>
             <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
@@ -1139,7 +1145,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           </div>
         )}
 
-        {examMode === 'listening_pdf_main' && (
+        {(examMode === 'listening_pdf_main' || examMode === 'listening_native') && (
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Audio (MP3)</h3>
             <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
