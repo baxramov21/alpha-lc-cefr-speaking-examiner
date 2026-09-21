@@ -364,9 +364,9 @@ export default function ReadingSessionPage() {
                       {q.number}
                     </div>
                     <div className="flex-1">
-                      <div className="text-lg text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: formatQuestionText(q.text) }} />
+                      <div className="text-lg text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium mb-4" dangerouslySetInnerHTML={{ __html: formatQuestionText(q.text).replace(/<div[^>]*>\s*<img[^>]*src="\[UPLOAD_IMAGE_HERE\]"[^>]*>\s*<\/div>/g, '') }} />
                       
-                      {q.image_url && (
+                      {q.image_url && q.image_url !== '[UPLOAD_IMAGE_HERE]' && (
                         <div className="mb-4 flex justify-center">
                           <img src={q.image_url} alt="Question Image" className="max-h-[400px] object-contain rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 shadow-sm" />
                         </div>
