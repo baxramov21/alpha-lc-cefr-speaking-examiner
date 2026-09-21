@@ -8,18 +8,30 @@ export async function GET(req: NextRequest) {
     const programme = searchParams.get('programme'); // CEFR | IELTS | GRAMMAR
 
     if (programme === 'GRAMMAR') {
-      const { data: grammarSubmissions, error } = await supabase
+      // 1. Fetch Legacy Grammar Submissions
+      const { data: grammarSubmissions, error: grammarError } = await supabase
         .from('grammar_submissions')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching grammar submissions:', error);
+      if (grammarError) {
+        console.error('Error fetching grammar submissions:', grammarError);
         return NextResponse.json({ error: 'Failed to fetch submissions' }, { status: 500 });
       }
 
-      // Map to a similar structure for the UI
-      const mapped = grammarSubmissions.map((s) => ({
+      // 2. Fetch Canonical Submissions for Grammar (Reading/Listening)
+      const { data: canonicalSubmissions, error: canonicalError } = await supabase
+        .from('submissions')
+        .select('*')
+        .eq('programme', 'GRAMMAR')
+        .order('created_at', { ascending: false });
+
+      if (canonicalError) {
+        console.error('Error fetching canonical submissions:', canonicalError);
+      }
+
+      // 3. Map Legacy Grammar
+      const mappedGrammar = grammarSubmissions.map((s) => ({
         id: s.id,
         studentName: s.student_name,
         groupName: s.group_name,
@@ -31,9 +43,31 @@ export async function GET(req: NextRequest) {
         examType: 'grammar',
         programme: 'GRAMMAR',
         level: s.grammar_level,
+        studyMonth: s.study_month || null,
       }));
 
-      return NextResponse.json({ submissions: mapped }, { status: 200 });
+      // 4. Map Canonical
+      const mappedCanonical = (canonicalSubmissions || []).map((s) => ({
+        id: s.id,
+        studentName: s.student_name,
+        groupName: s.group_name,
+        teacherName: s.teacher_name,
+        overallScore: s.overall_score,
+        overallCefrBand: s.overall_band,
+        status: 'graded',
+        submittedAt: s.created_at,
+        examType: s.evaluation_data?.examType || 'speaking',
+        programme: s.programme || 'GRAMMAR',
+        level: s.evaluation_data?.grammarLevel || null,
+        studyMonth: s.evaluation_data?.studyMonth || null,
+      }));
+
+      // Combine and sort
+      const allSubmissions = [...mappedGrammar, ...mappedCanonical].sort(
+        (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+      );
+
+      return NextResponse.json({ submissions: allSubmissions }, { status: 200 });
     }
 
     // Handle CEFR / IELTS (from submissions table)

@@ -110,7 +110,13 @@ export async function POST(req: NextRequest) {
         passcode_used: session.passcode,
         overall_score: evaluation.total_score,
         overall_band: evaluation.cefr_level,
-        evaluation_data: { ...evaluation, examType: 'reading' },
+        programme: session.programme || 'CEFR',
+        evaluation_data: { 
+          ...evaluation, 
+          examType: 'reading',
+          grammarLevel: session.grammarLevel,
+          studyMonth: session.studyMonth
+        },
         is_saved: false
       };
 

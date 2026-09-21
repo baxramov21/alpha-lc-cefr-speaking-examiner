@@ -37,6 +37,8 @@ export default function SubmissionsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [skillFilter, setSkillFilter] = useState<SkillFilter>('speaking');
+  const [levelFilter, setLevelFilter] = useState<string>('all');
+  const [monthFilter, setMonthFilter] = useState<string>('all');
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -66,9 +68,12 @@ export default function SubmissionsPage() {
       s.teacherName.toLowerCase().includes(q);
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
     const type = s.examType || 'speaking';
-    const matchesSkill = programme === 'GRAMMAR' ? true : type === skillFilter;
+    const matchesSkill = type === skillFilter;
     
-    return matchesSearch && matchesStatus && matchesSkill;
+    const matchesLevel = programme !== 'GRAMMAR' || levelFilter === 'all' || (s as any).level?.toLowerCase() === levelFilter.toLowerCase();
+    const matchesMonth = programme !== 'GRAMMAR' || monthFilter === 'all' || String((s as any).studyMonth) === monthFilter;
+    
+    return matchesSearch && matchesStatus && matchesSkill && matchesLevel && matchesMonth;
   });
 
   const exportCSV = () => {
@@ -124,7 +129,7 @@ export default function SubmissionsPage() {
           {programme === 'IELTS' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />}
         </button>
         <button
-          onClick={() => setProgramme('GRAMMAR')}
+          onClick={() => { setProgramme('GRAMMAR'); setSkillFilter('grammar'); }}
           className={`px-6 py-3 font-bold transition-all relative ${programme === 'GRAMMAR' ? 'text-amber-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-800 hover:bg-slate-50 rounded-t-xl'}`}
         >
           Grammar
@@ -132,8 +137,8 @@ export default function SubmissionsPage() {
         </button>
       </div>
 
-      {/* Skill Tabs (Hidden for Grammar) */}
-      {programme !== 'GRAMMAR' && (
+      {/* Skill Tabs */}
+      {programme !== 'GRAMMAR' ? (
         <div className="flex items-center gap-2 mb-4">
           <button
             onClick={() => setSkillFilter('speaking')}
@@ -158,6 +163,27 @@ export default function SubmissionsPage() {
             className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200'}`}
           >
             Reading
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setSkillFilter('grammar')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'grammar' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200'}`}
+          >
+            Grammar
+          </button>
+          <button
+            onClick={() => setSkillFilter('reading')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'reading' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200'}`}
+          >
+            Reading
+          </button>
+          <button
+            onClick={() => setSkillFilter('listening')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${skillFilter === 'listening' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:bg-slate-200'}`}
+          >
+            Listening
           </button>
         </div>
       )}
@@ -191,6 +217,36 @@ export default function SubmissionsPage() {
             </Button>
           ))}
         </div>
+        
+        {programme === 'GRAMMAR' && (
+          <>
+            <select
+              value={levelFilter}
+              onChange={(e) => setLevelFilter(e.target.value)}
+              className="h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500"
+            >
+              <option value="all">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="elementary">Elementary</option>
+              <option value="pre-intermediate">Pre-Intermediate</option>
+              <option value="intermediate">Intermediate</option>
+            </select>
+
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500"
+            >
+              <option value="all">All Months</option>
+              <option value="1">Month 1</option>
+              <option value="2">Month 2</option>
+              <option value="3">Month 3</option>
+              <option value="4">Month 4</option>
+              <option value="5">Month 5</option>
+              <option value="6">Month 6</option>
+            </select>
+          </>
+        )}
       </div>
 
       {/* Table */}
@@ -247,6 +303,10 @@ export default function SubmissionsPage() {
                         <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">Writing</Badge>
                       ) : sub.examType === 'listening' ? (
                         <Badge className="bg-purple-100 text-purple-700 border-purple-200">Listening</Badge>
+                      ) : sub.examType === 'reading' ? (
+                        <Badge className="bg-sky-100 text-sky-700 border-sky-200">Reading</Badge>
+                      ) : sub.examType === 'grammar' ? (
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-200">Grammar</Badge>
                       ) : (
                         <Badge className="bg-blue-100 text-blue-700 border-blue-200">Speaking</Badge>
                       )}
