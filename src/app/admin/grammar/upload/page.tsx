@@ -17,7 +17,7 @@ export default function GrammarUploadPage() {
   const [grammarLevel, setGrammarLevel] = useState<string>('pre-intermediate');
   const [studyMonth, setStudyMonth] = useState<number | ''>('');
   
-  const [jsonFile, setJsonFile] = useState<File | null>(null);
+  const [jsonFiles, setJsonFiles] = useState<File[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [answersFile, setAnswersFile] = useState<File | null>(null);
@@ -386,31 +386,39 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
   };
 
   const handleJsonChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
     
-    setJsonFile(selected);
+    setJsonFiles(selectedFiles);
     setErrorMsg(null);
     setValidationErrors([]);
     setSuccess(false);
 
     try {
-      const text = await selected.text();
-      let parsedRaw = JSON.parse(text);
+      let rawExamsList: any[] = [];
       
-      if (parsedRaw.tests && Array.isArray(parsedRaw.tests)) parsedRaw = parsedRaw.tests;
-      else if (parsedRaw.exams && Array.isArray(parsedRaw.exams)) parsedRaw = parsedRaw.exams;
+      for (const selected of selectedFiles) {
+        const text = await selected.text();
+        let parsedRaw = JSON.parse(text);
+        
+        if (parsedRaw.tests && Array.isArray(parsedRaw.tests)) parsedRaw = parsedRaw.tests;
+        else if (parsedRaw.exams && Array.isArray(parsedRaw.exams)) parsedRaw = parsedRaw.exams;
 
-      let isArrayOfExams = Array.isArray(parsedRaw);
-      // Fallback: If it's an array but looks like an array of questions or parts, wrap it in one exam
-      if (isArrayOfExams && parsedRaw.length > 0) {
-        const first = parsedRaw[0];
-        if (first.question_number !== undefined || first.part_number !== undefined || (first.questions && Array.isArray(first.questions))) {
-          isArrayOfExams = false; // it's just parts/questions for a single exam
+        let isArrayOfExams = Array.isArray(parsedRaw);
+        if (isArrayOfExams && parsedRaw.length > 0) {
+          const first = parsedRaw[0];
+          if (first.question_number !== undefined || first.part_number !== undefined || (first.questions && Array.isArray(first.questions))) {
+            isArrayOfExams = false;
+          }
+        }
+
+        if (isArrayOfExams) {
+          rawExamsList = [...rawExamsList, ...parsedRaw];
+        } else {
+          rawExamsList.push(parsedRaw);
         }
       }
 
-      const rawExamsList = isArrayOfExams ? parsedRaw : [parsedRaw];
       const validatedExams: any[] = [];
       let allValidationErrors: any[] = [];
 
@@ -566,7 +574,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         setErrorMsg(`Validation Failed in ${allValidationErrors.length} places across ${rawExamsList.length} exams.`);
         setPreviewData(null);
       } else {
-        setPreviewData(isArrayOfExams ? validatedExams : validatedExams[0]);
+        setPreviewData(validatedExams.length > 1 ? validatedExams : validatedExams[0]);
         if (!customExamName && validatedExams.length > 0) {
            setCustomExamName(validatedExams[0]?.title || 'Extracted Exam');
         }
@@ -585,7 +593,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     const finalPayloads = payloads.map((payload, index) => {
       let finalPayload = { ...payload, grammar_level: grammarLevel, level: grammarLevel, study_month: studyMonth || null };
       if (customExamName) {
-         finalPayload.title = payloads.length > 1 ? `${customExamName} ${index + 1}` : customExamName;
+         if (payloads.length > 1) {
+            const variantChar = String.fromCharCode(65 + index);
+            finalPayload.title = `${customExamName} Variant ${variantChar}`;
+         } else {
+            finalPayload.title = customExamName;
+         }
       }
       
       if (questionRange) {
@@ -778,7 +791,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
 
       setUploadProgress(100);
       setSuccess(true);
-      setJsonFile(null);
+      setJsonFiles([]);
       setPdfFile(null);
       setAudioFile(null);
       setPreviewData(null);
@@ -1013,11 +1026,17 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">{examMode === 'grammar_json' ? 'Upload Grammar Test (JSON)' : 'Upload Answer Key (JSON)'}</h3>
           <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
-            <input type="file" accept=".json" onChange={handleJsonChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
+            <input type="file" accept=".json" multiple onChange={handleJsonChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
             <div className="w-12 h-12 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
               <FileJson className="w-5 h-5 text-indigo-500" />
             </div>
-            {jsonFile ? <p className="text-xs font-bold text-indigo-700 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 px-2 py-1 rounded truncate w-full">{jsonFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select JSON</p>}
+            {jsonFiles.length > 0 ? (
+               <p className="text-xs font-bold text-indigo-700 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950 px-2 py-1 rounded truncate w-full text-center">
+                 {jsonFiles.length === 1 ? jsonFiles[0].name : `${jsonFiles.length} files selected`}
+               </p>
+            ) : (
+               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select JSON</p>
+            )}
           </div>
         </div>
 
