@@ -10,7 +10,7 @@ import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 import { Button } from '@/components/ui/button';
 
-type ExamMode = "grammar_json" | "grammar_pdf_main" | "reading_native" | "listening_pdf_main";
+type ExamMode = "grammar_json" | "grammar_pdf_main" | "reading_native" | "listening_pdf_main" | "reading_pdf_main";
 
 export default function GrammarUploadPage() {
   const [examMode, setExamMode] = useState<ExamMode>("grammar_pdf_main");
@@ -30,6 +30,7 @@ export default function GrammarUploadPage() {
   
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadStatusMessage, setUploadStatusMessage] = useState<string>('');
   const [showPrompt, setShowPrompt] = useState(false);
   const [pageRange, setPageRange] = useState<string>('');
   const [questionRange, setQuestionRange] = useState<string>('');
@@ -135,7 +136,7 @@ CRITICAL INSTRUCTIONS:
 4. "correct_answer" MUST exactly match one of the items in the "options" array.
 5. Specify "MULTIPLE_CHOICE" or "FILL_IN" for the type.
 6. If a question requires an image (e.g., a diagram or map), use the "image_url" field in the question and set its value to exactly "[UPLOAD_IMAGE_HERE]".${targetTestInstructionsForPdf}
-${examMode === 'listening_pdf_main' ? '7. DO NOT extract passage texts, since the PDF will be shown to the user. ONLY extract the questions and answer options.' : '7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.'}
+${(examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') ? '7. DO NOT extract passage texts, since the PDF will be shown to the user. ONLY extract the questions and answer options.' : '7. IMPORTANT: These are public domain practice materials used for personal development. You MUST extract the full reading passages into passage_html. Do not refuse due to copyright.'}
 
 SCHEMA:
 ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
@@ -148,7 +149,7 @@ ${(testRange || answersPageNumber) ? '[\n  ' : ''}{
     {
       "part_number": 1,
       "title": "Part 1",
-${examMode === 'listening_pdf_main' ? '' : '      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",\n'}      "questions": [
+${(examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') ? '' : '      "passage_html": "String - HTML formatted passage text (use <p>, <b>, etc). Leave empty if there is no text.",\n'}      "questions": [
         {
           "question_number": 1,
           "type": "MULTIPLE_CHOICE",
@@ -436,7 +437,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         let json = rawExamsList[i];
         
         // Auto-wrap array if LLM returns just the parts array (very common)
-        if (examMode === 'reading_native' || examMode === 'listening_pdf_main') {
+        if (examMode === 'reading_native' || examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') {
           if (json.answers && typeof json.answers === 'object') {
              const questions = Object.entries(json.answers).map(([qNum, val]: [string, any]) => ({
                 question_number: parseInt(qNum),
@@ -520,9 +521,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                          q.question_number = parseInt(q.question_number) || qi + 1;
                       }
                       if (!q.question_text) q.question_text = `Question ${q.question_number}`;
-                      if (!q.type) q.type = (examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
+                      if (!q.type) q.type = (examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
                       if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                         if (examMode !== 'listening_pdf_main') {
+                         if (examMode !== 'listening_pdf_main' && examMode !== 'reading_pdf_main') {
                            let maxCode = 68;
                            if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
                              const code = q.correct_answer.toUpperCase().charCodeAt(0);
@@ -555,9 +556,9 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
                  q.question_number = parseInt(q.question_number) || qi + 1;
               }
               if (!q.question_text) q.question_text = `Question ${q.question_number}`;
-              if (!q.type) q.type = (examMode === 'grammar_pdf_main' || examMode === 'listening_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
+              if (!q.type) q.type = (examMode === 'grammar_pdf_main' || examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') ? 'FILL_IN' : 'MULTIPLE_CHOICE';
               if ((q.type === 'MULTIPLE_CHOICE' || q.type === 'MATCHING') && (!q.options || q.options.length === 0)) {
-                 if (examMode !== 'grammar_pdf_main' && examMode !== 'listening_pdf_main') {
+                 if (examMode !== 'grammar_pdf_main' && examMode !== 'listening_pdf_main' && examMode !== 'reading_pdf_main') {
                    let maxCode = 68;
                    if (q.correct_answer && typeof q.correct_answer === 'string' && q.correct_answer.length === 1) {
                      const code = q.correct_answer.toUpperCase().charCodeAt(0);
@@ -579,11 +580,10 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             validatedExams.push(valResult.data);
           }
         } else {
-          // For listening_pdf_main, map questions array into a single part
-          if (examMode === 'listening_pdf_main' && !json.parts && Array.isArray(json.questions)) {
+          if ((examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') && !json.parts && Array.isArray(json.questions)) {
             json.parts = [{
               part_number: 1,
-              title: "Listening Test",
+              title: examMode === 'listening_pdf_main' ? "Listening Test" : "Reading Test",
               questions: json.questions
             }];
             delete json.questions;
@@ -619,16 +619,16 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
 
     let payload: any;
-    if (examMode === 'listening_pdf_main') {
+    if (examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') {
        payload = {
           title: customExamName || "Extracted Exam",
-          exam_type: 'CEFR_LISTENING',
+          exam_type: examMode === 'listening_pdf_main' ? 'CEFR_LISTENING' : 'CEFR_READING',
           programme: 'GRAMMAR',
           grammar_level: grammarLevel,
           time_limit: 3600,
           parts: [{
             part_number: 1, 
-            title: "Listening Test", 
+            title: examMode === 'listening_pdf_main' ? "Listening Test" : "Reading Test", 
             questions: validAnswers.map(a => ({
               question_number: a.question_number,
               correct_answer: a.correct_answer.trim(),
@@ -702,6 +702,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     setPendingUploadPayloads(finalPayloads);
 
     setIsUploading(true);
+    setUploadStatusMessage('Checking for duplicate tests...');
     try {
        const [canRes, gramRes] = await Promise.all([
           fetch('/api/admin/exams/canonical'),
@@ -730,6 +731,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
        }
 
         if (audioFile && examMode === 'listening_pdf_main') {
+          setUploadStatusMessage('Uploading Audio to secure storage (this may take a moment)...');
           // 1. Get Presigned URL
           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
             method: 'POST',
@@ -762,7 +764,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           });
         }
 
-        if (pdfFile && (examMode === 'listening_pdf_main' || examMode === 'grammar_pdf_main' || examMode === 'reading_native')) {
+        if (pdfFile && (examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main' || examMode === 'grammar_pdf_main' || examMode === 'reading_native')) {
+          setUploadStatusMessage('Uploading PDF to secure storage (this may take a moment)...');
           // 1. Get Presigned URL
           const urlRes = await fetch('/api/admin/exams/get-upload-url', {
             method: 'POST',
@@ -810,12 +813,14 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
   const executeUpload = async (payloads: any[], resolution?: 'replace' | 'add' | 'skip') => {
     setIsUploading(true);
     setUploadProgress(0);
+    setUploadStatusMessage('Preparing to save to database...');
     setErrorMsg(null);
     setSuccess(false);
 
     try {
       const total = payloads.length;
       for (let i = 0; i < total; i++) {
+        setUploadStatusMessage(`Saving Exam ${i + 1} of ${total} to the database...`);
         let finalPayload = payloads[i];
         
         if (resolution === 'skip' && duplicateConflicts.some(c => c.title?.toLowerCase() === finalPayload.title?.toLowerCase())) {
@@ -908,6 +913,12 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           Reading (Native)
         </button>
         <button
+          onClick={() => { setExamMode('reading_pdf_main'); setPreviewData(null); }}
+          className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'reading_pdf_main' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-fuchsia-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
+        >
+          Reading (PDF-Main)
+        </button>
+        <button
           onClick={() => { setExamMode('listening_pdf_main'); setPreviewData(null); }}
           className={`px-6 py-2.5 rounded-xl font-semibold text-sm transition-all ${examMode === 'listening_pdf_main' ? 'bg-white dark:bg-slate-900 dark:bg-slate-900 shadow-sm text-emerald-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:text-slate-300'}`}
         >
@@ -970,7 +981,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Overrides the title from JSON.</p>
         </div>
 
-        {(examMode === 'grammar_pdf_main' || examMode === 'reading_native' || examMode === 'listening_pdf_main') && (
+        {(examMode === 'grammar_pdf_main' || examMode === 'reading_native' || examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main') && (
           <div>
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">PDF Page Range (Optional)</label>
             <div className="flex gap-2 items-center">
@@ -1219,7 +1230,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             </div>
             
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              {(examMode === 'listening_pdf_main' || examMode === 'reading_native') && (
+              {(examMode === 'listening_pdf_main' || examMode === 'reading_pdf_main' || examMode === 'reading_native') && (
                 <Button 
                   onClick={handleAutoExtractImages}
                   disabled={isExtractingImages || !pdfFile}
@@ -1304,7 +1315,8 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-2">Uploading Exam</h3>
-            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center">Saving data to the database... {uploadProgress > 0 && `(${uploadProgress}%)`}</p>
+            <p className="text-slate-500 dark:text-slate-400 dark:text-slate-400 text-sm text-center font-medium leading-relaxed">{uploadStatusMessage}</p>
+            {uploadProgress > 0 && <p className="text-slate-400 dark:text-slate-500 text-xs mt-2 text-center">{uploadProgress}% completed</p>}
           </div>
         </div>
       )}
