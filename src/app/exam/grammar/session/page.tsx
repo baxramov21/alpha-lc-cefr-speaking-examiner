@@ -210,15 +210,16 @@ function GrammarSessionContent() {
                         {q.options.map((opt, oIdx) => {
                           const isSelected = answers[q.id] === opt;
                           return (
-                            <label 
-                              key={oIdx} 
+                            <div 
+                              key={oIdx}
+                              onClick={() => setAnswers({...answers, [q.id]: opt})}
                               className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950' : 'border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-indigo-200 hover:bg-slate-50'}`}
                             >
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600 dark:border-slate-600'}`}>
                                 {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                               </div>
                               <span className="text-slate-700 dark:text-slate-300 dark:text-slate-300">{opt}</span>
-                            </label>
+                            </div>
                           );
                         })}
                       </div>
@@ -258,15 +259,16 @@ function GrammarSessionContent() {
                       {q.options.map((opt, oIdx) => {
                         const isSelected = answers[q.id] === opt;
                         return (
-                          <label 
-                            key={oIdx} 
+                          <div 
+                            key={oIdx}
+                            onClick={() => setAnswers({...answers, [q.id]: opt})}
                             className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${isSelected ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950 dark:bg-indigo-950' : 'border-slate-200 dark:border-slate-700 dark:border-slate-700 hover:border-indigo-200 hover:bg-slate-50'}`}
                           >
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-indigo-500' : 'border-slate-300 dark:border-slate-600 dark:border-slate-600'}`}>
                               {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-indigo-500" />}
                             </div>
                             <span className="text-slate-700 dark:text-slate-300 dark:text-slate-300">{opt}</span>
-                          </label>
+                          </div>
                         );
                       })}
                     </div>
