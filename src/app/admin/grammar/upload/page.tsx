@@ -15,6 +15,7 @@ type ExamMode = 'grammar_json' | 'grammar_pdf' | 'reading' | 'listening';
 export default function GrammarUploadPage() {
   const [examMode, setExamMode] = useState<ExamMode>('grammar_pdf');
   const [grammarLevel, setGrammarLevel] = useState<string>('pre-intermediate');
+  const [studyMonth, setStudyMonth] = useState<number | ''>('');
   
   const [jsonFile, setJsonFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -582,7 +583,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     let payloads = Array.isArray(previewData) ? previewData : [previewData];
     
     const finalPayloads = payloads.map((payload, index) => {
-      let finalPayload = { ...payload, grammar_level: grammarLevel, level: grammarLevel };
+      let finalPayload = { ...payload, grammar_level: grammarLevel, level: grammarLevel, study_month: studyMonth || null };
       if (customExamName) {
          finalPayload.title = payloads.length > 1 ? `${customExamName} ${index + 1}` : customExamName;
       }
@@ -851,6 +852,24 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
             <option value="intermediate">Intermediate</option>
           </select>
           <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Questions will only be visible to students enrolled in this level.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Month of Studying</label>
+          <select
+            value={studyMonth}
+            onChange={(e) => setStudyMonth(e.target.value ? parseInt(e.target.value) : '')}
+            className="w-full md:w-48 px-4 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow"
+          >
+            <option value="">Any Month (Fallback)</option>
+            <option value={1}>Month 1</option>
+            <option value={2}>Month 2</option>
+            <option value={3}>Month 3</option>
+            <option value={4}>Month 4</option>
+            <option value={5}>Month 5</option>
+            <option value={6}>Month 6</option>
+          </select>
+          <p className="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-2">Optional. Assign this test to a specific month.</p>
         </div>
 
         <div>

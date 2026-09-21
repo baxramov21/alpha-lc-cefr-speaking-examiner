@@ -14,7 +14,8 @@ export const ExamCanonicalSchema = z.object({
   title: z.string().min(1, 'Title cannot be empty'),
   exam_type: z.enum(['CEFR_READING', 'CEFR_LISTENING']),
   programme: z.enum(['CEFR', 'IELTS', 'GRAMMAR']).optional(),
-  grammar_level: z.enum(['elementary', 'pre-intermediate', 'intermediate']).optional(),
+  grammar_level: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']).optional(),
+  study_month: z.number().min(1).max(6).optional(),
   time_limit: z.number().int().positive().optional(),
   prep_time: z.number().int().nonnegative().optional(),
   parts: z.array(
@@ -44,7 +45,8 @@ export const GrammarQuestionSchema = z.object({
 
 export const GrammarExamSchema = z.object({
   title: z.string().min(1, 'Title cannot be empty'),
-  level: z.enum(['elementary', 'pre-intermediate', 'intermediate']),
+  level: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']),
+  study_month: z.number().min(1).max(6).optional(),
   time_limit: z.number().int().positive().optional().default(1800),
   questions: z.array(GrammarQuestionSchema).min(1, 'At least one question is required'),
 });
@@ -54,7 +56,8 @@ export type GrammarQuestionPayload = z.infer<typeof GrammarQuestionSchema>;
 
 export const GrammarPdfExamSchema = z.object({
   title: z.string().min(1, 'Title cannot be empty'),
-  level: z.enum(['elementary', 'pre-intermediate', 'intermediate']),
+  level: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']),
+  study_month: z.number().min(1).max(6).optional(),
   time_limit: z.number().int().positive().optional().default(1800),
   pdf_url: z.string().optional(),
   answers: z.record(

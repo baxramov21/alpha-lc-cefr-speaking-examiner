@@ -5,11 +5,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, level, reading_exam_id, listening_exam_id, grammar_exam_id, writing_exam_id, is_active } = body;
+    const { name, level, study_month, reading_exam_id, listening_exam_id, grammar_exam_id, writing_exam_id, is_active } = body;
 
     const { error } = await supabase
       .from('grammar_triples')
-      .update({ name, level, reading_exam_id, listening_exam_id, grammar_exam_id, writing_exam_id, is_active })
+      .update({ name, level, study_month, reading_exam_id, listening_exam_id, grammar_exam_id, writing_exam_id, is_active })
       .eq('id', id);
 
     if (error) throw error;

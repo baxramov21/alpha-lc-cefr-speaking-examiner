@@ -14,9 +14,10 @@ export default function AdminGrammarExamsPage() {
   const [writingExams, setWritingExams] = useState<any[]>([]);
   const [triples, setTriples] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterMonth, setFilterMonth] = useState<number | ''>('');
 
   // Edit level and title state
-  const [editingExam, setEditingExam] = useState<{ id: string, level: string, isCanonical: boolean } | null>(null);
+  const [editingExam, setEditingExam] = useState<{ id: string, level: string, month: number | '', isCanonical: boolean } | null>(null);
   const [editingTitle, setEditingTitle] = useState<{ id: string, title: string, isCanonical: boolean } | null>(null);
   
   // Create Triple state
@@ -27,7 +28,8 @@ export default function AdminGrammarExamsPage() {
     reading_exam_id: '',
     listening_exam_id: '',
     grammar_exam_id: '',
-    writing_exam_id: ''
+    writing_exam_id: '',
+    study_month: '' as number | ''
   });
 
   // Create Writing state
@@ -110,6 +112,7 @@ export default function AdminGrammarExamsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           level: editingExam.level, 
+          study_month: editingExam.month || null,
           table: editingExam.isCanonical ? 'canonical_exams' : 'grammar_exams' 
         })
       });
@@ -214,6 +217,12 @@ export default function AdminGrammarExamsPage() {
   else if (activeTab === 'listening') displayedExams = canonicalExams.filter(e => e.exam_type === 'CEFR_LISTENING');
   else if (activeTab === 'writing') displayedExams = writingExams;
 
+  if (filterMonth !== '') {
+    displayedExams = displayedExams.filter(e => e.study_month === filterMonth);
+  }
+
+  const displayedTriples = filterMonth !== '' ? triples.filter(t => t.study_month === filterMonth) : triples;
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
@@ -241,6 +250,23 @@ export default function AdminGrammarExamsPage() {
             </Link>
           )}
         </div>
+      </div>
+      
+      <div className="flex items-center gap-4 mb-4">
+        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Filter by Month:</label>
+        <select
+          value={filterMonth}
+          onChange={(e) => setFilterMonth(e.target.value ? parseInt(e.target.value) : '')}
+          className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-sm"
+        >
+          <option value="">All Months</option>
+          <option value={1}>Month 1</option>
+          <option value={2}>Month 2</option>
+          <option value={3}>Month 3</option>
+          <option value={4}>Month 4</option>
+          <option value={5}>Month 5</option>
+          <option value={6}>Month 6</option>
+        </select>
       </div>
 
       <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 p-1 rounded-xl w-fit mb-8">
@@ -302,6 +328,18 @@ export default function AdminGrammarExamsPage() {
                     <option value="Upper-Intermediate">Upper-Intermediate</option>
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-1">Month of Studying</label>
+                  <select value={tripleForm.study_month} onChange={e => setTripleForm({...tripleForm, study_month: e.target.value ? parseInt(e.target.value) : ''})} className="w-full border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-lg px-3 py-2">
+                    <option value="">Any Month</option>
+                    <option value={1}>Month 1</option>
+                    <option value={2}>Month 2</option>
+                    <option value={3}>Month 3</option>
+                    <option value={4}>Month 4</option>
+                    <option value={5}>Month 5</option>
+                    <option value={6}>Month 6</option>
+                  </select>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -349,7 +387,14 @@ export default function AdminGrammarExamsPage() {
                         <Layers className="w-4 h-4 text-indigo-500" />
                         <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200">{trip.name}</h3>
                       </div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-900 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 dark:border-slate-700">{trip.level}</span>
+                      <div className="flex gap-2 items-center">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-900 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 dark:border-slate-700">{trip.level}</span>
+                        {trip.study_month ? (
+                          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">M{trip.study_month}</span>
+                        ) : (
+                          <span className="text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200">No Month</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={() => toggleTripleStatus(trip.id, trip.level)} size="sm" variant={trip.is_active ? "default" : "outline"} className={trip.is_active ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}>
@@ -422,9 +467,10 @@ export default function AdminGrammarExamsPage() {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 bg-slate-50/50">
                     <th className="py-4 pl-6 text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase tracking-wider">Status</th>
-                    <th className="py-4 text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase tracking-wider">Title</th>
-                    <th className="py-4 text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase tracking-wider">Level</th>
-                    <th className="py-4 pr-6 text-xs font-bold text-slate-400 dark:text-slate-500 dark:text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                    <th className="py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Title</th>
+                    <th className="py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Level</th>
+                    <th className="py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Month</th>
+                    <th className="py-4 pr-6 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -479,9 +525,38 @@ export default function AdminGrammarExamsPage() {
                             <span className="capitalize text-sm font-medium text-slate-600 dark:text-slate-300 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 px-2 py-1 rounded">
                               {exam.level || exam.grammar_level || 'N/A'}
                             </span>
-                            <button onClick={() => setEditingExam({ id: exam.id, level: exam.level || exam.grammar_level || 'Elementary', isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => setEditingExam({ id: exam.id, level: exam.level || exam.grammar_level || 'Elementary', month: exam.study_month || '', isCanonical: activeTab !== 'grammar' })} className="text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Edit2 className="w-4 h-4" />
                             </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4">
+                        {editingExam?.id === exam.id ? (
+                          <select
+                            value={editingExam!.month}
+                            onChange={(e) => setEditingExam(prev => prev ? {...prev, month: e.target.value ? parseInt(e.target.value) : ''} : null)}
+                            className="border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-sm bg-white dark:bg-slate-900 w-32"
+                          >
+                            <option value="">Any</option>
+                            <option value={1}>Month 1</option>
+                            <option value={2}>Month 2</option>
+                            <option value={3}>Month 3</option>
+                            <option value={4}>Month 4</option>
+                            <option value={5}>Month 5</option>
+                            <option value={6}>Month 6</option>
+                          </select>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            {exam.study_month ? (
+                              <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-1 rounded">
+                                M{exam.study_month}
+                              </span>
+                            ) : (
+                              <span className="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded flex items-center">
+                                No Month
+                              </span>
+                            )}
                           </div>
                         )}
                       </td>

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mic, Lock, User, Users, GraduationCap, ChevronRight, Eye, EyeOff, BrainCircuit, BarChart, Zap } from 'lucide-react';
+import { Mic, Lock, User, Users, GraduationCap, ChevronRight, Eye, EyeOff, BrainCircuit, BarChart, Zap, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,7 @@ const schema = z.object({
   teacherName: z.string().trim().min(2, 'Teacher name is required'),
   passcode: z.string().trim().min(4, 'Passcode is required'),
   grammarLevel: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']).optional(),
+  studyMonth: z.number().min(1).max(6).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -61,7 +62,8 @@ export default function StudentLoginPage() {
         body: JSON.stringify({ 
           passcode: data.passcode,
           fullName: transformedData.fullName,
-          grammarLevel: data.grammarLevel
+          grammarLevel: data.grammarLevel,
+          studyMonth: data.studyMonth
         }),
       });
 
@@ -290,26 +292,50 @@ export default function StudentLoginPage() {
 
               {/* Grammar Level Selection */}
               {requiresGrammarLevel && (
-                <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
-                    Select Your Grammar Level
-                  </Label>
-                  <div className="relative">
-                    <select
-                      id="grammarLevel"
-                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300 dark:text-slate-300"
-                      {...register('grammarLevel', { required: 'Please select a level' })}
-                    >
-                      <option value="">Choose a level...</option>
-                      <option value="beginner">Beginner</option>
-                      <option value="elementary">Elementary</option>
-                      <option value="pre-intermediate">Pre-Intermediate</option>
-                      <option value="intermediate">Intermediate</option>
-                    </select>
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div>
+                    <Label htmlFor="grammarLevel" className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">
+                      Select Your Grammar Level
+                    </Label>
+                    <div className="relative mt-1.5">
+                      <select
+                        id="grammarLevel"
+                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 focus:bg-white focus-visible:ring-2 focus-visible:ring-teal-500 transition-colors appearance-none text-slate-700 dark:text-slate-300 dark:text-slate-300"
+                        {...register('grammarLevel', { required: 'Please select a level' })}
+                      >
+                        <option value="">Choose a level...</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="elementary">Elementary</option>
+                        <option value="pre-intermediate">Pre-Intermediate</option>
+                        <option value="intermediate">Intermediate</option>
+                      </select>
+                    </div>
+                    {errors.grammarLevel && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {errors.grammarLevel.message}
+                      </p>
+                    )}
                   </div>
-                  {errors.grammarLevel && (
-                    <p className="text-xs text-destructive">{errors.grammarLevel.message}</p>
-                  )}
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 mb-2">Month of Studying</label>
+                    <select
+                      {...register('studyMonth', { required: 'Please select a month', valueAsNumber: true })}
+                      className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 dark:bg-slate-800 border-none rounded-xl text-slate-800 dark:text-slate-200 dark:text-slate-200 font-medium focus:ring-4 focus:ring-fuchsia-500/20 focus:bg-white transition-all outline-none"
+                    >
+                      <option value="">Choose a month...</option>
+                      <option value={1}>Month 1</option>
+                      <option value={2}>Month 2</option>
+                      <option value={3}>Month 3</option>
+                      <option value={4}>Month 4</option>
+                      <option value={5}>Month 5</option>
+                      <option value={6}>Month 6</option>
+                    </select>
+                    {errors.studyMonth && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" /> {errors.studyMonth.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 

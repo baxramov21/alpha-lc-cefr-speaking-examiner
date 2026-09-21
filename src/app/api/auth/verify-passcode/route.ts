@@ -22,6 +22,7 @@ const schema = z.object({
   passcode: z.string().min(4).max(64),
   fullName: z.string().min(1).optional(),
   grammarLevel: z.enum(['beginner', 'elementary', 'pre-intermediate', 'intermediate']).optional(),
+  studyMonth: z.number().min(1).max(6).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
   }
 
-  const { passcode, fullName, grammarLevel: requestedGrammarLevel } = parsed.data;
+  const { passcode, fullName, grammarLevel: requestedGrammarLevel, studyMonth: requestedStudyMonth } = parsed.data;
 
   // 1. Fetch settings for allow_skip
   const { data: settingsData } = await supabase
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
   let validPasscode = null;
   let programme = 'CEFR';
   let grammarLevel = null;
+  let studyMonth = null;
 
   // 2. Check new passcodes table
   const { data: passcodeRecord } = await supabase
@@ -70,10 +72,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (programme === 'GRAMMAR') {
-    if (!requestedGrammarLevel) {
+    if (!requestedGrammarLevel || !requestedStudyMonth) {
       return NextResponse.json({ requiresLevel: true, programme: 'GRAMMAR' }, { status: 200 });
     }
     grammarLevel = requestedGrammarLevel;
+    studyMonth = requestedStudyMonth;
   }
 
   // Issue a short-lived student session token (2 hours)
@@ -83,6 +86,7 @@ export async function POST(req: NextRequest) {
     fullName: fullName || '',
     programme,
     grammarLevel,
+    studyMonth,
     groupName: passcodeRecord?.group_name || 'Unknown',
     teacherName: passcodeRecord?.teacher_name || 'Unknown',
     type: 'student_session',
@@ -92,11 +96,11 @@ export async function POST(req: NextRequest) {
     .setExpirationTime('2h')
     .sign(encodedSecret);
 
-
   return NextResponse.json({ 
     token,
     programme,
     grammarLevel,
+    studyMonth,
     allowSkip: settingsData?.value?.allow_skip ?? true 
   }, { status: 200 });
 }

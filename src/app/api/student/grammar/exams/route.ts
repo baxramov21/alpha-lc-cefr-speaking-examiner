@@ -20,12 +20,18 @@ export async function GET(req: NextRequest) {
     let exams: any[] = [];
 
     try {
-      const { data: triples } = await supabaseAdmin
+      let tripleQuery = supabaseAdmin
         .from('grammar_triples')
         .select('grammar_exam_id')
         .ilike('level', grammarLevel)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
+
+      if (session.studyMonth) {
+        tripleQuery = tripleQuery.eq('study_month', session.studyMonth);
+      }
+      
+      const { data: triples } = await tripleQuery;
 
       if (triples && triples.length > 0) {
         const seededRand = getSeededRandom(sessionToken || 'default-seed');
@@ -43,12 +49,18 @@ export async function GET(req: NextRequest) {
 
     // Fallback if no triple active
     if (exams.length === 0) {
-      const { data: fallbackExams, error } = await supabaseAdmin
+      let fallbackQuery = supabaseAdmin
         .from('grammar_exams')
         .select('id, title, level, time_limit')
         .eq('is_active', true)
         .ilike('level', grammarLevel)
         .order('created_at', { ascending: false });
+
+      if (session.studyMonth) {
+        fallbackQuery = fallbackQuery.eq('study_month', session.studyMonth);
+      }
+
+      const { data: fallbackExams, error } = await fallbackQuery;
 
       if (error) {
         console.error('Error fetching grammar exams:', error);
@@ -60,13 +72,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Also fetch canonical native exams for Grammar
-    const { data: nativeExams, error: nativeError } = await supabaseAdmin
+    let nativeQuery = supabaseAdmin
       .from('canonical_exams')
       .select('id, title, grammar_level as level, time_limit')
       .eq('is_active', true)
       .eq('programme', 'GRAMMAR')
       .ilike('grammar_level', grammarLevel)
       .order('created_at', { ascending: false });
+
+    if (session.studyMonth) {
+      nativeQuery = nativeQuery.eq('study_month', session.studyMonth);
+    }
+      
+    const { data: nativeExams, error: nativeError } = await nativeQuery;
       
     if (!nativeError && nativeExams) {
       const nativeMapped = nativeExams.map((ex: any) => ({

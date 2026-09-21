@@ -5,15 +5,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     const body = await req.json().catch(() => ({}));
-    const { level, table } = body;
+    const { level, table, study_month } = body;
 
     if (!level || !table) {
       return NextResponse.json({ error: 'Missing level or table' }, { status: 400 });
     }
 
+    const payload: any = table === 'canonical_exams' ? { grammar_level: level } : { level };
+    if (study_month !== undefined) {
+      payload.study_month = study_month;
+    }
+
     const { error: updateError } = await supabase
       .from(table)
-      .update(table === 'canonical_exams' ? { grammar_level: level } : { level })
+      .update(payload)
       .eq('id', id);
 
     if (updateError) throw updateError;

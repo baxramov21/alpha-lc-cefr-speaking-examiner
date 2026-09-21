@@ -22,6 +22,7 @@ export default function CanonicalUploadPage() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [pageRange, setPageRange] = useState<string>('');
   const [programme, setProgramme] = useState<'CEFR'|'IELTS'|'GRAMMAR'>('CEFR');
+  const [studyMonth, setStudyMonth] = useState<number | ''>('');
   const [examMode, setExamMode] = useState<'reading'|'listening'>('reading');
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -123,6 +124,7 @@ SCHEMA:
   "exam_type": "CEFR_READING or CEFR_LISTENING",
   "programme": "CEFR or IELTS or GRAMMAR",
   "grammar_level": "beginner or elementary or pre-intermediate or intermediate (Optional - ONLY for GRAMMAR programme)",
+  "study_month": "1 to 6 (Optional - ONLY for GRAMMAR programme)",
   "parts": [
     {
       "part_number": 1,
@@ -327,7 +329,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     setValidationErrors([]);
 
     try {
-      let finalPayload = { ...previewData, programme };
+      let finalPayload = { ...previewData, programme, study_month: studyMonth || null };
 
       // questionRange filtering has been removed
 
@@ -514,6 +516,26 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
         </button>
       </div>
       </div>
+      
+      {programme === 'GRAMMAR' && (
+        <div className="mb-8 p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Month of Studying</label>
+          <select
+            value={studyMonth}
+            onChange={(e) => setStudyMonth(e.target.value ? parseInt(e.target.value) : '')}
+            className="w-full md:w-64 px-4 py-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-shadow"
+          >
+            <option value="">Any Month (Fallback)</option>
+            <option value={1}>Month 1</option>
+            <option value={2}>Month 2</option>
+            <option value={3}>Month 3</option>
+            <option value={4}>Month 4</option>
+            <option value={5}>Month 5</option>
+            <option value={6}>Month 6</option>
+          </select>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Optional. Assign this test to a specific month.</p>
+        </div>
+      )}
 
       <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>

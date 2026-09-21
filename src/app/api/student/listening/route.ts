@@ -16,12 +16,18 @@ export async function GET(req: NextRequest) {
 
     if (programme === 'GRAMMAR' && grammarLevel) {
       try {
-        const { data: triples } = await supabase
+        let tripleQuery = supabase
           .from('grammar_triples')
           .select('listening_exam_id')
           .ilike('level', grammarLevel)
           .eq('is_active', true)
           .order('created_at', { ascending: false });
+          
+        if (session.studyMonth) {
+          tripleQuery = tripleQuery.eq('study_month', session.studyMonth);
+        }
+        
+        const { data: triples } = await tripleQuery;
           
         if (triples && triples.length > 0) {
           const seededRand = getSeededRandom(token || 'default-seed');
@@ -48,6 +54,9 @@ export async function GET(req: NextRequest) {
         
       if (programme === 'GRAMMAR' && grammarLevel) {
         query = query.ilike('grammar_level', grammarLevel);
+        if (session.studyMonth) {
+          query = query.eq('study_month', session.studyMonth);
+        }
       }
 
       const { data: exams, error: examError } = await query

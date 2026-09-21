@@ -10,6 +10,7 @@ export async function GET() {
         created_at,
         title,
         level,
+        study_month,
         is_active,
         time_limit,
         grammar_questions ( count )
