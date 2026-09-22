@@ -285,6 +285,7 @@ export async function generateWithRetry(modelName: string, parts: any[], apiKeys
       throw new Error("AI service quota reached across all provided keys. Please try again later.");
     }
   }
+  throw new Error("Unexpected end of generateWithRetry loop");
 }
 
 export const WRITING_EVALUATION_PROMPT = `

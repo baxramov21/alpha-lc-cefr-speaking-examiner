@@ -874,7 +874,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
       setSuccess(true);
       setJsonFiles([]);
       setPdfFile(null);
-      setAudioFile(null);
+      setAudioFiles([]);
       setPreviewData(null);
       setShowDuplicateModal(false);
     } catch (err: any) {
