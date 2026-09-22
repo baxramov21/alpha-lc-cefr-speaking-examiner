@@ -19,7 +19,7 @@ export default function GrammarUploadPage() {
   
   const [jsonFiles, setJsonFiles] = useState<File[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [answersFile, setAnswersFile] = useState<File | null>(null);
 
   const [isUploading, setIsUploading] = useState(false);
@@ -730,36 +730,48 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           return;
        }
 
-        if (audioFile && (examMode === 'listening_pdf_main' || examMode === 'listening_native')) {
-          setUploadStatusMessage('Uploading Audio to secure storage (this may take a moment)...');
-          // 1. Get Presigned URL
-          const urlRes = await fetch('/api/admin/exams/get-upload-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName: audioFile.name, contentType: audioFile.type || 'audio/mpeg' })
-          });
-          const urlData = await urlRes.json();
-          if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
+        if (audioFiles.length > 0 && (examMode === 'listening_pdf_main' || examMode === 'listening_native')) {
+          setUploadStatusMessage(`Uploading ${audioFiles.length} Audio file(s) to secure storage...`);
+          
+          const uploadedUrls: string[] = [];
+          
+          for (let i = 0; i < audioFiles.length; i++) {
+            const af = audioFiles[i];
+            const urlRes = await fetch('/api/admin/exams/get-upload-url', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ fileName: af.name, contentType: af.type || 'audio/mpeg' })
+            });
+            const urlData = await urlRes.json();
+            if (!urlRes.ok) throw new Error(urlData.error || 'Failed to get signed URL');
 
-          // 2. Upload file to signed URL
-          const uploadRes = await fetch(urlData.signedUrl, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': audioFile.type || 'audio/mpeg'
-            },
-            body: audioFile
-          });
+            const uploadRes = await fetch(urlData.signedUrl, {
+              method: 'PUT',
+              headers: { 'Content-Type': af.type || 'audio/mpeg' },
+              body: af
+            });
 
-          if (!uploadRes.ok) {
-            throw new Error(`Failed to upload audio to S3: ${uploadRes.statusText}`);
+            if (!uploadRes.ok) {
+              throw new Error(`Failed to upload audio to S3: ${uploadRes.statusText}`);
+            }
+            uploadedUrls.push(urlData.publicUrl);
           }
           
-          const publicUrl = urlData.publicUrl;
-          
-          // Attach to the first part
+          // Attach to parts
           finalPayloads.forEach(p => {
             if (p.parts && p.parts.length > 0) {
-              p.parts[0].audio_urls = [publicUrl];
+              if (uploadedUrls.length === 1) {
+                 // 1 audio file -> attach to first part
+                 p.parts[0].audio_urls = uploadedUrls;
+              } else if (uploadedUrls.length === p.parts.length) {
+                 // N audio files for N parts -> 1:1 mapping
+                 p.parts.forEach((part: any, index: number) => {
+                    part.audio_urls = [uploadedUrls[index]];
+                 });
+              } else {
+                 // Mismatch -> dump them all into the first part sequentially
+                 p.parts[0].audio_urls = uploadedUrls;
+              }
             }
           });
         }
@@ -872,7 +884,7 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
     }
   };
 
-  const isSubmitDisabled = isUploading || !previewData || ((examMode === 'listening_pdf_main' || examMode === 'listening_native') && !audioFile);
+  const isSubmitDisabled = isUploading || !previewData || ((examMode === 'listening_pdf_main' || examMode === 'listening_native') && audioFiles.length === 0);
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -1149,11 +1161,15 @@ Please provide the final JSON output as a downloadable file (or Artifact) so I c
           <div className="bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 dark:border-slate-700 p-6 overflow-hidden flex flex-col">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 dark:text-slate-200 mb-4">Upload Audio (MP3)</h3>
             <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 dark:bg-slate-950 p-6 flex-1 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 relative group">
-              <input type="file" accept="audio/*" ref={audioInputRef} onChange={(e) => setAudioFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
+              <input type="file" accept="audio/*" multiple ref={audioInputRef} onChange={(e) => setAudioFiles(Array.from(e.target.files || []))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" />
               <div className="w-12 h-12 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-sm flex items-center justify-center border border-slate-100 dark:border-slate-800 dark:border-slate-800 mb-3 group-hover:scale-110 transition-transform">
                 <Headphones className="w-5 h-5 text-teal-500" />
               </div>
-              {audioFile ? <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full">{audioFile.name}</p> : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select Audio</p>}
+              {audioFiles.length > 0 ? (
+                 <p className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded truncate w-full text-center">
+                   {audioFiles.length === 1 ? audioFiles[0].name : `${audioFiles.length} audios selected`}
+                 </p>
+              ) : <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300">Select Audio</p>}
             </div>
           </div>
         )}

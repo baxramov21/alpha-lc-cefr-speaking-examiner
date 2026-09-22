@@ -11,18 +11,9 @@ import { waitUntil } from '@vercel/functions';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; 
 
-const API_KEY = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY || '');
-
 export async function POST(req: NextRequest) {
   try {
     const config = await getModelConfig();
-    const model = genAI.getGenerativeModel({ 
-      model: config.final_model || 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.4
-      }
-    });
     
     console.log(`[AI Engine] Running Final Speaking Evaluator with model: ${config.final_model}`);
 
@@ -33,8 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
-    if (!API_KEY) {
-      return NextResponse.json({ error: 'Gemini API key is not configured.' }, { status: 500 });
+    if (!config.gemini_api_keys?.length && !process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ error: 'Gemini API keys are not configured.' }, { status: 500 });
     }
 
     const formData = await req.formData();
@@ -144,7 +135,11 @@ export async function POST(req: NextRequest) {
 
     generativeParts.push(`\n\n${generateSpeakingPrompt(examMode, programme)}`);
 
-    const result = await generateWithRetry(model, generativeParts);
+    const result = await generateWithRetry(
+      config.final_model || 'gemini-1.5-flash',
+      generativeParts,
+      config.gemini_api_keys || []
+    );
     const response = await result.response;
     const rawText = response.text();
 

@@ -9,6 +9,7 @@ export interface ModelConfig {
   full_exam_mode_enabled?: boolean;
   full_exam_sequence?: string[];
   tts_voice?: string;
+  gemini_api_keys?: string[];
 }
 
 export async function getModelConfig(): Promise<ModelConfig> {
@@ -39,7 +40,8 @@ export async function getModelConfig(): Promise<ModelConfig> {
     listening_repetitions: 1,
     full_exam_mode_enabled: false,
     full_exam_sequence: ['speaking', 'listening', 'reading', 'writing'],
-    tts_voice: 'uk_male'
+    tts_voice: 'uk_male',
+    gemini_api_keys: []
   });
 }
 
@@ -66,6 +68,7 @@ function applyFallbackLogic(config: ModelConfig): ModelConfig {
     listening_repetitions: config.listening_repetitions || 1,
     full_exam_mode_enabled: config.full_exam_mode_enabled ?? false,
     full_exam_sequence: config.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing'],
-    tts_voice: config.tts_voice || 'uk_male'
+    tts_voice: config.tts_voice || 'uk_male',
+    gemini_api_keys: config.gemini_api_keys || []
   };
 }

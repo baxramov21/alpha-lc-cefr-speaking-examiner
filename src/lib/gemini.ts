@@ -1,4 +1,5 @@
 import { UzbmbEvaluation } from '@/lib/types';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const GEMINI_MODEL = 'gemini-1.5-flash';
 
@@ -231,29 +232,57 @@ export function cleanJsonResponse(rawText: string): any {
   }
 }
 
-export async function generateWithRetry(model: any, parts: any[], retries = 1, initialDelay = 2000) {
+export async function generateWithRetry(modelName: string, parts: any[], apiKeys: string[], retries = 1, initialDelay = 2000) {
   let delay = initialDelay;
-  for (let i = 0; i <= retries; i++) {
-    try {
-      const result = await model.generateContent(parts);
-      return result;
-    } catch (error: any) {
-      const isQuotaError =
-        error?.message?.includes('429') ||
-        error?.message?.includes('Quota') ||
-        error?.status === 429;
+  const availableKeys = [...apiKeys];
+  
+  if (availableKeys.length === 0) {
+    if (process.env.GEMINI_API_KEY) {
+      availableKeys.push(process.env.GEMINI_API_KEY);
+    } else {
+      throw new Error("No Gemini API keys configured.");
+    }
+  }
 
-      // Fail fast on quota/rate limit errors to avoid token drains
-      if (isQuotaError) {
-        console.error("[AI Engine] Quota/Rate Limit hit. Failing fast.");
-        throw new Error("AI service quota reached. Please try again in a few moments.");
+  while (availableKeys.length > 0) {
+    const randomIndex = Math.floor(Math.random() * availableKeys.length);
+    const currentKey = availableKeys[randomIndex];
+    
+    const genAI = new GoogleGenerativeAI(currentKey);
+    const model = genAI.getGenerativeModel({ 
+      model: modelName,
+      generationConfig: {
+        temperature: 0.4
       }
+    });
 
-      if (i < retries) {
-        await new Promise(res => setTimeout(res, delay));
-      } else {
-        throw error;
+    for (let i = 0; i <= retries; i++) {
+      try {
+        const result = await model.generateContent(parts);
+        return result;
+      } catch (error: any) {
+        const isQuotaError =
+          error?.message?.includes('429') ||
+          error?.message?.includes('Quota') ||
+          error?.status === 429;
+
+        if (isQuotaError) {
+          console.warn(`[AI Engine] Quota/Rate Limit hit for key ending in ${currentKey.slice(-4)}. Switching keys.`);
+          availableKeys.splice(randomIndex, 1);
+          break; // Break the standard retry loop to pick a new key
+        }
+
+        if (i < retries) {
+          await new Promise(res => setTimeout(res, delay));
+        } else {
+          throw error;
+        }
       }
+    }
+    
+    if (availableKeys.length === 0) {
+      console.error("[AI Engine] All available API keys have hit quota limits.");
+      throw new Error("AI service quota reached across all provided keys. Please try again later.");
     }
   }
 }

@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
       listening_repetitions: body.listening_repetitions ? parseInt(body.listening_repetitions, 10) : 1,
       full_exam_mode_enabled: body.full_exam_mode_enabled ?? false,
       full_exam_sequence: body.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing'],
-      tts_voice: body.tts_voice || 'uk_male'
+      tts_voice: body.tts_voice || 'uk_male',
+      gemini_api_keys: body.gemini_api_keys || []
     });
 
     return NextResponse.json({ success: true });
