@@ -36,7 +36,7 @@ export default function AdminSettingsPage() {
   const [ttsVoice, setTtsVoice] = useState('uk_male');
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [modelStatus, setModelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [geminiApiKeys, setGeminiApiKeys] = useState<{ key: string, enabled: boolean }[]>([]);
+  const [geminiApiKeys, setGeminiApiKeys] = useState<{ key: string, enabled: boolean, is_paid?: boolean }[]>([]);
   const [newApiKey, setNewApiKey] = useState('');
 
   useEffect(() => {
