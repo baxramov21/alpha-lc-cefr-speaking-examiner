@@ -24,7 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
-    if (!config.gemini_api_keys?.length && !process.env.GEMINI_API_KEY) {
+    const activeKeys = config.gemini_api_keys?.filter(k => k.enabled).map(k => k.key) || [];
+    if (!activeKeys.length && !process.env.GEMINI_API_KEY) {
       return NextResponse.json({ error: 'Gemini API keys are not configured.' }, { status: 500 });
     }
 
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest) {
     const result = await generateWithRetry(
       config.final_model || 'gemini-1.5-flash',
       generativeParts,
-      config.gemini_api_keys || []
+      activeKeys
     );
     const response = await result.response;
     const rawText = response.text();
@@ -182,7 +183,7 @@ export async function POST(req: NextRequest) {
     console.error(`Error evaluating Part ${req.url}:`, error);
     const isRateLimit = error?.message?.includes('429') || error?.message?.includes('Quota');
     return NextResponse.json(
-      { error: 'Failed to evaluate part. An internal error occurred.' },
+      { error: 'Failed to evaluate part. An internal error occurred.', details: error?.message },
       { status: isRateLimit ? 429 : 500 }
     );
   }

@@ -232,7 +232,7 @@ export function cleanJsonResponse(rawText: string): any {
   }
 }
 
-export async function generateWithRetry(modelName: string, parts: any[], apiKeys: string[], retries = 1, initialDelay = 2000) {
+export async function generateWithRetry(modelName: string, parts: any[], apiKeys: string[], retries = 1, initialDelay = 2000, customConfig?: any) {
   let delay = initialDelay;
   const availableKeys = [...apiKeys];
   
@@ -251,7 +251,7 @@ export async function generateWithRetry(modelName: string, parts: any[], apiKeys
     const genAI = new GoogleGenerativeAI(currentKey);
     const model = genAI.getGenerativeModel({ 
       model: modelName,
-      generationConfig: {
+      generationConfig: customConfig || {
         temperature: 0.4
       }
     });
@@ -282,7 +282,7 @@ export async function generateWithRetry(modelName: string, parts: any[], apiKeys
     
     if (availableKeys.length === 0) {
       console.error("[AI Engine] All available API keys have hit quota limits.");
-      throw new Error("AI service quota reached across all provided keys. Please try again later.");
+      throw new Error("429 Quota: AI service quota reached across all provided keys. Please try again later.");
     }
   }
   throw new Error("Unexpected end of generateWithRetry loop");

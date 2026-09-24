@@ -1,5 +1,11 @@
 import { supabaseAdmin } from '@/lib/supabase';
 
+export interface GeminiApiKey {
+  key: string;
+  enabled: boolean;
+  is_paid?: boolean;
+}
+
 export interface ModelConfig {
   part_model: string;
   final_model: string;
@@ -9,7 +15,7 @@ export interface ModelConfig {
   full_exam_mode_enabled?: boolean;
   full_exam_sequence?: string[];
   tts_voice?: string;
-  gemini_api_keys?: string[];
+  gemini_api_keys?: GeminiApiKey[];
 }
 
 export async function getModelConfig(): Promise<ModelConfig> {
@@ -60,7 +66,12 @@ export async function updateModelConfig(config: ModelConfig): Promise<void> {
   }
 }
 
-function applyFallbackLogic(config: ModelConfig): ModelConfig {
+function applyFallbackLogic(config: any): ModelConfig {
+  let keys = config.gemini_api_keys || [];
+  if (keys.length > 0 && typeof keys[0] === 'string') {
+    keys = keys.map((k: string) => ({ key: k, enabled: true }));
+  }
+
   return {
     ...config,
     writing_time_minutes: config.writing_time_minutes || 60,
@@ -69,6 +80,6 @@ function applyFallbackLogic(config: ModelConfig): ModelConfig {
     full_exam_mode_enabled: config.full_exam_mode_enabled ?? false,
     full_exam_sequence: config.full_exam_sequence || ['speaking', 'listening', 'reading', 'writing'],
     tts_voice: config.tts_voice || 'uk_male',
-    gemini_api_keys: config.gemini_api_keys || []
+    gemini_api_keys: keys
   };
 }

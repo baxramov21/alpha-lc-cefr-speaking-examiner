@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyStudentSessionToken } from '@/lib/sessionToken';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+import { generateWithRetry } from '@/lib/gemini';
+import { getModelConfig } from '@/lib/modelHelper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,13 +35,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Evaluate using Gemini
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.1,
-      }
-    });
+    const config = await getModelConfig();
 
     const prompt = `
 Role: You are an expert CEFR English-Uzbek Language Evaluator.
@@ -72,7 +65,17 @@ CRITICAL: You MUST respond ONLY with a valid JSON object. No markdown.
 }
 `;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateWithRetry(
+      'gemini-1.5-flash',
+      [prompt],
+      config.gemini_api_keys?.filter(k => k.enabled).map(k => k.key) || [],
+      1,
+      2000,
+      {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+      }
+    );
     const responseText = result.response.text();
     let evaluationData;
 

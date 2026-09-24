@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, EyeOff, Key, Lock, Loader2, Edit2, Save, Brain, Clock, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Key, Lock, Loader2, Edit2, Save, Brain, Clock, GripVertical, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,7 @@ export default function AdminSettingsPage() {
   const [ttsVoice, setTtsVoice] = useState('uk_male');
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [modelStatus, setModelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [geminiApiKeys, setGeminiApiKeys] = useState<string[]>([]);
+  const [geminiApiKeys, setGeminiApiKeys] = useState<{ key: string, enabled: boolean }[]>([]);
   const [newApiKey, setNewApiKey] = useState('');
 
   useEffect(() => {
@@ -609,8 +609,8 @@ export default function AdminSettingsPage() {
               />
               <Button 
                 onClick={() => {
-                  if (newApiKey.trim() && !geminiApiKeys.includes(newApiKey.trim())) {
-                    setGeminiApiKeys([...geminiApiKeys, newApiKey.trim()]);
+                  if (newApiKey.trim() && !geminiApiKeys.some(k => k.key === newApiKey.trim())) {
+                    setGeminiApiKeys([...geminiApiKeys, { key: newApiKey.trim(), enabled: true, is_paid: false }]);
                     setNewApiKey('');
                   }
                 }}
@@ -622,17 +622,51 @@ export default function AdminSettingsPage() {
 
             {geminiApiKeys.length > 0 ? (
               <div className="space-y-2 mt-3">
-                {geminiApiKeys.map((key, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 px-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
-                      {key.substring(0, 15)}...{key.substring(key.length - 4)}
-                    </span>
-                    <button 
-                      onClick={() => setGeminiApiKeys(geminiApiKeys.filter((_, i) => i !== index))}
-                      className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                {geminiApiKeys.map((item, index) => (
+                  <div key={index} className={`flex items-center justify-between p-2 px-3 rounded-lg border transition-all ${item.enabled ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800' : 'bg-slate-100/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 opacity-60'}`}>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          const updated = [...geminiApiKeys];
+                          updated[index].enabled = !updated[index].enabled;
+                          setGeminiApiKeys(updated);
+                        }}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                          item.enabled ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                        title={item.enabled ? "Disable this key" : "Enable this key"}
+                      >
+                        <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${item.enabled ? 'translate-x-4.5' : 'translate-x-1'}`} style={{ transform: item.enabled ? 'translateX(18px)' : 'translateX(4px)' }} />
+                      </button>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
+                        {item.key.substring(0, 15)}...{item.key.substring(item.key.length - 4)}
+                      </span>
+                      {item.is_paid && (
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded ml-2">
+                          Paid
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          const updated = [...geminiApiKeys];
+                          updated[index].is_paid = !updated[index].is_paid;
+                          setGeminiApiKeys(updated);
+                        }}
+                        className={`transition-colors p-1.5 rounded-md ${item.is_paid ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/10' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10'}`}
+                        title={item.is_paid ? "Marked as Paid API Key" : "Mark as Paid API Key"}
+                      >
+                        <Star className={`w-3.5 h-3.5 ${item.is_paid ? 'fill-current' : ''}`} />
+                      </button>
+                      <button 
+                        onClick={() => setGeminiApiKeys(geminiApiKeys.filter((_, i) => i !== index))}
+                        className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors p-1.5 rounded-md"
+                        title="Delete key"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

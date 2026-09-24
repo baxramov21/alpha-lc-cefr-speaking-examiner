@@ -19,8 +19,9 @@ export async function POST(req: NextRequest) {
     }
 
     const config = await getModelConfig();
+    const activeKeys = config.gemini_api_keys?.filter(k => k.enabled).map(k => k.key) || [];
 
-    if (!config.gemini_api_keys?.length && !process.env.GEMINI_API_KEY) {
+    if (!activeKeys.length && !process.env.GEMINI_API_KEY) {
       return NextResponse.json({ error: 'Gemini API keys are not configured.' }, { status: 500 });
     }
 
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     const result = await generateWithRetry(
       config.final_model || 'gemini-1.5-flash',
       generativeParts,
-      config.gemini_api_keys || []
+      activeKeys
     );
     const response = await result.response;
     const rawText = response.text();
