@@ -627,8 +627,9 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => {
-                          const updated = [...geminiApiKeys];
-                          updated[index].enabled = !updated[index].enabled;
+                          const updated = geminiApiKeys.map((k, i) =>
+                            i === index ? { ...k, enabled: !k.enabled } : k
+                          );
                           setGeminiApiKeys(updated);
                         }}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
@@ -650,8 +651,9 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => {
-                          const updated = [...geminiApiKeys];
-                          updated[index].is_paid = !updated[index].is_paid;
+                          const updated = geminiApiKeys.map((k, i) =>
+                            i === index ? { ...k, is_paid: !k.is_paid } : k
+                          );
                           setGeminiApiKeys(updated);
                         }}
                         className={`transition-colors p-1.5 rounded-md ${item.is_paid ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/10' : 'text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10'}`}
